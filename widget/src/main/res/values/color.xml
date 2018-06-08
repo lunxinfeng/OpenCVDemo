@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!--透明-->
+    <color name="transparent">#00ffffff</color>
+
+    <color name="yellow">#ffbc00</color>
+    <color name="greenLow">#1fcc7b</color>
+    <color name="greenHigh">#096037</color>
+    <color name="textHint">#99bea0</color>
+    <color name="text_yellow_bg">#862600</color>
+    <color name="text_green_bg">#096037</color>
+    <color name="text_orange_bg">#FF8E09</color>
+    <color name="white">#ffffff</color>
+</resources>

@@ -1,0 +1,68 @@
+apply plugin: 'com.android.application'
+apply plugin: 'kotlin-android'
+
+android {
+    compileSdkVersion 26
+    defaultConfig {
+        applicationId "com.lxf.ndkdemo"
+        minSdkVersion 21
+        targetSdkVersion 26
+        versionCode 1
+        versionName "1.0"
+        testInstrumentationRunner "android.support.test.runner.AndroidJUnitRunner"
+        externalNativeBuild {
+            cmake {
+                cppFlags ""
+            }
+        }
+    }
+    signingConfigs {
+        release {
+            storeFile file("../sign/demo.jks")
+            storePassword '123456'
+            keyAlias 'demo'
+            keyPassword '123456'
+        }
+
+        debug {
+            storeFile file("../sign/demo.jks")
+            storePassword '123456'
+            keyAlias 'demo'
+            keyPassword '123456'
+        }
+    }
+    buildTypes {
+        release {
+            minifyEnabled false
+            proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
+            signingConfig signingConfigs.release
+        }
+//        debug {
+//            signingConfig signingConfigs.release
+//        }
+    }
+    externalNativeBuild {
+        cmake {
+            path "CMakeLists.txt"
+        }
+    }
+}
+
+dependencies {
+    implementation fileTree(include: ['*.jar'], dir: 'libs')
+    implementation 'com.android.support:appcompat-v7:26.1.0'
+    implementation 'com.android.support.constraint:constraint-layout:1.1.0'
+    testImplementation 'junit:junit:4.12'
+    implementation project(':openCVLibrary341')
+    implementation 'io.reactivex.rxjava2:rxandroid:2.0.1'
+    implementation files('libs/pl2303multilib.jar')
+    implementation 'com.android.support:design:26.1.0'
+    implementation project(':widget')
+    compile "org.jetbrains.kotlin:kotlin-stdlib-jre7:$kotlin_version"
+    implementation 'com.squareup.retrofit2:converter-gson:2.1.0'
+    implementation 'com.jakewharton.retrofit:retrofit2-rxjava2-adapter:1.0.0'
+    implementation project(':mina')
+}
+repositories {
+    mavenCentral()
+}
