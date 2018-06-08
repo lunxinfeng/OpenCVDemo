@@ -217,6 +217,7 @@ public class PaserUtil {
         int numB = 0;
         int numW = 0;
         int size = dst.rows() / 19;
+
         for (int i = 0; i < 19; i++) {
             for (int j = 0; j < 19; j++) {
                 int bw = checkBW(src, dst, i * size, (i + 1) * size, j * size, (j + 1) * size);
