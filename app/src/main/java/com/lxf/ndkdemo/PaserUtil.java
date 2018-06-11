@@ -216,19 +216,19 @@ public class PaserUtil {
 
         int numB = 0;
         int numW = 0;
-        int size = dst.rows() / 19;
+        double size = dst.rows() / (double)19;
 
         for (int i = 0; i < 19; i++) {
             for (int j = 0; j < 19; j++) {
-                int bw = checkBW(src, dst, i * size, (i + 1) * size, j * size, (j + 1) * size);
+                int bw = checkBW(src, dst, (int)(i * size), (int)((i + 1) * size), (int)(j * size), (int)((j + 1) * size));
                 if (bw == 1) {
                     numB++;
                     a[i][j] = 1;
-//                    log("黑：" + i + ";" + j);
+                    log("黑：" + i + ";" + j);
                 } else if (bw == 2) {
                     numW++;
                     a[i][j] = 2;
-//                    log("白：" + i + ";" + j);
+                    log("白：" + i + ";" + j);
                 } else {
                     a[i][j] = 0;
                 }
@@ -238,13 +238,13 @@ public class PaserUtil {
         return a;
     }
 
-    private static int checkBW(Mat src, Mat gray, int x1, int x2, int y1, int y2) {
+    private static int checkBW(Mat src, Mat dst, int x1, int x2, int y1, int y2) {
         int total = (x2 - x1 + 1) * (y2 - y1 + 1);
         int numB = 0;
         int numW = 0;
         for (int i = x1; i < x2; i++) {
             for (int j = y1; j < y2; j++) {
-                double value = gray.get(i, j)[0];
+                double value = dst.get(i, j)[0];
                 if (value < 60) {
                     numB++;
                 } else if (value > 200) {
@@ -255,6 +255,11 @@ public class PaserUtil {
                      */
                     if (srcValue[0] > 200 && srcValue[1] > 200 && srcValue[2] > 200)
                         numW++;
+                }
+
+
+                if (i == x1 || i == x2-1 || j == y1 || j==y2-1){
+                    dst.put(i,j,255,0,0,255);
                 }
             }
         }
@@ -268,6 +273,8 @@ public class PaserUtil {
     }
 
     public static Mat parseTest(Bitmap bitmap) {
+        int[][] a = new int[19][19];
+
         Mat src = new Mat();
         Mat temp = new Mat();
         Mat dst = new Mat();
@@ -277,24 +284,26 @@ public class PaserUtil {
 
         int numB = 0;
         int numW = 0;
-        int size = dst.rows() / 19;
+        double size = dst.rows() / (double)19;
+
         for (int i = 0; i < 19; i++) {
             for (int j = 0; j < 19; j++) {
-                checkBWTest(dst, i * size, (i + 1) * size, j * size, (j + 1) * size);
+                int bw = checkBW(src, dst, (int)(i * size), (int)((i + 1) * size), (int)(j * size), (int)((j + 1) * size));
+                if (bw == 1) {
+                    numB++;
+                    a[i][j] = 1;
+                    log("黑：" + i + ";" + j);
+                } else if (bw == 2) {
+                    numW++;
+                    a[i][j] = 2;
+                    log("白：" + i + ";" + j);
+                } else {
+                    a[i][j] = 0;
+                }
             }
         }
         log("黑子：" + numB + ";白子：" + numW);
         return dst;
-    }
-
-    private static Mat checkBWTest(Mat gray, int x1, int x2, int y1, int y2) {
-        for (int i = x1; i < x2; i++) {
-            for (int j = y1; j < y2; j++) {
-                if (i == x1 || i == x2 - 1 || j == y1 || j == y2 - 1)
-                    gray.put(i, j, 150);
-            }
-        }
-        return gray;
     }
 
     /**

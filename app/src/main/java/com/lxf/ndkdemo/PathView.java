@@ -9,10 +9,8 @@ import android.graphics.Path;
 import android.graphics.RectF;
 import android.support.annotation.Nullable;
 import android.util.AttributeSet;
-import android.util.DisplayMetrics;
 import android.view.MotionEvent;
 import android.view.View;
-import android.view.WindowManager;
 
 /**
  * 路径view，用来屏幕区域截图
@@ -51,18 +49,18 @@ public class PathView extends View {
         mPaint.setStyle(Paint.Style.STROKE);
         mPaint.setStrokeWidth(2);
 
-        WindowManager manager = (WindowManager) context.getSystemService(Context.WINDOW_SERVICE);
-        DisplayMetrics outMetrics = new DisplayMetrics();
-        if (manager != null) {
-            manager.getDefaultDisplay().getMetrics(outMetrics);
-        }
-        int w = outMetrics.widthPixels;
-        int h = outMetrics.heightPixels;
+//        WindowManager manager = (WindowManager) context.getSystemService(Context.WINDOW_SERVICE);
+//        DisplayMetrics outMetrics = new DisplayMetrics();
+//        if (manager != null) {
+//            manager.getDefaultDisplay().getMetrics(outMetrics);
+//        }
+//        int w = outMetrics.widthPixels;
+//        int h = outMetrics.heightPixels;
 
         SharedPreferences sharedPreferences = context.getSharedPreferences("lxf_path",Context.MODE_PRIVATE);
-        width = sharedPreferences.getInt("width",Math.min(w, h) - 2 * 20);
-        left = sharedPreferences.getInt("left",20);
-        top = sharedPreferences.getInt("top",100);
+        width = sharedPreferences.getInt("width",0);
+        left = sharedPreferences.getInt("left",0);
+        top = sharedPreferences.getInt("top",0);
 
         mRectF = new RectF(left, top, left + width, top + width);
         mPath.addRect(mRectF, Path.Direction.CW);

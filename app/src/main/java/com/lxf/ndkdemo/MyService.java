@@ -20,6 +20,7 @@ import android.util.DisplayMetrics;
 import android.util.Log;
 import android.view.Gravity;
 import android.view.LayoutInflater;
+import android.view.MotionEvent;
 import android.view.View;
 import android.view.WindowManager;
 import android.widget.Button;
@@ -87,6 +88,8 @@ public class MyService extends Service implements ActivityCallBridge.PL2303Inter
     private String preChess;
     private String currChess;
     private TileHelper tileHelper;
+    private float startX,startY;
+    private int[] location = new int[2];
 
     public MyService() {
     }
@@ -187,19 +190,35 @@ public class MyService extends Service implements ActivityCallBridge.PL2303Inter
         mFloatLayout.measure(View.MeasureSpec.makeMeasureSpec(0,
                 View.MeasureSpec.UNSPECIFIED), View.MeasureSpec
                 .makeMeasureSpec(0, View.MeasureSpec.UNSPECIFIED));
-//        //设置监听浮动窗口的触摸移动
-//        mFloatView.setOnTouchListener(new View.OnTouchListener() {
-//            @Override
-//            public boolean onTouch(View v, MotionEvent event) {
-//                //getRawX是触摸位置相对于屏幕的坐标，getX是相对于按钮的坐标
-//                wmParams.x = (int) event.getRawX() - mFloatView.getMeasuredWidth() / 2;
-//                //减25为状态栏的高度
-//                wmParams.y = (int) event.getRawY() - mFloatView.getMeasuredHeight() / 2 - 25;
-//                //刷新
-//                mWindowManager.updateViewLayout(mFloatLayout, wmParams);
-//                return false;  //此处必须返回false，否则OnClickListener获取不到监听
-//            }
-//        });
+        //设置监听浮动窗口的触摸移动
+        mFloatView.setOnTouchListener(new View.OnTouchListener() {
+            @Override
+            public boolean onTouch(View v, MotionEvent event) {
+                mFloatView.getLocationOnScreen(location);
+                //getRawX是触摸位置相对于屏幕的坐标，getX是相对于按钮的坐标
+                wmParams.x = (int) event.getRawX() - mFloatView.getMeasuredWidth() / 2;
+                //减25为状态栏的高度
+                wmParams.y = (int) event.getRawY() - mFloatView.getMeasuredHeight() / 2 - 25;
+                //刷新
+                mWindowManager.updateViewLayout(mFloatLayout, wmParams);
+
+                if (event.getAction() == MotionEvent.ACTION_DOWN){
+                    startX = event.getRawX();
+                    startY = event.getRawY();
+                }
+
+                if (event.getAction() == MotionEvent.ACTION_UP){
+                    if (Math.abs(event.getRawX() - startX)>50 ||
+                            Math.abs(event.getRawY() - startY)>50){
+//                        return true;
+                    }else {
+                        mFloatView.performClick();
+//                        return false;
+                    }
+                }
+                return true;  //此处必须返回false，否则OnClickListener获取不到监听
+            }
+        });
 
         mFloatView.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -364,7 +383,7 @@ public class MyService extends Service implements ActivityCallBridge.PL2303Inter
 
                 if (cut_width > 0 && cut_height > 0) {
                     Bitmap cutBitmap = Bitmap.createBitmap(bitmap, (int) mRectF.left, (int) mRectF.top, cut_width, cut_height);
-                    FileUtil.save(cutBitmap);
+//                    FileUtil.save(cutBitmap);
                     int[][] a = PaserUtil.parse(cutBitmap);
                     String result = PaserUtil.exChange(a);
                     log(result);
