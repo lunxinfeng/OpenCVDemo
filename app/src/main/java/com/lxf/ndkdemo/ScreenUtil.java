@@ -1,6 +1,7 @@
 package com.lxf.ndkdemo;
 
 import android.content.Context;
+import android.content.res.Configuration;
 import android.content.res.Resources;
 import android.os.Build;
 import android.view.ViewConfiguration;
@@ -9,7 +10,13 @@ import java.lang.reflect.Field;
 import java.lang.reflect.Method;
 
 
-public class DimenUtil {
+public class ScreenUtil {
+
+    public static boolean isPortrait(Context context){
+        Configuration mConfiguration = context.getResources().getConfiguration(); //获取设置的配置信息
+        int ori = mConfiguration.orientation; //获取屏幕方向
+        return ori == Configuration.ORIENTATION_PORTRAIT;
+    }
 
     public static int getStatusBarHeight(Context context){
         Class<?> c = null;

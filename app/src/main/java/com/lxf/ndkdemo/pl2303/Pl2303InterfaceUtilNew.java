@@ -51,7 +51,7 @@ public class Pl2303InterfaceUtilNew {
 //    private PL2303MultiLib.FlowControl mFlowControl = PL2303MultiLib.FlowControl.OFF;
     private PL2303MultiLib.FlowControl mFlowControl = PL2303MultiLib.FlowControl.XONXOFF;  // 是否有效？
     private PL2303MultiLib mSerialMulti;
-    private Context mcontext;
+    public Context mcontext;
     private ActivityCallBridge mBridge; // 写的一个回调类
     private byte[] ReadByte = new byte[512]; // 4096
     private int ReadLen;

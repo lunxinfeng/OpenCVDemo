@@ -62,4 +62,5 @@
         android:text="自动识别"
         app:layout_constraintEnd_toEndOf="@+id/btnConnect"
         app:layout_constraintTop_toBottomOf="@+id/btnConnect" />
+
 </android.support.constraint.ConstraintLayout>

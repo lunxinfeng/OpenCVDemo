@@ -3,6 +3,8 @@ package com.lxf.ndkdemo.helper
 import android.graphics.RectF
 import android.support.v4.util.SparseArrayCompat
 import android.view.View
+import com.lxf.ndkdemo.GameInfo
+import com.lxf.ndkdemo.ScreenUtil
 import com.lxf.ndkdemo.bean.GameStep
 import com.lxf.ndkdemo.pl2303.LiveType
 import com.lxf.ndkdemo.pl2303.LogToFile
@@ -20,7 +22,7 @@ import java.util.concurrent.TimeUnit
  * 虚拟棋盘
  * Created by lxf on 18-5-29.
  */
-class TileHelper(private var pl2303interface: Pl2303InterfaceUtilNew?) {
+class TileHelper(private var pl2303interface: Pl2303InterfaceUtilNew?,private val game:GameInfo) {
     /**
      * 储存死子列表
      */
@@ -90,7 +92,7 @@ class TileHelper(private var pl2303interface: Pl2303InterfaceUtilNew?) {
             if ("~SDA" == command || "SDA" == command) {
                 // 收到完整的盘面
                 val liveType = pl2303interface?.handleReceiveDataRobot(view.board,
-                        cmdData, false, 0)
+                        cmdData, false, 270)
 
                 if (liveType != null)
                     receiveTileViewMessage(liveType)
@@ -130,12 +132,23 @@ class TileHelper(private var pl2303interface: Pl2303InterfaceUtilNew?) {
             }
             LiveType.NORMAL -> {
                 view.tileViewNormal(value.allStep)
-
+                if ((game.bw == 1 && value.allStep.startsWith("-"))
+                        || (game.bw == 2 && value.allStep.startsWith("+")))
+                    return
                 //点击屏幕落子
                 val index = value.index//返回的数据棋盘白方左手边为1，白方右手边为19，即棋盘的左下角为1，横向右下角为19
-                //转换为棋盘左上角为1，横向右上角为19
-                val x = Board.n - index / Board.n - if (index % Board.n == 0) 0 else 1//0-18
-                val y = if (index % Board.n == 0) Board.n - 1 else index % Board.n - 1 //0-18
+                val x: Int
+                val y: Int
+                if (ScreenUtil.isPortrait(pl2303interface?.mcontext)) {//竖屏
+                    //转换为棋盘右下角为1，横向左下角为19
+                    x = Board.n - index / Board.n - if (index % Board.n == 0) 0 else 1//0-18
+                    y = if (index % Board.n == 0) Board.n - 1 else index % Board.n - 1 //0-18
+                } else {//横屏
+                    //转换为棋盘右上角为1，竖向右下角为19
+                    x = if (index % Board.n == 0) Board.n - 1 else index % Board.n - 1 //0-18
+                    y = index / Board.n - if (index % Board.n == 0) 1 else 0 //0-18
+                }
+
 
                 val size = rectF.width() / Board.n
 
@@ -182,6 +195,14 @@ class TileHelper(private var pl2303interface: Pl2303InterfaceUtilNew?) {
                 .flatMap { io.reactivex.Observable.timer(300, TimeUnit.MILLISECONDS) }
                 .observeOn(AndroidSchedulers.mainThread())
                 .subscribe { pl2303interface?.OpenUARTDevice(view, Board.n) }
+    }
+
+    fun updateBoard(a: Array<IntArray>) {
+        view.board.currentGrid.a = a
+    }
+
+    fun updateCurBW(bw:Int){
+        view.board.setCurBW(if (bw == 1) 1 else 2)
     }
 
     fun onDestroy() {

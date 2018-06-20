@@ -28,6 +28,8 @@ public class PathView extends View {
     private float startX, startY;//手指按下时的坐标
     private float preX, preY;//手指滑动时上一帧的坐标
 
+    public boolean moveable = true;
+
     public PathView(Context context) {
         super(context);
         init(context);
@@ -75,6 +77,7 @@ public class PathView extends View {
     @Override
     public boolean onTouchEvent(MotionEvent event) {
 //        if (!mRectF.contains(event.getRawX(), event.getRawY())) return false;
+        if (!moveable) return false;
 
         if (event.getRawX() > (mRectF.centerX() + mRectF.width() / 4) &&
                 event.getRawY() > (mRectF.centerY() + mRectF.width() / 4))//右下角

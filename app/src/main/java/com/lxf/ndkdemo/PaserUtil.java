@@ -16,6 +16,7 @@ import java.util.List;
 
 public class PaserUtil {
     private final static boolean DEBUG = true;
+    public static int BOARD_SIZE = 19;
 
     private static void log(String msg) {
         if (DEBUG)
@@ -205,7 +206,7 @@ public class PaserUtil {
      * @return 矩阵：0空1黑2白
      */
     public static int[][] parse(Bitmap bitmap) {
-        int[][] a = new int[19][19];
+        int[][] a = new int[BOARD_SIZE][BOARD_SIZE];
 
         Mat src = new Mat();
         Mat temp = new Mat();
@@ -216,10 +217,10 @@ public class PaserUtil {
 
         int numB = 0;
         int numW = 0;
-        double size = dst.rows() / (double)19;
+        double size = dst.rows() / (double)BOARD_SIZE;
 
-        for (int i = 0; i < 19; i++) {
-            for (int j = 0; j < 19; j++) {
+        for (int i = 0; i < BOARD_SIZE; i++) {
+            for (int j = 0; j < BOARD_SIZE; j++) {
                 int bw = checkBW(src, dst, (int)(i * size), (int)((i + 1) * size), (int)(j * size), (int)((j + 1) * size));
                 if (bw == 1) {
                     numB++;
@@ -273,7 +274,7 @@ public class PaserUtil {
     }
 
     public static Mat parseTest(Bitmap bitmap) {
-        int[][] a = new int[19][19];
+        int[][] a = new int[BOARD_SIZE][BOARD_SIZE];
 
         Mat src = new Mat();
         Mat temp = new Mat();
@@ -284,10 +285,10 @@ public class PaserUtil {
 
         int numB = 0;
         int numW = 0;
-        double size = dst.rows() / (double)19;
+        double size = dst.rows() / (double)BOARD_SIZE;
 
-        for (int i = 0; i < 19; i++) {
-            for (int j = 0; j < 19; j++) {
+        for (int i = 0; i < BOARD_SIZE; i++) {
+            for (int j = 0; j < BOARD_SIZE; j++) {
                 int bw = checkBW(src, dst, (int)(i * size), (int)((i + 1) * size), (int)(j * size), (int)((j + 1) * size));
                 if (bw == 1) {
                     numB++;

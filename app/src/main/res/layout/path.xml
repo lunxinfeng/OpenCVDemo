@@ -63,4 +63,5 @@
         android:text="自动识别"
         app:layout_constraintStart_toEndOf="@+id/btnExit"
         app:layout_constraintTop_toTopOf="@+id/btnExit" />
+
 </android.support.constraint.ConstraintLayout>

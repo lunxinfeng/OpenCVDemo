@@ -45,6 +45,9 @@ import io.reactivex.Observable;
 import io.reactivex.android.schedulers.AndroidSchedulers;
 import io.reactivex.disposables.Disposable;
 import io.reactivex.functions.Consumer;
+import lxf.widget.tileview.Board;
+
+import static com.lxf.ndkdemo.PaserUtil.BOARD_SIZE;
 
 
 public class MyService extends Service implements ActivityCallBridge.PL2303Interface {
@@ -88,8 +91,10 @@ public class MyService extends Service implements ActivityCallBridge.PL2303Inter
     private String preChess;
     private String currChess;
     private TileHelper tileHelper;
-    private float startX,startY;
+    private float startX, startY;
     private int[] location = new int[2];
+    private boolean isFirst = true;//是否是截屏开始的第一帧数据
+    private GameInfo game;
 
     public MyService() {
     }
@@ -106,13 +111,11 @@ public class MyService extends Service implements ActivityCallBridge.PL2303Inter
         h = outMetrics.heightPixels;
         log("屏幕尺寸：w：" + w + "；h：" + h);
 
-        statusH = DimenUtil.getStatusBarHeight(this);
+        statusH = ScreenUtil.getStatusBarHeight(this);
         log("状态栏高度：" + statusH);
-        nativeH = DimenUtil.getNavigationBarHeight(this);
+        nativeH = ScreenUtil.getNavigationBarHeight(this);
         log("虚拟按键高度：" + nativeH);
 
-        Pl2303InterfaceUtilNew pl2303 = Pl2303InterfaceUtilNew.initInterface(this, "+", this);
-        tileHelper = new TileHelper(pl2303);
 
         staticLoadCVLibraries();
 
@@ -123,6 +126,12 @@ public class MyService extends Service implements ActivityCallBridge.PL2303Inter
 
     @Override
     public int onStartCommand(Intent intent, int flags, int startId) {
+        game = intent.getParcelableExtra("gameInfo");
+        PaserUtil.BOARD_SIZE = game.getBoardSize();
+        Board.n = game.getBoardSize();
+
+        Pl2303InterfaceUtilNew pl2303 = Pl2303InterfaceUtilNew.initInterface(this, "+", this);
+        tileHelper = new TileHelper(pl2303,game);
         return super.onStartCommand(intent, flags, startId);
     }
 
@@ -202,16 +211,16 @@ public class MyService extends Service implements ActivityCallBridge.PL2303Inter
                 //刷新
                 mWindowManager.updateViewLayout(mFloatLayout, wmParams);
 
-                if (event.getAction() == MotionEvent.ACTION_DOWN){
+                if (event.getAction() == MotionEvent.ACTION_DOWN) {
                     startX = event.getRawX();
                     startY = event.getRawY();
                 }
 
-                if (event.getAction() == MotionEvent.ACTION_UP){
-                    if (Math.abs(event.getRawX() - startX)>50 ||
-                            Math.abs(event.getRawY() - startY)>50){
+                if (event.getAction() == MotionEvent.ACTION_UP) {
+                    if (Math.abs(event.getRawX() - startX) > 50 ||
+                            Math.abs(event.getRawY() - startY) > 50) {
 //                        return true;
-                    }else {
+                    } else {
                         mFloatView.performClick();
 //                        return false;
                     }
@@ -362,10 +371,10 @@ public class MyService extends Service implements ActivityCallBridge.PL2303Inter
                 log("原始区域：" + mRectF);
                 //选框扩大0.5个格子
                 float width = mRectF.width();
-                mRectF.left = mRectF.left - width / (19 - 1) / 2;
-                mRectF.right = mRectF.right + width / (19 - 1) / 2;
-                mRectF.top = mRectF.top - width / (19 - 1) / 2;
-                mRectF.bottom = mRectF.bottom + width / (19 - 1) / 2;
+                mRectF.left = mRectF.left - width / (BOARD_SIZE - 1) / 2;
+                mRectF.right = mRectF.right + width / (BOARD_SIZE - 1) / 2;
+                mRectF.top = mRectF.top - width / (BOARD_SIZE - 1) / 2;
+                mRectF.bottom = mRectF.bottom + width / (BOARD_SIZE - 1) / 2;
 
                 if (mRectF.left < 0)
                     mRectF.left = 0;
@@ -388,11 +397,21 @@ public class MyService extends Service implements ActivityCallBridge.PL2303Inter
                     String result = PaserUtil.exChange(a);
                     log(result);
                     currChess = result;
+                    if (game.getType() == 2 && isFirst){
+                        isFirst = false;
+                        preChess = result;
+                        tileHelper.updateBoard(a);
+                        tileHelper.updateCurBW(game.getNextBW());
+                        log("第一帧数据");
+                    }
                     LiveType liveType = Util.parse(preChess, currChess);
                     switch (liveType.getType()) {
                         case LiveType.NORMAL:
                             preChess = result;
-                            log("多了一颗子，位置：" + liveType.getAllStep() + "；序列：" + liveType.getIndex());
+                            if ((game.getBw() == 1 && liveType.getAllStep().startsWith("+"))
+                                    || (game.getBw() == 2 && liveType.getAllStep().startsWith("-")))
+                                return;
+                            log("对方落子，位置：" + liveType.getAllStep() + "；序列：" + liveType.getIndex());
                             break;
                     }
                 }
@@ -423,6 +442,7 @@ public class MyService extends Service implements ActivityCallBridge.PL2303Inter
             setUpMediaProjection();
             virtualDisplay();
         }
+        mPathView.moveable = false;
     }
 
     private void screenOrientation() {
@@ -455,6 +475,7 @@ public class MyService extends Service implements ActivityCallBridge.PL2303Inter
         if (mVirtualDisplay != null) {
             mVirtualDisplay.release();
         }
+        mPathView.moveable = true;
     }
 
     private void setUpMediaProjection() {
