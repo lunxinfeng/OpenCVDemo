@@ -12,7 +12,6 @@ import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
 import android.view.MotionEvent;
 import android.view.View;
-import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.ImageView;
 import android.widget.Spinner;
@@ -32,6 +31,7 @@ import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 import java.util.Random;
@@ -60,44 +60,45 @@ public class MainActivity extends AppCompatActivity {
         iv_result = findViewById(R.id.iv_result);
         spinner = findViewById(R.id.spinner);
 
-
         String[] items = new String[]{"隐智", "弈客", "弈城", "99", "腾讯", "新博"};
         spinner.setAdapter(new ArrayAdapter<>(this, android.R.layout.simple_list_item_1, items));
-        spinner.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
-            @Override
-            public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
-                int res = R.mipmap.yz;
-                switch (position) {
-                    case 0:
-                        res = R.mipmap.yz;
-                        break;
-                    case 1:
-                        res = R.mipmap.yk;
-                        break;
-                    case 2:
-                        res = R.mipmap.yc;
-                        break;
-                    case 3:
-                        res = R.mipmap.jj;
-                        break;
-                    case 4:
-                        res = R.mipmap.tx;
-                        break;
-                    case 5:
-                        res = R.mipmap.xb;
-                        break;
-                }
-                srcBitmap = BitmapFactory.decodeResource(getResources(), res);
-//              srcBitmap = ratio(srcBitmap, 200, 200);
-                iv_source.setImageBitmap(srcBitmap);
-            }
+//        spinner.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
+//            @Override
+//            public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
+//                int res = R.mipmap.yz;
+//                switch (position) {
+//                    case 0:
+//                        res = R.mipmap.yz;
+//                        break;
+//                    case 1:
+//                        res = R.mipmap.yk;
+//                        break;
+//                    case 2:
+//                        res = R.mipmap.yc;
+//                        break;
+//                    case 3:
+//                        res = R.mipmap.jj;
+//                        break;
+//                    case 4:
+//                        res = R.mipmap.tx;
+//                        break;
+//                    case 5:
+//                        res = R.mipmap.xb;
+//                        break;
+//                }
+//                srcBitmap = BitmapFactory.decodeResource(getResources(), res);
+////              srcBitmap = ratio(srcBitmap, 200, 200);
+//                iv_source.setImageBitmap(srcBitmap);
+//            }
+//
+//            @Override
+//            public void onNothingSelected(AdapterView<?> parent) {
+//
+//            }
+//        });
 
-            @Override
-            public void onNothingSelected(AdapterView<?> parent) {
-
-            }
-        });
-
+        srcBitmap = BitmapFactory.decodeResource(getResources(), R.mipmap.board);
+        iv_source.setImageBitmap(srcBitmap);
 
         mMediaProjectionManager = (MediaProjectionManager) getApplication().getSystemService(Context.MEDIA_PROJECTION_SERVICE);
     }
@@ -427,8 +428,31 @@ public class MainActivity extends AppCompatActivity {
 //        PaserUtil.cout(grayMat);
 //        System.out.println("通道数：" + grayMat.channels());+
 
-        Mat dst = PaserUtil.parseTest(srcBitmap);
-        iv_result.setImageBitmap(PaserUtil.matToBitmap(dst));
+//        Mat dst = PaserUtil.parseTest(srcBitmap);
+//        iv_result.setImageBitmap(PaserUtil.matToBitmap(dst));
+
+        Mat gray = PaserUtil.gray(PaserUtil.bitmapToMat(srcBitmap));
+        Mat threshold = PaserUtil.threshold(gray,80,255,Imgproc.THRESH_BINARY);
+        List<MatOfPoint> contourList = new ArrayList<>();
+        Mat dst = new Mat();
+        Imgproc.findContours(threshold, contourList, dst, Imgproc.RETR_CCOMP, Imgproc.CHAIN_APPROX_SIMPLE);
+        System.out.println("测试-轮廓数量：" + contourList.size());
+//        System.out.println("测试-轮廓[0]：" + contourList.get(0));
+//        System.out.println("测试-轮廓[1]：" + contourList.get(1));
+//        System.out.println("测试-轮廓[2]：" + contourList.get(2));
+        System.out.println("测试-hierarchy：" + dst);
+        System.out.println("测试-hierarchy[0]：" + Arrays.toString(dst.get(0,0)));
+        System.out.println("测试-hierarchy[1]：" + Arrays.toString(dst.get(0,1)));
+        System.out.println("测试-hierarchy[2]：" + Arrays.toString(dst.get(0,2)));
+        int size = contourList.size();
+        int num = 0;
+        for (int i=0;i<size;i++){
+            if (dst.get(0,i)[2]>=0||dst.get(0,i)[3]>=0){
+                System.out.println("测试-hierarchy[" + i +"]：" + Arrays.toString(dst.get(0,i)));
+                num++;
+            }
+        }
+        System.out.println("测试-num：" + num);
     }
 
     //霍夫圆

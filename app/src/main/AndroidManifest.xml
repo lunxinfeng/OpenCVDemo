@@ -1,7 +1,8 @@
 <?xml version="1.0" encoding="utf-8"?>
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     package="com.lxf.ndkdemo"
-    android:sharedUserId="android.uid.system">
+    android:sharedUserId="android.uid.system"
+    >
 
     <uses-permission android:name="android.permission.SYSTEM_ALERT_WINDOW" />
     <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" />
@@ -24,7 +25,9 @@
 
         <service android:name=".MyService" />
 
-        <activity android:name=".ServiceActivity">
+        <activity android:name=".ServiceActivity"
+            android:screenOrientation="portrait"
+            android:configChanges="keyboardHidden|orientation|screenSize">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
 

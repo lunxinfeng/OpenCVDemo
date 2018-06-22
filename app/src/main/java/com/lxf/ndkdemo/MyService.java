@@ -30,9 +30,11 @@ import android.widget.ToggleButton;
 
 import com.lxf.ndkdemo.helper.TileHelper;
 import com.lxf.ndkdemo.pl2303.ActivityCallBridge;
+import com.lxf.ndkdemo.pl2303.IPL2303ConnectSuccess;
 import com.lxf.ndkdemo.pl2303.LiveType;
 import com.lxf.ndkdemo.pl2303.Pl2303InterfaceUtilNew;
 
+import org.jetbrains.annotations.NotNull;
 import org.opencv.android.OpenCVLoader;
 import org.opencv.core.Rect;
 
@@ -102,6 +104,17 @@ public class MyService extends Service implements ActivityCallBridge.PL2303Inter
     @Override
     public void onCreate() {
         super.onCreate();
+        getScreenDimen();
+
+
+        staticLoadCVLibraries();
+
+        createFloatView();
+
+        createVirtualEnvironment();
+    }
+
+    private void getScreenDimen() {
         mWindowManager = (WindowManager) getSystemService(Context.WINDOW_SERVICE);
         DisplayMetrics outMetrics = new DisplayMetrics();
         if (mWindowManager != null) {
@@ -115,23 +128,10 @@ public class MyService extends Service implements ActivityCallBridge.PL2303Inter
         log("状态栏高度：" + statusH);
         nativeH = ScreenUtil.getNavigationBarHeight(this);
         log("虚拟按键高度：" + nativeH);
-
-
-        staticLoadCVLibraries();
-
-        createFloatView();
-
-        createVirtualEnvironment();
     }
 
     @Override
     public int onStartCommand(Intent intent, int flags, int startId) {
-        game = intent.getParcelableExtra("gameInfo");
-        PaserUtil.BOARD_SIZE = game.getBoardSize();
-        Board.n = game.getBoardSize();
-
-        Pl2303InterfaceUtilNew pl2303 = Pl2303InterfaceUtilNew.initInterface(this, "+", this);
-        tileHelper = new TileHelper(pl2303,game);
         return super.onStartCommand(intent, flags, startId);
     }
 
@@ -139,6 +139,10 @@ public class MyService extends Service implements ActivityCallBridge.PL2303Inter
     public void onConfigurationChanged(Configuration newConfig) {
         super.onConfigurationChanged(newConfig);
         log("onConfigurationChanged");
+        if (mFloatLayout != null)
+            mWindowManager.removeView(mFloatLayout);
+        getScreenDimen();
+        createFloatView();
     }
 
     public TileHelper getTileHelper() {
@@ -276,7 +280,28 @@ public class MyService extends Service implements ActivityCallBridge.PL2303Inter
         btnConnect.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                tileHelper.connect(null);
+                SettingDialog dialog = new SettingDialog(MyService.this, R.style.dialog);
+                dialog.getWindow().setType((WindowManager.LayoutParams.TYPE_SYSTEM_ALERT));
+                dialog.setListener(new SettingDialog.OnClickListener() {
+                    @Override
+                    public void onPositive(@NotNull GameInfo gameInfo) {
+                        game = gameInfo;
+                        PaserUtil.BOARD_SIZE = game.getBoardSize();
+                        Board.n = game.getBoardSize();
+
+                        final Pl2303InterfaceUtilNew pl2303 = Pl2303InterfaceUtilNew.initInterface(MyService.this,
+                                game.getNextBW() == 1?"+":"-", MyService.this);
+                        pl2303.setIpl2303ConnectSuccess(new IPL2303ConnectSuccess() {
+                            @Override
+                            public void openSuccess() {
+                                pl2303.WriteToUARTDevice("~CTS0#");
+                            }
+                        });
+                        tileHelper = new TileHelper(pl2303, game);
+                        tileHelper.connect(null);
+                    }
+                });
+                dialog.show();
             }
         });
         btnExit.setOnClickListener(new View.OnClickListener() {
@@ -397,7 +422,7 @@ public class MyService extends Service implements ActivityCallBridge.PL2303Inter
                     String result = PaserUtil.exChange(a);
                     log(result);
                     currChess = result;
-                    if (game.getType() == 2 && isFirst){
+                    if (game.getType() == 2 && isFirst) {
                         isFirst = false;
                         preChess = result;
                         tileHelper.updateBoard(a);

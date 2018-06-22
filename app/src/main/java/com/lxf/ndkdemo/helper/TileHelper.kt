@@ -89,14 +89,20 @@ class TileHelper(private var pl2303interface: Pl2303InterfaceUtilNew?,private va
             LogToFile.d("pl2303指令", command + cmdData)
             LogUtils.d("pl2303指令", command + cmdData)
             // 收到全盘信息
-            if ("~SDA" == command || "SDA" == command) {
-                // 收到完整的盘面
-                val liveType = pl2303interface?.handleReceiveDataRobot(view.board,
-                        cmdData, false, 270)
+            when(command){
+                "SDA","~SDA" ->{
+                    // 收到完整的盘面
+                    val liveType = pl2303interface?.handleReceiveDataRobot(view.board,
+                            cmdData, false, 270)
 
-                if (liveType != null)
-                    receiveTileViewMessage(liveType)
+                    if (liveType != null)
+                        receiveTileViewMessage(liveType)
+                }
+                "BKY","WKY","~BKY","~WKY" ->{
+                    pl2303interface?.WriteToUARTDevice("~STA#")
+                }
             }
+
         }
     }
 
@@ -207,6 +213,7 @@ class TileHelper(private var pl2303interface: Pl2303InterfaceUtilNew?,private va
 
     fun onDestroy() {
         pl2303interface?.WriteToUARTDevice("~CAL#")
+        pl2303interface?.WriteToUARTDevice("~CTS1#")
         pl2303interface?.WriteToUARTDevice("~BOD19#")
         pl2303interface?.callDestroy()
 

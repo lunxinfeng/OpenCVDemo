@@ -1,53 +1,42 @@
 package com.lxf.ndkdemo
 
 import android.app.Activity
+import android.content.ComponentName
 import android.content.Context
 import android.content.Intent
+import android.content.pm.PackageManager
+import android.content.pm.ResolveInfo
 import android.media.projection.MediaProjectionManager
 import android.os.Bundle
 import android.support.v7.app.AppCompatActivity
-import android.view.View
-import android.widget.AdapterView
-import android.widget.ArrayAdapter
+import android.support.v7.widget.GridLayoutManager
+import android.util.Log
 import kotlinx.android.synthetic.main.activity_service.*
 
+
 class ServiceActivity : AppCompatActivity() {
-    private val game = GameInfo()
     private var mediaResult = 0
     private var mediaIntent: Intent? = null
     private val REQUEST_MEDIA_PROJECTION = 1
+    private var chessApps: ArrayList<ResolveInfo> = ArrayList()
+    private var appsAdapter: AppsAdapter? = null
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_service)
 
-        val items = arrayOf("19", "13", "9")
-        spinnerSize.adapter = ArrayAdapter<String>(this, android.R.layout.simple_list_item_1, items)
-        spinnerSize.onItemSelectedListener = object : AdapterView.OnItemSelectedListener {
-            override fun onItemSelected(parent: AdapterView<*>, view: View, position: Int, id: Long) {
-                when (position) {
-                    0 -> game.boardSize = 19
-                    1 -> game.boardSize = 13
-                    2 -> game.boardSize = 9
-                }
-            }
-
-            override fun onNothingSelected(parent: AdapterView<*>) {
-
-            }
+        getMyApps(packageManager)
+        recyclerView.layoutManager = GridLayoutManager(this, 3)
+        appsAdapter = AppsAdapter(chessApps, packageManager)
+        recyclerView.adapter = appsAdapter
+        appsAdapter?.setOnItemClickListener { resolveInfo ->
+            val componentName = ComponentName(resolveInfo.activityInfo.packageName, resolveInfo.activityInfo.name)
+            val intent = Intent()
+            intent.component = componentName
+            startActivity(intent)
         }
-        rb_start.setOnCheckedChangeListener { _, isChecked -> if (isChecked) game.type = 1 }
-        rb_middle.setOnCheckedChangeListener { _, isChecked -> if (isChecked) game.type = 2 }
-        rb_black.setOnCheckedChangeListener { _, isChecked -> if (isChecked) game.bw = 1 }
-        rb_white.setOnCheckedChangeListener { _, isChecked -> if (isChecked) game.bw = 2 }
-        rb_black2.setOnCheckedChangeListener { _, isChecked -> if (isChecked) game.nextBW = 1 }
-        rb_white2.setOnCheckedChangeListener { _, isChecked -> if (isChecked) game.nextBW = 2 }
-        btnStart.setOnClickListener { startIntent() }
 
-        spinnerSize.setSelection(0, true)
-        rb_start.isChecked = true
-        rb_black.isChecked = true
-        rb_black2.isChecked = true
+        startIntent()
     }
 
     private fun startIntent() {
@@ -55,7 +44,6 @@ class ServiceActivity : AppCompatActivity() {
             (application as ShotApplication).result = mediaResult
             (application as ShotApplication).intent = mediaIntent
             val intent = Intent(applicationContext, MyService::class.java)
-            intent.putExtra("gameInfo",game)
             startService(intent)
         } else {
             val mMediaProjectionManager = application.getSystemService(Context.MEDIA_PROJECTION_SERVICE) as MediaProjectionManager
@@ -74,12 +62,29 @@ class ServiceActivity : AppCompatActivity() {
                         (application as ShotApplication).result = resultCode
                         (application as ShotApplication).intent = data
                         val intent = Intent(applicationContext, MyService::class.java)
-                        intent.putExtra("gameInfo",game)
                         startService(intent)
-
-                        finish()
                     }
                 }
+            }
+        }
+    }
+
+    private fun getMyApps(pm: PackageManager) {
+        chessApps.clear()
+        val intent = Intent(Intent.ACTION_MAIN)
+        intent.addCategory(Intent.CATEGORY_LAUNCHER)
+        val apps = pm.queryIntentActivities(intent, 0)
+
+        for (info in apps) {
+            Log.d("ServiceActivity", info.activityInfo.packageName)
+            val packName = info.activityInfo.packageName
+            if (packName == "com.tencent.tmgp.ttwq"
+                    || packName == "com.eweiqi.android"
+                    || packName == "com.indeed.golinks"
+                    || packName == "com.r99weiqi.dvd"
+//                    || packName == "cn.izis.yzbrowser"
+                    ) {
+                chessApps.add(info)
             }
         }
     }

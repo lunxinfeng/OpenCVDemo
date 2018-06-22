@@ -27,7 +27,7 @@ android {
         debug {
             storeFile file("../sign/demo.jks")
             storePassword '123456'
-            keyAlias 'demo'
+                    keyAlias 'demo'
             keyPassword '123456'
         }
     }
@@ -37,9 +37,11 @@ android {
             proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
             signingConfig signingConfigs.release
         }
-//        debug {
+        debug {
+            minifyEnabled false
+            proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
 //            signingConfig signingConfigs.release
-//        }
+        }
     }
     externalNativeBuild {
         cmake {
