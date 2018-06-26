@@ -3,7 +3,6 @@ package com.lxf.ndkdemo;
 import android.app.Service;
 import android.content.Context;
 import android.content.Intent;
-import android.content.SharedPreferences;
 import android.content.res.Configuration;
 import android.graphics.Bitmap;
 import android.graphics.PixelFormat;
@@ -70,7 +69,7 @@ public class MyService extends Service implements ActivityCallBridge.PL2303Inter
     //屏幕宽高
     private int w;
     private int h;
-    private int statusH;
+    public static int statusH;
     private int nativeH;
     //视频流的宽高
     private int mediaW;
@@ -124,8 +123,8 @@ public class MyService extends Service implements ActivityCallBridge.PL2303Inter
         h = outMetrics.heightPixels;
         log("屏幕尺寸：w：" + w + "；h：" + h);
 
-        statusH = ScreenUtil.getStatusBarHeight(this);
-        log("状态栏高度：" + statusH);
+//        statusH = ScreenUtil.getStatusBarHeight(this);
+//        log("状态栏高度：" + statusH);
         nativeH = ScreenUtil.getNavigationBarHeight(this);
         log("虚拟按键高度：" + nativeH);
     }
@@ -252,6 +251,8 @@ public class MyService extends Service implements ActivityCallBridge.PL2303Inter
                     wmParams.x = 0;
                     wmParams.y = 0;
                     mWindowManager.updateViewLayout(mFloatLayout, wmParams);
+                    if (mPathView.getRectF().width() == 0)
+                        btnFindRect.performClick();
                 }
             }
         });
@@ -261,12 +262,12 @@ public class MyService extends Service implements ActivityCallBridge.PL2303Inter
             public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
                 startCapture = isChecked;
                 if (isChecked) {
-                    SharedPreferences sharedPreferences = getSharedPreferences("lxf_path", Context.MODE_PRIVATE);
-                    SharedPreferences.Editor editor = sharedPreferences.edit();
-                    editor.putInt("width", (int) mPathView.getRectF().width());
-                    editor.putInt("left", (int) mPathView.getRectF().left);
-                    editor.putInt("top", (int) mPathView.getRectF().top);
-                    editor.apply();
+//                    SharedPreferences sharedPreferences = getSharedPreferences("lxf_path", Context.MODE_PRIVATE);
+//                    SharedPreferences.Editor editor = sharedPreferences.edit();
+//                    editor.putInt("width", (int) mPathView.getRectF().width());
+//                    editor.putInt("left", (int) mPathView.getRectF().left);
+//                    editor.putInt("top", (int) mPathView.getRectF().top);
+//                    editor.apply();
 
                     mFloatView.performClick();
                     interval();
@@ -330,7 +331,7 @@ public class MyService extends Service implements ActivityCallBridge.PL2303Inter
         if (rects.size() <= index) return;
         Rect rect = rects.get(index);
         log("当前选择区域：" + rect);
-        mPathView.setRectF(new RectF(rect.x, rect.y, rect.x + rect.width, rect.y + rect.height));
+        mPathView.setRectF(new RectF(rect.x, rect.y - statusH, rect.x + rect.width, rect.y + rect.height - statusH));
     }
 
     private void otherVisibility(boolean visibility) {
@@ -398,8 +399,8 @@ public class MyService extends Service implements ActivityCallBridge.PL2303Inter
                 float width = mRectF.width();
                 mRectF.left = mRectF.left - width / (BOARD_SIZE - 1) / 2;
                 mRectF.right = mRectF.right + width / (BOARD_SIZE - 1) / 2;
-                mRectF.top = mRectF.top - width / (BOARD_SIZE - 1) / 2;
-                mRectF.bottom = mRectF.bottom + width / (BOARD_SIZE - 1) / 2;
+                mRectF.top = mRectF.top - width / (BOARD_SIZE - 1) / 2 + statusH;
+                mRectF.bottom = mRectF.bottom + width / (BOARD_SIZE - 1) / 2 + statusH;
 
                 if (mRectF.left < 0)
                     mRectF.left = 0;
@@ -429,7 +430,7 @@ public class MyService extends Service implements ActivityCallBridge.PL2303Inter
                         tileHelper.updateCurBW(game.getNextBW());
                         log("第一帧数据");
                     }
-                    LiveType liveType = Util.parse(preChess, currChess);
+                    LiveType liveType = Util.parse(preChess, currChess,90);
                     switch (liveType.getType()) {
                         case LiveType.NORMAL:
                             preChess = result;
@@ -437,6 +438,7 @@ public class MyService extends Service implements ActivityCallBridge.PL2303Inter
                                     || (game.getBw() == 2 && liveType.getAllStep().startsWith("-")))
                                 return;
                             log("对方落子，位置：" + liveType.getAllStep() + "；序列：" + liveType.getIndex());
+                            tileHelper.putChess(liveType.getAllStep());
                             break;
                     }
                 }

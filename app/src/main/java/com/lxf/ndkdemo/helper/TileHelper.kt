@@ -112,6 +112,7 @@ class TileHelper(private var pl2303interface: Pl2303InterfaceUtilNew?,private va
             data.soundWarning = false // 在1秒延迟内，设置成false后，发声子线程将不发声。
         }
         LogToFile.d("pl2303 LiveType", value.toString())
+        LogUtils.d("pl2303 LiveType", value.toString())
         when (value.type) {
             LiveType.DA_JIE -> view.warning()
             LiveType.LAST_BACK -> {
@@ -137,7 +138,7 @@ class TileHelper(private var pl2303interface: Pl2303InterfaceUtilNew?,private va
             LiveType.DO_NOTHING -> {
             }
             LiveType.NORMAL -> {
-                view.tileViewNormal(value.allStep)
+                putChess(value.allStep)
                 if ((game.bw == 1 && value.allStep.startsWith("-"))
                         || (game.bw == 2 && value.allStep.startsWith("+")))
                     return
@@ -175,9 +176,13 @@ class TileHelper(private var pl2303interface: Pl2303InterfaceUtilNew?,private va
                 view.tileViewBackNew(goBackNum, newStep)
             }
             LiveType.NEW_CHESS_2 -> {
-                view.tileViewNormal(value.allStep)
+                putChess(value.allStep)
             }
         }
+    }
+
+    fun putChess(step: String) {
+        view.tileViewNormal(step)
     }
 
     private val processBuilder = ProcessBuilder()

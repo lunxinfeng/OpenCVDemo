@@ -34,6 +34,11 @@ class ServiceActivity : AppCompatActivity() {
             val intent = Intent()
             intent.component = componentName
             startActivity(intent)
+            if (resolveInfo.activityInfo.packageName == "com.indeed.golinks"){//弈客围棋，非全屏
+                MyService.statusH = ScreenUtil.getStatusBarHeight(this)
+            }else{
+                MyService.statusH = 0
+            }
         }
 
         startIntent()

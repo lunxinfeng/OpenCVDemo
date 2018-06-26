@@ -1,7 +1,6 @@
 package com.lxf.ndkdemo;
 
 import android.content.Context;
-import android.content.SharedPreferences;
 import android.graphics.Canvas;
 import android.graphics.Color;
 import android.graphics.Paint;
@@ -59,10 +58,10 @@ public class PathView extends View {
 //        int w = outMetrics.widthPixels;
 //        int h = outMetrics.heightPixels;
 
-        SharedPreferences sharedPreferences = context.getSharedPreferences("lxf_path",Context.MODE_PRIVATE);
-        width = sharedPreferences.getInt("width",0);
-        left = sharedPreferences.getInt("left",0);
-        top = sharedPreferences.getInt("top",0);
+//        SharedPreferences sharedPreferences = context.getSharedPreferences("lxf_path",Context.MODE_PRIVATE);
+//        width = sharedPreferences.getInt("width",0);
+//        left = sharedPreferences.getInt("left",0);
+//        top = sharedPreferences.getInt("top",0);
 
         mRectF = new RectF(left, top, left + width, top + width);
         mPath.addRect(mRectF, Path.Direction.CW);

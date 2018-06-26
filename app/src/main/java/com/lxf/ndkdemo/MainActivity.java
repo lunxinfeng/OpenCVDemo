@@ -97,7 +97,7 @@ public class MainActivity extends AppCompatActivity {
 //            }
 //        });
 
-        srcBitmap = BitmapFactory.decodeResource(getResources(), R.mipmap.board);
+        srcBitmap = BitmapFactory.decodeResource(getResources(), R.mipmap.temp);
         iv_source.setImageBitmap(srcBitmap);
 
         mMediaProjectionManager = (MediaProjectionManager) getApplication().getSystemService(Context.MEDIA_PROJECTION_SERVICE);
@@ -384,7 +384,11 @@ public class MainActivity extends AppCompatActivity {
     //轮廓
     public void lunKuo(View view) {
 //        List<MatOfPoint> contourList = PaserUtil.yiCheng(srcBitmap);
-        List<MatOfPoint> contourList = PaserUtil.jiuJiu(srcBitmap);
+        Mat gray = PaserUtil.gray(PaserUtil.bitmapToMat(srcBitmap));
+        Mat threshold = PaserUtil.threshold(gray,200,255,Imgproc.THRESH_BINARY);
+        List<MatOfPoint> contourList = new ArrayList<>();
+        Mat dst = new Mat();
+        Imgproc.findContours(threshold, contourList, dst, Imgproc.RETR_CCOMP, Imgproc.CHAIN_APPROX_SIMPLE);
 
 
         //在新的图像上绘制轮廓
@@ -396,12 +400,12 @@ public class MainActivity extends AppCompatActivity {
             MatOfPoint mp = contourList.get(i);
             Rect rect = Imgproc.boundingRect(mp);
             double ratio = rect.width / (double) rect.height;
-            if (ratio > 0.95 && ratio < 1.05 && rect.width > 300) {
-                Imgproc.drawContours(contours, contourList, i, new Scalar(random.nextInt(255), random.nextInt(255), random.nextInt(255)), 2);
+//            if (ratio > 0.95 && ratio < 1.05 && rect.width > 300) {
+                Imgproc.drawContours(contours, contourList, i, new Scalar(random.nextInt(255), random.nextInt(255), random.nextInt(255)), 1);
 //                System.out.println(mp);
 //                System.out.println(Arrays.toString(mp.toArray()));
                 System.out.println(rect);
-            }
+//            }
         }
 
 //        //1.获取源Mat
@@ -432,7 +436,7 @@ public class MainActivity extends AppCompatActivity {
 //        iv_result.setImageBitmap(PaserUtil.matToBitmap(dst));
 
         Mat gray = PaserUtil.gray(PaserUtil.bitmapToMat(srcBitmap));
-        Mat threshold = PaserUtil.threshold(gray,80,255,Imgproc.THRESH_BINARY);
+        Mat threshold = PaserUtil.threshold(gray,180,255,Imgproc.THRESH_BINARY);
         List<MatOfPoint> contourList = new ArrayList<>();
         Mat dst = new Mat();
         Imgproc.findContours(threshold, contourList, dst, Imgproc.RETR_CCOMP, Imgproc.CHAIN_APPROX_SIMPLE);
@@ -441,18 +445,20 @@ public class MainActivity extends AppCompatActivity {
 //        System.out.println("测试-轮廓[1]：" + contourList.get(1));
 //        System.out.println("测试-轮廓[2]：" + contourList.get(2));
         System.out.println("测试-hierarchy：" + dst);
-        System.out.println("测试-hierarchy[0]：" + Arrays.toString(dst.get(0,0)));
-        System.out.println("测试-hierarchy[1]：" + Arrays.toString(dst.get(0,1)));
-        System.out.println("测试-hierarchy[2]：" + Arrays.toString(dst.get(0,2)));
+//        System.out.println("测试-hierarchy[0]：" + Arrays.toString(dst.get(0,0)));
+//        System.out.println("测试-hierarchy[1]：" + Arrays.toString(dst.get(0,1)));
+//        System.out.println("测试-hierarchy[2]：" + Arrays.toString(dst.get(0,2)));
         int size = contourList.size();
         int num = 0;
         for (int i=0;i<size;i++){
-            if (dst.get(0,i)[2]>=0||dst.get(0,i)[3]>=0){
-                System.out.println("测试-hierarchy[" + i +"]：" + Arrays.toString(dst.get(0,i)));
-                num++;
-            }
+            System.out.println("测试-hierarchy[" + i +"]：" + Arrays.toString(dst.get(0,i)));
+            System.out.println("测试-hierarchy[" + i +"]：" + Imgproc.boundingRect(contourList.get(i)));
+//            if (dst.get(0,i)[2]>=0||dst.get(0,i)[3]>=0){
+//                System.out.println("测试-hierarchy[" + i +"]：" + Arrays.toString(dst.get(0,i)));
+//                num++;
+//            }
         }
-        System.out.println("测试-num：" + num);
+//        System.out.println("测试-num：" + num);
     }
 
     //霍夫圆
