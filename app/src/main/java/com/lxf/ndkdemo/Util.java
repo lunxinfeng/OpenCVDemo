@@ -53,6 +53,23 @@ public class Util {
                 liveType.setAllStep("-" + change.getStep());
                 return liveType; // 返回该棋步
             }
+        } else if (changeList.size() > 1){
+            //多个变化点，如果一个新增，其他都是消失，也认为正常（不用判断消失的是否是死子，软件会自己做好限制）
+            int numAdd = 0;
+            for (ChessChange change:changeList){
+                if (change.getPreColor() == 0){
+                    numAdd++;
+                    liveType.setType(LiveType.NORMAL);
+                    liveType.setIndex(change.getI() + 1);
+                    if (change.getNowColor() == 1)
+                        liveType.setAllStep("+" + change.getStep());
+                    if (change.getNowColor() == 2)
+                        liveType.setAllStep("-" + change.getStep());
+                }
+            }
+            if (numAdd == 1){
+                return liveType;
+            }
         }
 
         //暂时只考虑多一颗黑子或白子的正常情况，其他情况均视为异常

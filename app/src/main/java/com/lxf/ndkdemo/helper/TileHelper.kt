@@ -92,8 +92,9 @@ class TileHelper(private var pl2303interface: Pl2303InterfaceUtilNew?,private va
             when(command){
                 "SDA","~SDA" ->{
                     // 收到完整的盘面
+                    val rotate = if (ScreenUtil.isPortrait(pl2303interface?.mcontext)) 270 else 0
                     val liveType = pl2303interface?.handleReceiveDataRobot(view.board,
-                            cmdData, false, 270)
+                            cmdData, false, rotate)
 
                     if (liveType != null)
                         receiveTileViewMessage(liveType)
