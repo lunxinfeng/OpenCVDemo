@@ -12,6 +12,7 @@ import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
 import android.view.MotionEvent;
 import android.view.View;
+import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.ImageView;
 import android.widget.Spinner;
@@ -35,6 +36,8 @@ import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 import java.util.Random;
+
+import lxf.widget.tileview.Board;
 
 public class MainActivity extends AppCompatActivity {
     private int result = 0;
@@ -62,40 +65,40 @@ public class MainActivity extends AppCompatActivity {
 
         String[] items = new String[]{"隐智", "弈客", "弈城", "99", "腾讯", "新博"};
         spinner.setAdapter(new ArrayAdapter<>(this, android.R.layout.simple_list_item_1, items));
-//        spinner.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
-//            @Override
-//            public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
-//                int res = R.mipmap.yz;
-//                switch (position) {
-//                    case 0:
-//                        res = R.mipmap.yz;
-//                        break;
-//                    case 1:
-//                        res = R.mipmap.yk;
-//                        break;
-//                    case 2:
-//                        res = R.mipmap.yc;
-//                        break;
-//                    case 3:
-//                        res = R.mipmap.jj;
-//                        break;
-//                    case 4:
-//                        res = R.mipmap.tx;
-//                        break;
-//                    case 5:
-//                        res = R.mipmap.xb;
-//                        break;
-//                }
-//                srcBitmap = BitmapFactory.decodeResource(getResources(), res);
-////              srcBitmap = ratio(srcBitmap, 200, 200);
-//                iv_source.setImageBitmap(srcBitmap);
-//            }
-//
-//            @Override
-//            public void onNothingSelected(AdapterView<?> parent) {
-//
-//            }
-//        });
+        spinner.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
+            @Override
+            public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
+                int res = R.mipmap.yz;
+                switch (position) {
+                    case 0:
+                        res = R.mipmap.yz;
+                        break;
+                    case 1:
+                        res = R.mipmap.yk;
+                        break;
+                    case 2:
+                        res = R.mipmap.yc;
+                        break;
+                    case 3:
+                        res = R.mipmap.jj;
+                        break;
+                    case 4:
+                        res = R.mipmap.tx;
+                        break;
+                    case 5:
+                        res = R.mipmap.xb;
+                        break;
+                }
+                srcBitmap = BitmapFactory.decodeResource(getResources(), res);
+//              srcBitmap = ratio(srcBitmap, 200, 200);
+                iv_source.setImageBitmap(srcBitmap);
+            }
+
+            @Override
+            public void onNothingSelected(AdapterView<?> parent) {
+
+            }
+        });
 
         srcBitmap = BitmapFactory.decodeResource(getResources(), R.mipmap.temp);
         iv_source.setImageBitmap(srcBitmap);
@@ -170,6 +173,8 @@ public class MainActivity extends AppCompatActivity {
                         break;
                     case REQUEST_CHOSE_FILE:
                         try {
+                            PaserUtil.BOARD_SIZE = 19;
+                            Board.n = 19;
                             srcBitmap = MediaStore.Images.Media.getBitmap(getContentResolver(), data.getData());
 //                          srcBitmap = ratio(srcBitmap, 200, 200);
                             iv_source.setImageBitmap(srcBitmap);
@@ -304,6 +309,7 @@ public class MainActivity extends AppCompatActivity {
     //还原
     public void init(View view) {
         iv_result.setImageBitmap(null);
+        iv_source.setImageBitmap(srcBitmap);
     }
 
     //二值化
@@ -385,7 +391,7 @@ public class MainActivity extends AppCompatActivity {
     public void lunKuo(View view) {
 //        List<MatOfPoint> contourList = PaserUtil.yiCheng(srcBitmap);
         Mat gray = PaserUtil.gray(PaserUtil.bitmapToMat(srcBitmap));
-        Mat threshold = PaserUtil.threshold(gray,200,255,Imgproc.THRESH_BINARY);
+        Mat threshold = PaserUtil.threshold(gray,80,255,Imgproc.THRESH_BINARY);
         List<MatOfPoint> contourList = new ArrayList<>();
         Mat dst = new Mat();
         Imgproc.findContours(threshold, contourList, dst, Imgproc.RETR_CCOMP, Imgproc.CHAIN_APPROX_SIMPLE);
@@ -400,12 +406,12 @@ public class MainActivity extends AppCompatActivity {
             MatOfPoint mp = contourList.get(i);
             Rect rect = Imgproc.boundingRect(mp);
             double ratio = rect.width / (double) rect.height;
-//            if (ratio > 0.95 && ratio < 1.05 && rect.width > 300) {
+            if (ratio > 0.95 && ratio < 1.05 && rect.width > 300) {
                 Imgproc.drawContours(contours, contourList, i, new Scalar(random.nextInt(255), random.nextInt(255), random.nextInt(255)), 1);
 //                System.out.println(mp);
 //                System.out.println(Arrays.toString(mp.toArray()));
                 System.out.println(rect);
-//            }
+            }
         }
 
 //        //1.获取源Mat
@@ -419,7 +425,7 @@ public class MainActivity extends AppCompatActivity {
 //        //将Mat转换为位图
         Bitmap resultBitmap = Bitmap.createBitmap(srcBitmap.getWidth(), srcBitmap.getHeight(), Bitmap.Config.ARGB_8888);
         Utils.matToBitmap(contours, resultBitmap);
-        iv_result.setImageBitmap(resultBitmap);
+        iv_source.setImageBitmap(resultBitmap);
 
     }
 

@@ -17,6 +17,7 @@ import java.util.List;
 public class PaserUtil {
     private final static boolean DEBUG = true;
     public static int BOARD_SIZE = 19;
+    public static int thresh = 80;
 
     private static void log(String msg) {
         if (DEBUG)
@@ -40,55 +41,10 @@ public class PaserUtil {
             MatOfPoint mp = contours.get(i);
             Rect rect = Imgproc.boundingRect(mp);
             double ratio = rect.width / (double) rect.height;
-            if (ratio > 0.9 && ratio < 1.1 && rect.width > 300)
+            if (ratio > 0.9 && ratio < 1.1 && rect.width > 400)
                 rects.add(rect);
         }
         return rects;
-    }
-
-    public static List<MatOfPoint> yinZhi(Bitmap bitmap) {
-        //1.获取源Mat
-        Mat src = bitmapToMat(bitmap);
-        //2.灰化
-        Mat gray = gray(src);
-        //3.二值
-        Mat thresMat = threshold(gray, 60, 255, Imgproc.THRESH_BINARY);
-        //4.边缘检测
-//        Mat cannyMat = canny(thresMat, 60, 180);
-        //5.查找轮廓
-        List<MatOfPoint> contourList = findContours(thresMat, Imgproc.RETR_EXTERNAL, Imgproc.CHAIN_APPROX_NONE);
-        Collections.sort(contourList);
-        return contourList;
-    }
-
-    public static List<MatOfPoint> yiCheng(Bitmap bitmap) {
-        //1.获取源Mat
-        Mat src = bitmapToMat(bitmap);
-        //2.灰化
-        Mat gray = gray(src);
-        //3.二值
-        Mat thresMat = threshold(gray, 60, 255, Imgproc.THRESH_BINARY);
-        //4.边缘检测
-//        Mat cannyMat = canny(thresMat, 60, 180);
-        //5.查找轮廓
-        List<MatOfPoint> contourList = findContours(thresMat, Imgproc.RETR_EXTERNAL, Imgproc.CHAIN_APPROX_NONE);
-        Collections.sort(contourList);
-        return contourList;
-    }
-
-    public static List<MatOfPoint> yiKe(Bitmap bitmap) {
-        //1.获取源Mat
-        Mat src = bitmapToMat(bitmap);
-        //2.灰化
-        Mat gray = gray(src);
-        //3.二值
-        Mat thresMat = threshold(gray, 80, 255, Imgproc.THRESH_BINARY);
-        //4.边缘检测
-//        Mat cannyMat = canny(thresMat, 60, 180);
-        //5.查找轮廓
-        List<MatOfPoint> contourList = findContours(thresMat, Imgproc.RETR_EXTERNAL, Imgproc.CHAIN_APPROX_NONE);
-        Collections.sort(contourList);
-        return contourList;
     }
 
     public static List<MatOfPoint> jiuJiu(Bitmap bitmap) {
@@ -97,26 +53,11 @@ public class PaserUtil {
         //2.灰化
         Mat gray = gray(src);
         //3.二值
-        Mat thresMat = threshold(gray, 80, 255, Imgproc.THRESH_BINARY);
+        Mat thresMat = threshold(gray, thresh, 255, Imgproc.THRESH_BINARY);
         //4.边缘检测
 //        Mat cannyMat = canny(thresMat, 60, 180);
         //5.查找轮廓
         List<MatOfPoint> contourList = findContours(thresMat, Imgproc.RETR_LIST, Imgproc.CHAIN_APPROX_SIMPLE);
-        Collections.sort(contourList);
-        return contourList;
-    }
-
-    public static List<MatOfPoint> tengXun(Bitmap bitmap) {
-        //1.获取源Mat
-        Mat src = bitmapToMat(bitmap);
-        //2.灰化
-        Mat gray = gray(src);
-        //3.二值
-        Mat thresMat = threshold(gray, 80, 255, Imgproc.THRESH_BINARY);
-        //4.边缘检测
-//        Mat cannyMat = canny(thresMat, 60, 180);
-        //5.查找轮廓
-        List<MatOfPoint> contourList = findContours(thresMat, Imgproc.RETR_EXTERNAL, Imgproc.CHAIN_APPROX_NONE);
         Collections.sort(contourList);
         return contourList;
     }

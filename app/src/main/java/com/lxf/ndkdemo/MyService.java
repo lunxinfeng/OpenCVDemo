@@ -24,7 +24,6 @@ import android.view.View;
 import android.view.WindowManager;
 import android.widget.Button;
 import android.widget.CompoundButton;
-import android.widget.Toast;
 import android.widget.ToggleButton;
 
 import com.lxf.ndkdemo.helper.TileHelper;
@@ -42,8 +41,6 @@ import java.util.List;
 import java.util.concurrent.TimeUnit;
 
 import io.reactivex.Flowable;
-import io.reactivex.Observable;
-import io.reactivex.android.schedulers.AndroidSchedulers;
 import io.reactivex.disposables.Disposable;
 import io.reactivex.functions.Consumer;
 import lxf.widget.tileview.Board;
@@ -142,6 +139,7 @@ public class MyService extends Service implements ActivityCallBridge.PL2303Inter
             mWindowManager.removeView(mFloatLayout);
         getScreenDimen();
         createFloatView();
+        createVirtualEnvironment();
     }
 
     public TileHelper getTileHelper() {
@@ -376,19 +374,20 @@ public class MyService extends Service implements ActivityCallBridge.PL2303Inter
                 stopVirtual();
 
                 Bitmap bitmap = startCapture();
-//                FileUtil.save(bitmap);
+                FileUtil.save(bitmap);
 //                log("截图：" + bitmap.getWidth() + ";" + bitmap.getHeight());
 
                 if (!startCapture) {
                     rects = PaserUtil.findRects(bitmap);
-                    Observable.just(1)
-                            .observeOn(AndroidSchedulers.mainThread())
-                            .subscribe(new Consumer<Integer>() {
-                                @Override
-                                public void accept(Integer integer) throws Exception {
-                                    Toast.makeText(MyService.this, "找到可能区域：" + rects.size() + "个", Toast.LENGTH_SHORT).show();
-                                }
-                            });
+                    rectIndex = rects.size() - 1;
+//                    Observable.just(1)
+//                            .observeOn(AndroidSchedulers.mainThread())
+//                            .subscribe(new Consumer<Integer>() {
+//                                @Override
+//                                public void accept(Integer integer) throws Exception {
+//                                    Toast.makeText(MyService.this, "找到可能区域：" + rects.size() + "个", Toast.LENGTH_SHORT).show();
+//                                }
+//                            });
                     updatePath(rectIndex);
                     return;
                 }
@@ -417,8 +416,14 @@ public class MyService extends Service implements ActivityCallBridge.PL2303Inter
                 tileHelper.setRectF(mRectF);
 
                 if (cut_width > 0 && cut_height > 0) {
+                    if (mRectF.left + cut_width > bitmap.getWidth()){
+                        cut_width = bitmap.getWidth() - (int)mRectF.left;
+                    }
+                    if (mRectF.top + cut_height > bitmap.getHeight()){
+                        cut_height = bitmap.getHeight() - (int)mRectF.top;
+                    }
                     Bitmap cutBitmap = Bitmap.createBitmap(bitmap, (int) mRectF.left, (int) mRectF.top, cut_width, cut_height);
-//                    FileUtil.save(cutBitmap);
+                    FileUtil.save(cutBitmap);
                     int[][] a = PaserUtil.parse(cutBitmap);
                     String result = PaserUtil.exChange(a);
                     log(result);

@@ -39,6 +39,12 @@ class ServiceActivity : AppCompatActivity() {
             }else{
                 MyService.statusH = 0
             }
+
+            if (resolveInfo.activityInfo.packageName == "com.cngames.weiqi_shaoer_mobile"){//新博围棋
+                PaserUtil.thresh = 100
+            }else{
+                PaserUtil.thresh = 80
+            }
         }
 
         startIntent()
@@ -87,7 +93,7 @@ class ServiceActivity : AppCompatActivity() {
                     || packName == "com.eweiqi.android"
                     || packName == "com.indeed.golinks"
                     || packName == "com.r99weiqi.dvd"
-//                    || packName == "cn.izis.yzbrowser"
+                    || packName == "com.cngames.weiqi_shaoer_mobile"
                     ) {
                 chessApps.add(info)
             }
