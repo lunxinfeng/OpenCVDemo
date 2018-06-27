@@ -37,6 +37,7 @@ import org.opencv.android.OpenCVLoader;
 import org.opencv.core.Rect;
 
 import java.nio.ByteBuffer;
+import java.util.Arrays;
 import java.util.List;
 import java.util.concurrent.TimeUnit;
 
@@ -189,6 +190,7 @@ public class MyService extends Service implements ActivityCallBridge.PL2303Inter
         mToggleButton = mFloatLayout.findViewById(R.id.toggleButton);
         btnExit = mFloatLayout.findViewById(R.id.btnExit);
         btnFindRect = mFloatLayout.findViewById(R.id.btnFindRect);
+        btnFindRect.setVisibility(View.GONE);
         otherVisibility(false);
 
         //设置x、y初始值，相对于gravity
@@ -327,9 +329,13 @@ public class MyService extends Service implements ActivityCallBridge.PL2303Inter
 
     private void updatePath(int index) {
         if (rects.size() <= index) return;
-        Rect rect = rects.get(index);
-        log("当前选择区域：" + rect);
-        mPathView.setRectF(new RectF(rect.x, rect.y - statusH, rect.x + rect.width, rect.y + rect.height - statusH));
+        if (index>=0){
+            Rect rect = rects.get(index);
+            log("当前选择区域：" + rect);
+            mPathView.setRectF(new RectF(rect.x, rect.y - statusH, rect.x + rect.width, rect.y + rect.height - statusH));
+        }else {
+            mPathView.setRectF(new RectF(100, 100, 300, 300));
+        }
     }
 
     private void otherVisibility(boolean visibility) {
@@ -337,7 +343,7 @@ public class MyService extends Service implements ActivityCallBridge.PL2303Inter
         mToggleButton.setVisibility(visibility ? View.VISIBLE : View.GONE);
         btnConnect.setVisibility(visibility ? View.VISIBLE : View.GONE);
         btnExit.setVisibility(visibility ? View.VISIBLE : View.GONE);
-        btnFindRect.setVisibility(visibility ? View.VISIBLE : View.GONE);
+//        btnFindRect.setVisibility(visibility ? View.VISIBLE : View.GONE);
     }
 
     private void interval() {
@@ -374,11 +380,12 @@ public class MyService extends Service implements ActivityCallBridge.PL2303Inter
                 stopVirtual();
 
                 Bitmap bitmap = startCapture();
-                FileUtil.save(bitmap);
+//                FileUtil.save(bitmap);
 //                log("截图：" + bitmap.getWidth() + ";" + bitmap.getHeight());
 
                 if (!startCapture) {
                     rects = PaserUtil.findRects(bitmap);
+                    System.out.println(Arrays.toString(rects.toArray()));
                     rectIndex = rects.size() - 1;
 //                    Observable.just(1)
 //                            .observeOn(AndroidSchedulers.mainThread())
@@ -423,7 +430,7 @@ public class MyService extends Service implements ActivityCallBridge.PL2303Inter
                         cut_height = bitmap.getHeight() - (int)mRectF.top;
                     }
                     Bitmap cutBitmap = Bitmap.createBitmap(bitmap, (int) mRectF.left, (int) mRectF.top, cut_width, cut_height);
-                    FileUtil.save(cutBitmap);
+//                    FileUtil.save(cutBitmap);
                     int[][] a = PaserUtil.parse(cutBitmap);
                     String result = PaserUtil.exChange(a);
                     log(result);

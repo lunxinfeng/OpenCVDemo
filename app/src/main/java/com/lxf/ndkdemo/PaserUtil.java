@@ -41,7 +41,7 @@ public class PaserUtil {
             MatOfPoint mp = contours.get(i);
             Rect rect = Imgproc.boundingRect(mp);
             double ratio = rect.width / (double) rect.height;
-            if (ratio > 0.9 && ratio < 1.1 && rect.width > 400)
+            if (ratio > 0.9 && ratio < 1.1 && rect.width > 300)
                 rects.add(rect);
         }
         return rects;
@@ -54,6 +54,7 @@ public class PaserUtil {
         Mat gray = gray(src);
         //3.二值
         Mat thresMat = threshold(gray, thresh, 255, Imgproc.THRESH_BINARY);
+        System.out.println("二值化：" + thresh);
         //4.边缘检测
 //        Mat cannyMat = canny(thresMat, 60, 180);
         //5.查找轮廓

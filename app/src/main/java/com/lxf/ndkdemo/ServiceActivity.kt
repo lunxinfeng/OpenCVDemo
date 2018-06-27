@@ -99,4 +99,10 @@ class ServiceActivity : AppCompatActivity() {
             }
         }
     }
+
+    override fun onDestroy() {
+        super.onDestroy()
+        val intent = Intent(applicationContext, MyService::class.java)
+        stopService(intent)
+    }
 }
