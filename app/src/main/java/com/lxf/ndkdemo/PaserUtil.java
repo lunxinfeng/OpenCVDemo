@@ -41,7 +41,7 @@ public class PaserUtil {
             MatOfPoint mp = contours.get(i);
             Rect rect = Imgproc.boundingRect(mp);
             double ratio = rect.width / (double) rect.height;
-            if (ratio > 0.9 && ratio < 1.1 && rect.width > 300)
+            if (ratio > 0.9 && ratio < 1.1 && rect.width > 300 && rect.width < 475)
                 rects.add(rect);
         }
         return rects;

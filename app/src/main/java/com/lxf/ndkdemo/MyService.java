@@ -86,6 +86,7 @@ public class MyService extends Service implements ActivityCallBridge.PL2303Inter
     private List<Rect> rects;//自动识别出来的最大的5个外轮廓
     private int rectIndex;//当前选择的是第5个外轮廓
     private boolean startCapture;
+    private boolean firstRect = true;//第一次自动识别
 
     private String preChess;
     private String currChess;
@@ -395,7 +396,10 @@ public class MyService extends Service implements ActivityCallBridge.PL2303Inter
 //                                    Toast.makeText(MyService.this, "找到可能区域：" + rects.size() + "个", Toast.LENGTH_SHORT).show();
 //                                }
 //                            });
-                    updatePath(rectIndex);
+                    if (firstRect){
+                        updatePath(rectIndex);
+                        firstRect = false;
+                    }
                     return;
                 }
 

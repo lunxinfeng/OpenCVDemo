@@ -1,10 +1,13 @@
 package com.lxf.ndkdemo.helper
 
 import android.graphics.RectF
+import android.os.SystemClock
 import android.support.v4.util.SparseArrayCompat
 import android.view.View
 import com.lxf.ndkdemo.GameInfo
+import com.lxf.ndkdemo.PLATFORM_XB
 import com.lxf.ndkdemo.ScreenUtil
+import com.lxf.ndkdemo.ServiceActivity
 import com.lxf.ndkdemo.bean.GameStep
 import com.lxf.ndkdemo.pl2303.LiveType
 import com.lxf.ndkdemo.pl2303.LogToFile
@@ -164,6 +167,10 @@ class TileHelper(private var pl2303interface: Pl2303InterfaceUtilNew?,private va
                 val yLocation = rectF.top + size * (x + 0.5f)
                 println("点击屏幕落子:index" + index + ";x" + (x + 1) + "/" + xLocation + ";y" + (y + 1) + "/" + yLocation)
                 click(xLocation, yLocation)
+                if (ServiceActivity.PLATFORM == PLATFORM_XB){//新博需要双击
+                    SystemClock.sleep(100)
+                    click(xLocation, yLocation)
+                }
             }
             LiveType.GO_BACK -> {
                 val backNum = value.backNum
