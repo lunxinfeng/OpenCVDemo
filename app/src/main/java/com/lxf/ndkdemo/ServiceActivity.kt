@@ -1,6 +1,7 @@
 package com.lxf.ndkdemo
 
 import android.app.Activity
+import android.app.AlertDialog
 import android.content.ComponentName
 import android.content.Context
 import android.content.Intent
@@ -19,6 +20,8 @@ import com.lxf.ndkdemo.net.ProgressSubscriber
 import com.lxf.ndkdemo.net.net_code_getServerCode
 import com.lxf.ndkdemo.net.net_info_getServerCode
 import com.lxf.ndkdemo.update.MyIntentService
+import com.lxf.ndkdemo.update.UpdateManager
+import io.reactivex.disposables.CompositeDisposable
 import kotlinx.android.synthetic.main.activity_service.*
 import java.io.File
 
@@ -49,6 +52,26 @@ class ServiceActivity : AppCompatActivity() {
         appsAdapter = AppsAdapter(chessApps, packageManager)
         recyclerView.adapter = appsAdapter
         appsAdapter?.setOnItemClickListener { resolveInfo ->
+            if (resolveInfo.activityInfo == null){
+                //暂时只推弈客
+                PLATFORM = PLATFORM_YK
+                MyService.statusH = ScreenUtil.getStatusBarHeight(this)
+                PaserUtil.thresh = 80
+
+                AlertDialog.Builder(this)
+                        .setMessage("未检测到弈客平台，是否下载安装？")
+                        .setNegativeButton("暂不下载"){dialog, _ -> dialog.dismiss() }
+                        .setPositiveButton("立即下载"){dialog, _ ->
+                            val url = "http://www.izis.cn/GoWebService/yike.apk"
+                            val apkPath = Environment.getExternalStorageDirectory().path + File.separator + "yike.apk"
+                            UpdateManager.downloadApk(this,url,apkPath, CompositeDisposable())
+                            dialog.dismiss()
+                        }
+                        .show()
+                return@setOnItemClickListener
+            }
+
+
             val componentName = ComponentName(resolveInfo.activityInfo.packageName, resolveInfo.activityInfo.name)
             val intent = Intent()
             intent.component = componentName
@@ -167,6 +190,11 @@ class ServiceActivity : AppCompatActivity() {
                     ) {
                 chessApps.add(info)
             }
+        }
+
+        val hasYK = chessApps.any { it.activityInfo.packageName == PLATFORM_YK }
+        if (!hasYK){
+            chessApps.add(0,ResolveInfo())
         }
     }
 

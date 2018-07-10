@@ -45,30 +45,14 @@ public class AppsAdapter extends RecyclerView.Adapter<AppsAdapter.MyViewHolder> 
     @Override
     public void onBindViewHolder(MyViewHolder holder, int position) {
         ResolveInfo info = mApps.get(position);
-        switch (info.activityInfo.packageName) {
-//            case "com.lxf.folder":
-//                holder.icon.setImageResource(R.mipmap.icon_folder);
-//                break;
-//            case "com.android.settings":
-//                holder.icon.setImageResource(R.mipmap.icon_setting);
-//                break;
-//            case "com.android.browser":
-//                holder.icon.setImageResource(R.mipmap.icon_browser);
-//                break;
-//            case "com.android.providers.downloads.ui":
-//                holder.icon.setImageResource(R.mipmap.icon_download);
-//                break;
-//            case "com.estrongs.android.pop":
-//                holder.icon.setImageResource(R.mipmap.icon_files);
-//                break;
-            default:
-                holder.icon.setImageDrawable(info.loadIcon(pm));
-                break;
-        }
-//        if (info.activityInfo.packageName.equals("com.lxf.folder"))
-//            holder.name.setText("系统工具");
-//        else
+        if (info.activityInfo !=null){
+            holder.icon.setImageDrawable(info.loadIcon(pm));
             holder.name.setText(info.loadLabel(pm));
+        }else{
+            holder.icon.setImageResource(R.mipmap.ic_launcher);
+            holder.name.setText("弈客围棋");
+        }
+
 
         holder.itemView.setTag(position);
     }
