@@ -2,8 +2,6 @@ package com.lxf.ndkdemo.net
 
 import android.text.TextUtils
 import android.util.Xml
-import cn.izis.chessdesk.net.BASE_URL_SOAP
-import cn.izis.chessdesk.net.CONNECT_TIME_OUT
 import com.jakewharton.retrofit2.adapter.rxjava2.RxJava2CallAdapterFactory
 import com.lxf.ndkdemo.getGson
 import com.lxf.ndkdemo.gsonToBean

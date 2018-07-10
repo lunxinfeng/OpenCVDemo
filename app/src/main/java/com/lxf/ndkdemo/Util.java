@@ -53,6 +53,11 @@ public class Util {
                 liveType.setAllStep("-" + change.getStep());
                 return liveType; // 返回该棋步
             }
+
+//            if (change.getNowColor() == 0){不能这么添加，因为正常落子可能也会触发到这里，截图时机是不可控的
+//                liveType.setType(LiveType.LAST_BACK);
+//                return liveType; // 有可能电子棋盘下了一步棋，点击屏幕由于开发板太卡子没上去，这时候虚拟board悔棋
+//            }
         } else if (changeList.size() > 1){
             //多个变化点，如果一个新增，其他都是消失，也认为正常（不用判断消失的是否是死子，软件会自己做好限制）
             int numAdd = 0;

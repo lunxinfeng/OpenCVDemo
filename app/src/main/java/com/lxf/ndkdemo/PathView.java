@@ -76,7 +76,7 @@ public class PathView extends View {
     @Override
     public boolean onTouchEvent(MotionEvent event) {
 //        if (!mRectF.contains(event.getRawX(), event.getRawY())) return false;
-        if (!moveable) return false;
+        if (!moveable) return true;
 
         if (event.getRawX() > (mRectF.centerX() + mRectF.width() / 4) &&
                 event.getRawY() > (mRectF.centerY() + mRectF.width() / 4))//右下角
@@ -147,5 +147,9 @@ public class PathView extends View {
         mPath.reset();
         mPath.addRect(mRectF, Path.Direction.CW);
         invalidate();
+    }
+
+    public void reset(){
+        setRectF(new RectF());
     }
 }

@@ -4,4 +4,7 @@
     <color name="colorPrimaryDark">#303F9F</color>
     <color name="colorAccent">#FF4081</color>
     <color name="black">#000000</color>
+    <color name="update_btn_selected">#f36e37</color>
+    <color name="text_low">#875b3d</color>
+    <color name="text_high">#4a2e13</color>
 </resources>

@@ -1,4 +1,4 @@
-package cn.izis.chessdesk.net
+package com.lxf.ndkdemo.net
 
 
 /**
@@ -8,17 +8,17 @@ const val CONNECT_TIME_OUT: Long = 8000
 /**
  * 服务器基本URL
  */
-const val BASE_URL = "http://app.izis.cn/mygoedu/"
+const val BASE_URL = "http://app.izis.cn/GoWebService/"
 const val BASE_URL_SOAP = "http://app.izis.cn/GoWebService/"
 //const val BASE_URL_SOAP = "http://192.168.150.191:8080/GoWebService/"
-
+const val DOWNLOAD_URL = "http://www.izis.cn/GoWebService/yzext_%1\$d.apk"
 
 /**
- * 登陆
+ * 获取服务器版本号
  */
-const val net_code_login = "0001_1"
+const val net_code_getServerCode = "060101"
 
-fun net_info_login(userName: String, passWord: String): String = "{\"root\":[{\"dlzh\":\"$userName\",\"dlmm\":\"$passWord\"}]}"
+fun net_info_getServerCode(type: String = "5"): String = "{\"root\":[{\"type\":\"$type\"}]}"
 
 /**
  * 创建直播房间

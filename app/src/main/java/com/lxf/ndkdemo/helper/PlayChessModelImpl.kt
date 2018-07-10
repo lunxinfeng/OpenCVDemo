@@ -1,6 +1,5 @@
 package com.lxf.ndkdemo.helper
 
-import cn.izis.chessdesk.net.*
 import cn.mina.mina.MinaPushService
 import com.lxf.ndkdemo.ShotApplication
 import com.lxf.ndkdemo.ShotApplication.userId

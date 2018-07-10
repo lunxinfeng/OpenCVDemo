@@ -45,11 +45,13 @@ public class UpdateManager {
                 .subscribe(new Observer<BufferedSource>() {
                     @Override
                     public void onSubscribe(Disposable d) {
+                        System.out.println("UpdateManager.onSubscribe");
                         cd.add(d);
                     }
 
                     @Override
                     public void onNext(BufferedSource bufferedSource) {
+                        System.out.println("UpdateManager.onNext");
                         try {
                             writeFile(bufferedSource, new File(apkPath));
                         } catch (IOException e) {
@@ -59,11 +61,13 @@ public class UpdateManager {
 
                     @Override
                     public void onError(Throwable e) {
+                        System.out.println("UpdateManager.onError");
                         unSubscribe(cd);
                     }
 
                     @Override
                     public void onComplete() {
+                        System.out.println("UpdateManager.onComplete");
                         //安装apk
                         Intent intent = new Intent(Intent.ACTION_VIEW);
                         intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);

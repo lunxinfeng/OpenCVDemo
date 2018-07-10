@@ -1,7 +1,5 @@
 package com.lxf.ndkdemo.net
 
-import cn.izis.chessdesk.net.BASE_URL
-import cn.izis.chessdesk.net.CONNECT_TIME_OUT
 import com.google.gson.GsonBuilder
 import com.jakewharton.retrofit2.adapter.rxjava2.RxJava2CallAdapterFactory
 import com.lxf.ndkdemo.bean.RequestModel

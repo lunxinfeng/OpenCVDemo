@@ -139,7 +139,7 @@ class TileHelper(private var pl2303interface: Pl2303InterfaceUtilNew?,private va
             LiveType.DO_NOTHING -> {
             }
             LiveType.NORMAL -> {
-                putChess(value.allStep)
+//                putChess(value.allStep)
                 if ((game.bw == 1 && value.allStep.startsWith("-"))
                         || (game.bw == 2 && value.allStep.startsWith("+")))
                     return
@@ -185,7 +185,7 @@ class TileHelper(private var pl2303interface: Pl2303InterfaceUtilNew?,private va
                 view.tileViewBackNew(goBackNum, newStep)
             }
             LiveType.NEW_CHESS_2 -> {
-                putChess(value.allStep)
+//                putChess(value.allStep)
             }
         }
     }

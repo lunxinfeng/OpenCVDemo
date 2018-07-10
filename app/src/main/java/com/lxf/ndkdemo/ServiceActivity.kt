@@ -8,10 +8,19 @@ import android.content.pm.PackageManager
 import android.content.pm.ResolveInfo
 import android.media.projection.MediaProjectionManager
 import android.os.Bundle
+import android.os.Environment
 import android.support.v7.app.AppCompatActivity
 import android.support.v7.widget.GridLayoutManager
 import android.util.Log
+import com.lxf.ndkdemo.helper.UpdateDialog
+import com.lxf.ndkdemo.helper.VersionMessage
+import com.lxf.ndkdemo.net.DOWNLOAD_URL
+import com.lxf.ndkdemo.net.ProgressSubscriber
+import com.lxf.ndkdemo.net.net_code_getServerCode
+import com.lxf.ndkdemo.net.net_info_getServerCode
+import com.lxf.ndkdemo.update.MyIntentService
 import kotlinx.android.synthetic.main.activity_service.*
+import java.io.File
 
 const val PLATFORM_TX = "com.tencent.tmgp.ttwq"
 const val PLATFORM_YC = "com.eweiqi.android"
@@ -34,6 +43,7 @@ class ServiceActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_service)
 
+        checkUpdate()
         getMyApps(packageManager)
         recyclerView.layoutManager = GridLayoutManager(this, 3)
         appsAdapter = AppsAdapter(chessApps, packageManager)
@@ -72,8 +82,6 @@ class ServiceActivity : AppCompatActivity() {
                 }
             }
         }
-
-        startIntent()
     }
 
     private fun startIntent() {
@@ -106,6 +114,42 @@ class ServiceActivity : AppCompatActivity() {
         }
     }
 
+    private fun checkUpdate() {
+        getObject(net_code_getServerCode, net_info_getServerCode(),0, VersionMessage::class.java)
+                .subscribe(object : ProgressSubscriber<VersionMessage>(this, false, false) {
+                    override fun _onNext(t: VersionMessage) {
+                        println(t)
+                        val packageInfo = packageManager.getPackageInfo(packageName, 0)
+                        val localVersionCode = packageInfo.versionCode
+
+                        val serverVersionCode = t.versionCode
+                        val decription = t.app_describe
+                        if (serverVersionCode > localVersionCode) {
+                            val dialog = UpdateDialog(this@ServiceActivity, R.style.dialog, decription)
+                            dialog.setClickListener(object : UpdateDialog.ClickListener {
+                                override fun doUpdate() {
+                                    toast("进入后台下载")
+                                    val downUrl = String.format(DOWNLOAD_URL, serverVersionCode)
+                                    val apkPath = Environment.getExternalStorageDirectory().path + File.separator + "yzExt.apk"
+                                    MyIntentService.startUpdateService(this@ServiceActivity, downUrl, apkPath)
+                                }
+
+                                override fun doCancel() {
+                                    startIntent()
+                                }
+                            })
+                            dialog.show()
+                        }else{
+                            startIntent()
+                        }
+                    }
+
+                    override fun _onError(error: String?) {
+                        toast("获取最新版本号失败")
+                    }
+                })
+    }
+
     private fun getMyApps(pm: PackageManager) {
         chessApps.clear()
         val intent = Intent(Intent.ACTION_MAIN)
@@ -126,8 +170,16 @@ class ServiceActivity : AppCompatActivity() {
         }
     }
 
+    override fun onBackPressed() {
+        val intent = Intent(applicationContext, MyService::class.java)
+        stopService(intent)
+        super.onBackPressed()
+        println("ServiceActivity.onBackPressed")
+    }
+
     override fun onDestroy() {
         super.onDestroy()
+        println("ServiceActivity.onDestroy")
         val intent = Intent(applicationContext, MyService::class.java)
         stopService(intent)
     }

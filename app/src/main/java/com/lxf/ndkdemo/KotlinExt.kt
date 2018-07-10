@@ -76,6 +76,8 @@ fun Dialog.toast(msg: String, duration: Int = Toast.LENGTH_SHORT) {
  */
 fun isEmpty(s: String?) = TextUtils.isEmpty(s)
 
+fun Activity.toast(msg:String) = Toast.makeText(this,msg,Toast.LENGTH_SHORT).show()
+
 /**
  * 被挤掉线重新登陆
  */

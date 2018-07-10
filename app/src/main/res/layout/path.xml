@@ -30,9 +30,8 @@
         android:layout_height="wrap_content"
         android:layout_marginBottom="8dp"
         android:layout_marginStart="16dp"
-        android:text="ToggleButton"
-        android:textOff="截屏关"
-        android:textOn="截屏开"
+        android:textOff="开启服务"
+        android:textOn="关闭服务"
         app:layout_constraintBottom_toTopOf="@+id/btnExit"
         app:layout_constraintStart_toStartOf="parent" />
 

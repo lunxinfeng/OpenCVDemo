@@ -1,3 +1,6 @@
 <resources>
     <string name="app_name">三方平台对弈</string>
+    <string name="scription">说明：\n1.点击启动要使用的第三方平台；\n2.进入对战页面后再点击选区按钮；\n3.第一次选区会自动识别棋盘区域，如果识别不准确可以手动调整，绿框与棋盘边线基本重合即可；\n4.最后点击开启服务按钮，配置对局信息后，开始对战。</string>
+    <string name="update_y">立即升级</string>
+    <string name="update_n">残忍拒绝</string>
 </resources>

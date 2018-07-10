@@ -158,6 +158,7 @@ public class MyService extends Service implements ActivityCallBridge.PL2303Inter
         if (tileHelper != null)
             tileHelper.onDestroy();
         super.onDestroy();
+        System.out.println("MyService.onDestroy");
     }
 
     @Override
@@ -192,6 +193,7 @@ public class MyService extends Service implements ActivityCallBridge.PL2303Inter
         btnExit = mFloatLayout.findViewById(R.id.btnExit);
         btnFindRect = mFloatLayout.findViewById(R.id.btnFindRect);
         btnFindRect.setVisibility(View.GONE);
+        btnConnect.setVisibility(View.GONE);
         otherVisibility(false);
 
         //设置x、y初始值，相对于gravity
@@ -244,6 +246,7 @@ public class MyService extends Service implements ActivityCallBridge.PL2303Inter
                     wmParams.x = w - mFloatView.getMeasuredWidth();
                     wmParams.y = h - 140;
                     mWindowManager.updateViewLayout(mFloatLayout, wmParams);
+
                 } else {
                     otherVisibility(true);
                     wmParams.width = WindowManager.LayoutParams.MATCH_PARENT;
@@ -270,12 +273,18 @@ public class MyService extends Service implements ActivityCallBridge.PL2303Inter
 //                    editor.putInt("top", (int) mPathView.getRectF().top);
 //                    editor.apply();
 
-                    mFloatView.performClick();
-                    interval();
-                    startVirtual();
+                    if (tileHelper!=null && tileHelper.isConnected()){
+                        mFloatView.performClick();
+                        interval();
+                        startVirtual();
+                    }else{
+                        btnConnect.performClick();
+                    }
+                    mPathView.moveable = false;
                 } else {
                     dispose();
                     stopVirtual();
+                    mPathView.moveable = true;
                 }
             }
         });
@@ -297,6 +306,10 @@ public class MyService extends Service implements ActivityCallBridge.PL2303Inter
                             @Override
                             public void openSuccess() {
                                 pl2303.WriteToUARTDevice("~CTS0#");
+
+                                mFloatView.performClick();
+                                interval();
+                                startVirtual();
                             }
                         });
                         tileHelper = new TileHelper(pl2303, game);
@@ -342,7 +355,7 @@ public class MyService extends Service implements ActivityCallBridge.PL2303Inter
     private void otherVisibility(boolean visibility) {
         mPathView.setVisibility(visibility ? View.VISIBLE : View.GONE);
         mToggleButton.setVisibility(visibility ? View.VISIBLE : View.GONE);
-        btnConnect.setVisibility(visibility ? View.VISIBLE : View.GONE);
+//        btnConnect.setVisibility(visibility ? View.VISIBLE : View.GONE);
         btnExit.setVisibility(visibility ? View.VISIBLE : View.GONE);
 //        btnFindRect.setVisibility(visibility ? View.VISIBLE : View.GONE);
     }
@@ -450,10 +463,10 @@ public class MyService extends Service implements ActivityCallBridge.PL2303Inter
                     switch (liveType.getType()) {
                         case LiveType.NORMAL:
                             preChess = result;
-                            if ((game.getBw() == 1 && liveType.getAllStep().startsWith("+"))
-                                    || (game.getBw() == 2 && liveType.getAllStep().startsWith("-")))
-                                return;
-                            log("对方落子，位置：" + liveType.getAllStep() + "；序列：" + liveType.getIndex());
+//                            if ((game.getBw() == 1 && liveType.getAllStep().startsWith("+"))
+//                                    || (game.getBw() == 2 && liveType.getAllStep().startsWith("-")))
+//                                return;
+                            log("多了一颗子：" + liveType.getAllStep() + "；序列：" + liveType.getIndex());
                             tileHelper.putChess(liveType.getAllStep());
                             break;
                     }
@@ -485,7 +498,6 @@ public class MyService extends Service implements ActivityCallBridge.PL2303Inter
             setUpMediaProjection();
             virtualDisplay();
         }
-        mPathView.moveable = false;
     }
 
     private void screenOrientation() {
@@ -518,7 +530,6 @@ public class MyService extends Service implements ActivityCallBridge.PL2303Inter
         if (mVirtualDisplay != null) {
             mVirtualDisplay.release();
         }
-        mPathView.moveable = true;
     }
 
     private void setUpMediaProjection() {
