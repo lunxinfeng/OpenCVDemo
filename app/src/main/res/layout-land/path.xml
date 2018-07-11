@@ -29,11 +29,11 @@
         android:layout_width="92dp"
         android:layout_height="wrap_content"
         android:layout_marginEnd="16dp"
-        android:text="ToggleButton"
-        android:textOff="截屏关"
-        android:textOn="截屏开"
+        android:layout_marginTop="32dp"
+        android:textOff="开启服务"
+        android:textOn="关闭服务"
         app:layout_constraintEnd_toStartOf="@+id/btnConnect"
-        app:layout_constraintTop_toTopOf="@+id/btnConnect" />
+        app:layout_constraintTop_toTopOf="parent" />
 
     <Button
         android:id="@+id/btnConnect"
@@ -50,9 +50,10 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginEnd="16dp"
+        android:layout_marginTop="16dp"
         android:text="退出"
         app:layout_constraintEnd_toStartOf="@+id/btnFindRect"
-        app:layout_constraintTop_toTopOf="@+id/btnFindRect" />
+        app:layout_constraintTop_toBottomOf="@+id/toggleButton" />
 
     <Button
         android:id="@+id/btnFindRect"
