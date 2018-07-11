@@ -1,4 +1,4 @@
-package com.lxf.ndkdemo.helper;
+package com.lxf.ndkdemo.update;
 
 public class VersionMessage {
     private int type;// 1 = 手机版本;// 2 = 电脑版本

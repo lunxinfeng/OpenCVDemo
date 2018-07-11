@@ -5,6 +5,7 @@ import android.content.Context;
 import android.content.Intent;
 
 import com.lxf.ndkdemo.base.RxBus;
+import com.lxf.ndkdemo.net.FileLoadingBean;
 
 import io.reactivex.Observer;
 import io.reactivex.disposables.CompositeDisposable;

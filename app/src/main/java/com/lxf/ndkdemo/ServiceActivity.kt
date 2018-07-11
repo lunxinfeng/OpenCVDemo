@@ -13,8 +13,8 @@ import android.os.Environment
 import android.support.v7.app.AppCompatActivity
 import android.support.v7.widget.GridLayoutManager
 import android.util.Log
-import com.lxf.ndkdemo.helper.UpdateDialog
-import com.lxf.ndkdemo.helper.VersionMessage
+import com.lxf.ndkdemo.update.UpdateDialog
+import com.lxf.ndkdemo.update.VersionMessage
 import com.lxf.ndkdemo.net.DOWNLOAD_URL
 import com.lxf.ndkdemo.net.ProgressSubscriber
 import com.lxf.ndkdemo.net.net_code_getServerCode

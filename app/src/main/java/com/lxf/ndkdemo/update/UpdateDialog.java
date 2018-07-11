@@ -1,4 +1,4 @@
-package com.lxf.ndkdemo.helper;
+package com.lxf.ndkdemo.update;
 
 import android.app.Dialog;
 import android.content.Context;
