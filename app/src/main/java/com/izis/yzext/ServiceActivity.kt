@@ -47,23 +47,47 @@ class ServiceActivity : AppCompatActivity() {
         setContentView(R.layout.activity_service)
 
         checkUpdate()
-        getMyApps(packageManager)
         recyclerView.layoutManager = GridLayoutManager(this, 3)
         appsAdapter = AppsAdapter(chessApps, packageManager)
         recyclerView.adapter = appsAdapter
         appsAdapter?.setOnItemClickListener { resolveInfo ->
             if (resolveInfo.activityInfo == null){
-                //暂时只推弈客
-                PLATFORM = PLATFORM_YK
-                MyService.statusH = ScreenUtil.getStatusBarHeight(this)
-                PaserUtil.thresh = 80
+                var platform_name = ""
+                var platform_url = ""
+                when (resolveInfo.match) {
+                    1 -> {
+                        platformConfig(PLATFORM_YK)
+                        platform_name = "弈客围棋"
+                        platform_url = "http://www.izis.cn/GoWebService/yike.apk"
+                    }
+                    2 -> {
+                        platformConfig(PLATFORM_TX)
+                        platform_name = "腾讯围棋"
+                        platform_url = "http://www.izis.cn/GoWebService/txwq.apk"
+                    }
+                    3 -> {
+                        platformConfig(PLATFORM_YC)
+                        platform_name = "弈城围棋"
+                        platform_url = "http://www.izis.cn/GoWebService/ycwq.apk"
+                    }
+                    4 -> {
+                        platformConfig(PLATFORM_JJ)
+                        platform_name = "99围棋"
+                        platform_url = "http://www.izis.cn/GoWebService/jjwq.apk"
+                    }
+                    5 -> {
+                        platformConfig(PLATFORM_XB)
+                        platform_name = "新博围棋"
+                        platform_url = "http://www.izis.cn/GoWebService/xbwq.apk"
+                    }
+                }
 
                 AlertDialog.Builder(this)
-                        .setMessage("未检测到弈客平台，是否下载安装？")
+                        .setMessage("未检测到$platform_name，是否下载安装？")
                         .setNegativeButton("暂不下载"){dialog, _ -> dialog.dismiss() }
                         .setPositiveButton("立即下载"){dialog, _ ->
-                            val url = "http://www.izis.cn/GoWebService/yike.apk"
-                            val apkPath = Environment.getExternalStorageDirectory().path + File.separator + "yike.apk"
+                            val url = platform_url
+                            val apkPath = Environment.getExternalStorageDirectory().path + File.separator + "$platform_name.apk"
                             UpdateManager.downloadApk(this,url,apkPath, CompositeDisposable())
                             dialog.dismiss()
                         }
@@ -77,34 +101,14 @@ class ServiceActivity : AppCompatActivity() {
             intent.component = componentName
             startActivity(intent)
 
-            when(resolveInfo.activityInfo.packageName){
-                PLATFORM_TX ->{
-                    PLATFORM = PLATFORM_TX
-                    MyService.statusH = 0
-                    PaserUtil.thresh = 80
-                }
-                PLATFORM_YC ->{
-                    PLATFORM = PLATFORM_YC
-                    MyService.statusH = 0
-                    PaserUtil.thresh = 80
-                }
-                PLATFORM_YK ->{
-                    PLATFORM = PLATFORM_YK
-                    MyService.statusH = ScreenUtil.getStatusBarHeight(this)
-                    PaserUtil.thresh = 80
-                }
-                PLATFORM_JJ ->{
-                    PLATFORM = PLATFORM_JJ
-                    MyService.statusH = 0
-                    PaserUtil.thresh = 80
-                }
-                PLATFORM_XB ->{
-                    PLATFORM = PLATFORM_XB
-                    MyService.statusH = 0
-                    PaserUtil.thresh = 100
-                }
-            }
+            platformConfig(resolveInfo.activityInfo.packageName)
         }
+    }
+
+    override fun onResume() {
+        super.onResume()
+        getMyApps(packageManager)
+        appsAdapter?.notifyDataSetChanged()
     }
 
     private fun startIntent() {
@@ -193,8 +197,64 @@ class ServiceActivity : AppCompatActivity() {
         }
 
         val hasYK = chessApps.any { it.activityInfo.packageName == PLATFORM_YK }
+        val hasTX = chessApps.any { it.activityInfo.packageName == PLATFORM_TX }
+        val hasYC = chessApps.any { it.activityInfo.packageName == PLATFORM_YC }
+        val hasJJ = chessApps.any { it.activityInfo.packageName == PLATFORM_JJ }
+        val hasXB = chessApps.any { it.activityInfo.packageName == PLATFORM_XB }
         if (!hasYK){
-            chessApps.add(0,ResolveInfo())
+            val resolveInfo = ResolveInfo()
+            resolveInfo.match = 1
+            chessApps.add(0,resolveInfo)
+        }
+        if (!hasTX){
+            val resolveInfo = ResolveInfo()
+            resolveInfo.match = 2
+            chessApps.add(0,resolveInfo)
+        }
+        if (!hasYC){
+            val resolveInfo = ResolveInfo()
+            resolveInfo.match = 3
+            chessApps.add(0,resolveInfo)
+        }
+        if (!hasJJ){
+            val resolveInfo = ResolveInfo()
+            resolveInfo.match = 4
+            chessApps.add(0,resolveInfo)
+        }
+        if (!hasXB){
+            val resolveInfo = ResolveInfo()
+            resolveInfo.match = 5
+            chessApps.add(0,resolveInfo)
+        }
+    }
+
+    private fun platformConfig(platform: String) {
+        when (platform) {
+            PLATFORM_TX -> {
+                PLATFORM = PLATFORM_TX
+                MyService.statusH = 0
+                PaserUtil.thresh = 80
+            }
+            PLATFORM_YC -> {
+                PLATFORM = PLATFORM_YC
+                MyService.statusH = 0
+                PaserUtil.thresh = 80
+            }
+            PLATFORM_YK -> {
+                PLATFORM = PLATFORM_YK
+                MyService.statusH = ScreenUtil.getStatusBarHeight(this)
+                PaserUtil.thresh = 80
+            }
+            PLATFORM_JJ -> {
+                PLATFORM = PLATFORM_JJ
+                MyService.statusH = 0
+                PaserUtil.thresh = 80
+            }
+            PLATFORM_XB -> {
+                PLATFORM = PLATFORM_XB
+                MyService.statusH = 0
+                PaserUtil.thresh = 100
+            }
         }
     }
 

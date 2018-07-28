@@ -1809,6 +1809,13 @@ public class Pl2303InterfaceUtilNew {
         return mSerialMulti == null || mSerialMulti.PL2303IsDeviceConnectedByIndex(DeviceIndex);
     }
 
+    public void pl2303DisConnect(){
+        if (mSerialMulti!=null){
+            mSerialMulti.PL2303Release();
+            mSerialMulti = null;
+        }
+    }
+
     // 写入数据
     public void WriteToUARTDevice(final String strWrite) {
         if (!PL2303MultiLiblinkExist() || TextUtils.isEmpty(strWrite)) {

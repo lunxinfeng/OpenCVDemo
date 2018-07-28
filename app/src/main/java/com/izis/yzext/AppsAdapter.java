@@ -49,8 +49,28 @@ public class AppsAdapter extends RecyclerView.Adapter<AppsAdapter.MyViewHolder> 
             holder.icon.setImageDrawable(info.loadIcon(pm));
             holder.name.setText(info.loadLabel(pm));
         }else{
-            holder.icon.setImageResource(R.mipmap.ic_launcher);
-            holder.name.setText("弈客围棋");
+            switch (info.match){
+                case 1:
+                    holder.icon.setImageResource(R.mipmap.ic_launcher);
+                    holder.name.setText("弈客围棋");
+                    break;
+                case 2:
+                    holder.icon.setImageResource(R.mipmap.ic_launcher);
+                    holder.name.setText("腾讯围棋");
+                    break;
+                case 3:
+                    holder.icon.setImageResource(R.mipmap.ic_launcher);
+                    holder.name.setText("弈城围棋");
+                    break;
+                case 4:
+                    holder.icon.setImageResource(R.mipmap.ic_launcher);
+                    holder.name.setText("99围棋");
+                    break;
+                case 5:
+                    holder.icon.setImageResource(R.mipmap.ic_launcher);
+                    holder.name.setText("新博围棋");
+                    break;
+            }
         }
 
 

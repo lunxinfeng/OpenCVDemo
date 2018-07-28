@@ -273,17 +273,21 @@ public class MyService extends Service implements ActivityCallBridge.PL2303Inter
 //                    editor.putInt("top", (int) mPathView.getRectF().top);
 //                    editor.apply();
 
-                    if (tileHelper!=null && tileHelper.isConnected()){
-                        mFloatView.performClick();
-                        interval();
-                        startVirtual();
-                    }else{
-                        btnConnect.performClick();
-                    }
+//                    if (tileHelper!=null && tileHelper.isConnected()){
+//                        mFloatView.performClick();
+//                        interval();
+//                        startVirtual();
+//                    }else{
+//                        btnConnect.performClick();
+//                    }
+                    btnConnect.performClick();
+
                     mPathView.moveable = false;
                 } else {
                     dispose();
                     stopVirtual();
+                    if (tileHelper!=null && tileHelper.isConnected())
+                        tileHelper.disConnect();
                     mPathView.moveable = true;
                 }
             }

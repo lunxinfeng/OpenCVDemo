@@ -227,6 +227,10 @@ class TileHelper(private var pl2303interface: Pl2303InterfaceUtilNew?,private va
 
     fun isConnected() = pl2303interface?.PL2303MultiLiblinkExist()?:false
 
+    fun disConnect(){
+        pl2303interface?.pl2303DisConnect()
+    }
+
     fun onDestroy() {
         pl2303interface?.WriteToUARTDevice("~CAL#")
         pl2303interface?.WriteToUARTDevice("~CTS1#")
