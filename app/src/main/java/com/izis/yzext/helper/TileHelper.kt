@@ -165,12 +165,16 @@ class TileHelper(private var pl2303interface: Pl2303InterfaceUtilNew?,private va
                 println("点击屏幕落子:index" + index + ";x" + (x + 1) + "/" + xLocation + ";y" + (y + 1) + "/" + yLocation)
                 click(xLocation, yLocation)
                 if (ServiceActivity.PLATFORM == PLATFORM_XB){//新博需要双击
-                    SystemClock.sleep(500)
+                    SystemClock.sleep(200)
                     click(xLocation, yLocation)
                 }
                 if (ServiceActivity.PLATFORM == PLATFORM_YK){
                     SystemClock.sleep(500)
                     click(240f, 735f)
+                }
+                if (ServiceActivity.PLATFORM == PLATFORM_JJ){
+                    SystemClock.sleep(500)
+                    click(480f, 367f)
                 }
             }
             LiveType.GO_BACK -> {

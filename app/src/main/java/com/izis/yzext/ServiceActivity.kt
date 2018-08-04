@@ -28,7 +28,8 @@ import java.io.File
 const val PLATFORM_TX = "com.tencent.tmgp.ttwq"
 const val PLATFORM_YC = "com.eweiqi.android"
 const val PLATFORM_YK = "com.indeed.golinks"
-const val PLATFORM_JJ = "com.r99weiqi.dvd"
+//const val PLATFORM_JJ = "com.r99weiqi.dvd"
+const val PLATFORM_JJ = "com.weiqi99.www"
 const val PLATFORM_XB = "com.cngames.weiqi_shaoer_mobile"
 
 class ServiceActivity : AppCompatActivity() {
