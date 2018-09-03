@@ -165,7 +165,7 @@ class TileHelper(private var pl2303interface: Pl2303InterfaceUtilNew?,private va
                 println("点击屏幕落子:index" + index + ";x" + (x + 1) + "/" + xLocation + ";y" + (y + 1) + "/" + yLocation)
                 click(xLocation, yLocation)
                 if (ServiceActivity.PLATFORM == PLATFORM_XB){//新博需要双击
-                    SystemClock.sleep(200)
+                    SystemClock.sleep(double_click_time)
                     click(xLocation, yLocation)
                 }
                 if (ServiceActivity.PLATFORM == PLATFORM_YK){
@@ -196,6 +196,11 @@ class TileHelper(private var pl2303interface: Pl2303InterfaceUtilNew?,private va
 
     fun putChess(step: String) {
         view.tileViewNormal(step)
+    }
+
+    fun lamb( singleGoCoodinate:String,
+              isbremove:Boolean,  rotate:Int){
+        pl2303interface?.WritesingleGoCoodinate(singleGoCoodinate,isbremove,rotate)
     }
 
     private val processBuilder = ProcessBuilder()

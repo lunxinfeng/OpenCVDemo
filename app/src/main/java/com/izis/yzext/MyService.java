@@ -471,6 +471,7 @@ public class MyService extends Service implements ActivityCallBridge.PL2303Inter
 //                                    || (game.getBw() == 2 && liveType.getAllStep().startsWith("-")))
 //                                return;
                             log("多了一颗子：" + liveType.getAllStep() + "；序列：" + liveType.getIndex());
+                            tileHelper.lamb(liveType.getAllStep(),true,90);
                             tileHelper.putChess(liveType.getAllStep());
                             break;
                     }

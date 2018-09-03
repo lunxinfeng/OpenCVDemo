@@ -20,6 +20,7 @@ import java.util.*
  * kotlin扩展函数
  * Created by lxf on 2017/6/15.
  */
+var double_click_time = 200L
 
 fun getGson() = GsonBuilder().setDateFormat("yyyy-MM-dd HH:mm:ss").create()
 

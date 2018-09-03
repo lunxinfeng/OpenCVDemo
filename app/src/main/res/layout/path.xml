@@ -17,11 +17,12 @@
 
     <Button
         android:id="@+id/float_id"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
+        android:layout_width="88dp"
+        android:layout_height="88dp"
         android:layout_marginBottom="32dp"
-        android:text="选区"
+        android:background="@mipmap/xuanqu"
         app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintDimensionRatio="1"
         app:layout_constraintEnd_toEndOf="parent" />
 
     <ToggleButton
@@ -30,29 +31,32 @@
         android:layout_height="wrap_content"
         android:layout_marginBottom="8dp"
         android:layout_marginStart="16dp"
+        android:background="@mipmap/toggle_bg"
+        android:textColor="@color/white"
         android:textOff="开启服务"
         android:textOn="关闭服务"
-        app:layout_constraintBottom_toTopOf="@+id/btnExit"
+        app:layout_constraintBottom_toTopOf="@+id/btnConnect"
         app:layout_constraintStart_toStartOf="parent" />
 
     <Button
         android:id="@+id/btnConnect"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginStart="16dp"
+        android:layout_marginBottom="8dp"
         android:text="连接电子棋盘"
-        app:layout_constraintBottom_toBottomOf="@+id/toggleButton"
-        app:layout_constraintStart_toEndOf="@+id/toggleButton" />
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintStart_toStartOf="@+id/toggleButton" />
 
     <Button
         android:id="@+id/btnExit"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginBottom="8dp"
-        android:layout_marginStart="16dp"
+        android:layout_marginStart="24dp"
+        android:background="@mipmap/exit_bg"
         android:text="退出"
-        app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintStart_toStartOf="parent" />
+        android:textColor="@color/white"
+        app:layout_constraintStart_toEndOf="@+id/toggleButton"
+        app:layout_constraintTop_toTopOf="@+id/toggleButton" />
 
     <Button
         android:id="@+id/btnFindRect"
@@ -60,7 +64,7 @@
         android:layout_height="wrap_content"
         android:layout_marginStart="16dp"
         android:text="自动识别"
-        app:layout_constraintStart_toEndOf="@+id/btnExit"
-        app:layout_constraintTop_toTopOf="@+id/btnExit" />
+        app:layout_constraintStart_toEndOf="@+id/btnConnect"
+        app:layout_constraintTop_toTopOf="@+id/btnConnect" />
 
 </android.support.constraint.ConstraintLayout>

@@ -3,11 +3,13 @@ package com.izis.yzext.update;
 import android.app.IntentService;
 import android.content.Context;
 import android.content.Intent;
+import android.widget.ProgressBar;
 
 import com.izis.yzext.base.RxBus;
 import com.izis.yzext.net.FileLoadingBean;
 
 import io.reactivex.Observer;
+import io.reactivex.android.schedulers.AndroidSchedulers;
 import io.reactivex.disposables.CompositeDisposable;
 import io.reactivex.disposables.Disposable;
 
@@ -25,12 +27,15 @@ public class MyIntentService extends IntentService {
     private CompositeDisposable cd = new CompositeDisposable();
 //    private NotificationCompat.Builder builder;
 //    private NotificationManager notificationManager;
+    private static ProgressDialog progressDialog;
 
     public MyIntentService() {
         super("MyIntentService");
     }
 
-    public static void startUpdateService(Context context, String url, String apkPath) {
+    public static void startUpdateService(Context context, String url, String apkPath,ProgressDialog dialog) {
+        progressDialog = dialog;
+
         Intent intent = new Intent(context, MyIntentService.class);
         intent.setAction(ACTION_DOWNLOAD);
         intent.putExtra(DOWNLOAD_URL, url);
@@ -67,10 +72,11 @@ public class MyIntentService extends IntentService {
 
     private void subscribeEvent() {
         RxBus.getDefault().toObservable(FileLoadingBean.class)
+                .subscribeOn(AndroidSchedulers.mainThread())
                 .subscribe(new Observer<FileLoadingBean>() {
                     @Override
                     public void onSubscribe(Disposable d) {
-                        System.out.println("MyIntentService.onSubscribe");
+                        System.out.println("MyIntentService.onSubscribe:" + Thread.currentThread());
                         cd.add(d);
                     }
 
@@ -82,7 +88,12 @@ public class MyIntentService extends IntentService {
 //
 //                        if (progress == 100)
 //                            notificationManager.cancel(0);
-                        System.out.println("MyIntentService.onNext:" + progress + "%");
+
+//                        System.out.println("MyIntentService.onNext:" + progress + "%");
+                        if (progressDialog!=null && progressDialog.isShowing() && progress>progressDialog.getProgress() )
+                            progressDialog.updateProgress(progress);
+                        if (progress >= 100 && progressDialog!=null)
+                            progressDialog.dismiss();
                     }
 
                     @Override

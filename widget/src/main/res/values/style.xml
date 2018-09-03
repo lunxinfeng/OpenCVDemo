@@ -12,6 +12,10 @@
         <item name="android:backgroundDimEnabled">true</item>
         <!-- 设置屏幕变暗 -->
     </style>
+    <style name="dialogNoTitle" parent="@android:style/Theme.Dialog">
+        <item name="android:windowNoTitle">true</item>
+        <!-- 设置无标题 -->
+    </style>
 
     <style name="AVLoadingIndicatorView">
         <item name="minWidth">48dip</item>

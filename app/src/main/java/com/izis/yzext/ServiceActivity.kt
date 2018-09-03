@@ -13,16 +13,19 @@ import android.os.Environment
 import android.support.v7.app.AppCompatActivity
 import android.support.v7.widget.GridLayoutManager
 import android.util.Log
-import com.izis.yzext.update.UpdateDialog
-import com.izis.yzext.update.VersionMessage
+import android.view.Menu
+import android.view.MenuItem
+import com.afollestad.materialdialogs.MaterialDialog
+import com.afollestad.materialdialogs.list.listItemsSingleChoice
+import com.izis.yzext.R.id.recyclerView
 import com.izis.yzext.net.DOWNLOAD_URL
 import com.izis.yzext.net.ProgressSubscriber
 import com.izis.yzext.net.net_code_getServerCode
 import com.izis.yzext.net.net_info_getServerCode
-import com.izis.yzext.update.MyIntentService
-import com.izis.yzext.update.UpdateManager
+import com.izis.yzext.update.*
 import io.reactivex.disposables.CompositeDisposable
 import kotlinx.android.synthetic.main.activity_service.*
+import lxf.widget.util.SharedPrefsUtil
 import java.io.File
 
 const val PLATFORM_TX = "com.tencent.tmgp.ttwq"
@@ -36,8 +39,9 @@ class ServiceActivity : AppCompatActivity() {
     private var mediaResult = 0
     private var mediaIntent: Intent? = null
     private val REQUEST_MEDIA_PROJECTION = 1
-    private var chessApps: ArrayList<ResolveInfo> = ArrayList()
+    private var chessApps = mutableListOf<ResolveInfo>()
     private var appsAdapter: AppsAdapter? = null
+    private val times = listOf("50","100","200","300","500")
 
     companion object {
         var PLATFORM = PLATFORM_YK
@@ -46,6 +50,9 @@ class ServiceActivity : AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_service)
+
+        setSupportActionBar(toolbar)
+        toolbar.inflateMenu(R.menu.menu_init)
 
         checkUpdate()
         recyclerView.layoutManager = GridLayoutManager(this, 3)
@@ -87,9 +94,12 @@ class ServiceActivity : AppCompatActivity() {
                         .setMessage("未检测到$platform_name，是否下载安装？")
                         .setNegativeButton("暂不下载"){dialog, _ -> dialog.dismiss() }
                         .setPositiveButton("立即下载"){dialog, _ ->
+                            val progressDialog = ProgressDialog(this)
+                            progressDialog.show()
                             val url = platform_url
                             val apkPath = Environment.getExternalStorageDirectory().path + File.separator + "$platform_name.apk"
-                            UpdateManager.downloadApk(this,url,apkPath, CompositeDisposable())
+//                            UpdateManager.downloadApk(this,url,apkPath, CompositeDisposable())
+                            MyIntentService.startUpdateService(this,url,apkPath,progressDialog)
                             dialog.dismiss()
                         }
                         .show()
@@ -104,6 +114,32 @@ class ServiceActivity : AppCompatActivity() {
 
             platformConfig(resolveInfo.activityInfo.packageName)
         }
+
+        double_click_time = times[SharedPrefsUtil.getValue(this,"click_time",2)].toLong()
+    }
+
+    override fun onCreateOptionsMenu(menu: Menu?): Boolean {
+        menuInflater.inflate(R.menu.menu_init, menu)
+        return super.onCreateOptionsMenu(menu)
+    }
+
+    override fun onOptionsItemSelected(item: MenuItem?): Boolean {
+        when(item?.itemId){
+            R.id.action_time ->{
+                MaterialDialog(this)
+                        .title(text = "设置双击时间的有效间隔(ms)")
+                        .listItemsSingleChoice(
+                                initialSelection = SharedPrefsUtil.getValue(this,"click_time",2),
+                                items = times
+                        ){dialog, index, text ->
+                            double_click_time = text.toLong()
+                            SharedPrefsUtil.putValue(this,"click_time",index)
+                            dialog.dismiss()
+                        }
+                        .show()
+            }
+        }
+        return super.onOptionsItemSelected(item)
     }
 
     override fun onResume() {
@@ -156,10 +192,11 @@ class ServiceActivity : AppCompatActivity() {
                             val dialog = UpdateDialog(this@ServiceActivity, R.style.dialog, decription)
                             dialog.setClickListener(object : UpdateDialog.ClickListener {
                                 override fun doUpdate() {
-                                    toast("进入后台下载")
+                                    val progressDialog = ProgressDialog(this@ServiceActivity)
+                                    progressDialog.show()
                                     val downUrl = String.format(DOWNLOAD_URL, serverVersionCode)
                                     val apkPath = Environment.getExternalStorageDirectory().path + File.separator + "yzExt.apk"
-                                    MyIntentService.startUpdateService(this@ServiceActivity, downUrl, apkPath)
+                                    MyIntentService.startUpdateService(this@ServiceActivity, downUrl, apkPath,progressDialog)
                                 }
 
                                 override fun doCancel() {
