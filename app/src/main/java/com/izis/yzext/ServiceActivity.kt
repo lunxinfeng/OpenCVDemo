@@ -1,7 +1,6 @@
 package com.izis.yzext
 
 import android.app.Activity
-import android.app.AlertDialog
 import android.content.ComponentName
 import android.content.Context
 import android.content.Intent
@@ -16,14 +15,15 @@ import android.util.Log
 import android.view.Menu
 import android.view.MenuItem
 import com.afollestad.materialdialogs.MaterialDialog
+import com.afollestad.materialdialogs.WhichButton
+import com.afollestad.materialdialogs.actions.setActionButtonEnabled
+import com.afollestad.materialdialogs.checkbox.checkBoxPrompt
 import com.afollestad.materialdialogs.list.listItemsSingleChoice
-import com.izis.yzext.R.id.recyclerView
 import com.izis.yzext.net.DOWNLOAD_URL
 import com.izis.yzext.net.ProgressSubscriber
 import com.izis.yzext.net.net_code_getServerCode
 import com.izis.yzext.net.net_info_getServerCode
 import com.izis.yzext.update.*
-import io.reactivex.disposables.CompositeDisposable
 import kotlinx.android.synthetic.main.activity_service.*
 import lxf.widget.util.SharedPrefsUtil
 import java.io.File
@@ -32,7 +32,7 @@ const val PLATFORM_TX = "com.tencent.tmgp.ttwq"
 const val PLATFORM_YC = "com.eweiqi.android"
 const val PLATFORM_YK = "com.indeed.golinks"
 //const val PLATFORM_JJ = "com.r99weiqi.dvd"
-const val PLATFORM_JJ = "com.weiqi99.www"
+//const val PLATFORM_JJ = "com.weiqi99.www"
 const val PLATFORM_XB = "com.cngames.weiqi_shaoer_mobile"
 
 class ServiceActivity : AppCompatActivity() {
@@ -54,7 +54,29 @@ class ServiceActivity : AppCompatActivity() {
         setSupportActionBar(toolbar)
         toolbar.inflateMenu(R.menu.menu_init)
 
-        checkUpdate()
+        if(SharedPrefsUtil.getValue(this,"first",true)){
+            MaterialDialog(this)
+                    .apply {
+                        setActionButtonEnabled(WhichButton.POSITIVE,false)
+                        setCancelable(false)
+                        checkBoxPrompt(text = "我同意"){
+                            setActionButtonEnabled(WhichButton.POSITIVE,it)
+                        }
+                    }
+                    .title(text = "关于第三方对弈平台软件声明")
+                    .message(res = R.string.des)
+                    .positiveButton(text = "确定"){
+                        SharedPrefsUtil.putValue(this,"first",false)
+                        checkUpdate()
+                    }
+                    .negativeButton(text = "取消"){
+                        finish()
+                    }
+                    .show()
+        }else{
+            checkUpdate()
+        }
+
         recyclerView.layoutManager = GridLayoutManager(this, 3)
         appsAdapter = AppsAdapter(chessApps, packageManager)
         recyclerView.adapter = appsAdapter
@@ -78,11 +100,11 @@ class ServiceActivity : AppCompatActivity() {
                         platform_name = "弈城围棋"
                         platform_url = "http://www.izis.cn/GoWebService/ycwq.apk"
                     }
-                    4 -> {
-                        platformConfig(PLATFORM_JJ)
-                        platform_name = "99围棋"
-                        platform_url = "http://www.izis.cn/GoWebService/jjwq.apk"
-                    }
+//                    4 -> {
+//                        platformConfig(PLATFORM_JJ)
+//                        platform_name = "99围棋"
+//                        platform_url = "http://www.izis.cn/GoWebService/jjwq.apk"
+//                    }
                     5 -> {
                         platformConfig(PLATFORM_XB)
                         platform_name = "新博围棋"
@@ -90,17 +112,18 @@ class ServiceActivity : AppCompatActivity() {
                     }
                 }
 
-                AlertDialog.Builder(this)
-                        .setMessage("未检测到$platform_name，是否下载安装？")
-                        .setNegativeButton("暂不下载"){dialog, _ -> dialog.dismiss() }
-                        .setPositiveButton("立即下载"){dialog, _ ->
+                MaterialDialog(this)
+                        .message(text = "未检测到$platform_name，是否下载安装？")
+                        .positiveButton(text = "立即下载"){
                             val progressDialog = ProgressDialog(this)
                             progressDialog.show()
                             val url = platform_url
                             val apkPath = Environment.getExternalStorageDirectory().path + File.separator + "$platform_name.apk"
 //                            UpdateManager.downloadApk(this,url,apkPath, CompositeDisposable())
                             MyIntentService.startUpdateService(this,url,apkPath,progressDialog)
-                            dialog.dismiss()
+                        }
+                        .negativeButton(text = "暂不下载"){
+                            finish()
                         }
                         .show()
                 return@setOnItemClickListener
@@ -136,6 +159,13 @@ class ServiceActivity : AppCompatActivity() {
                             SharedPrefsUtil.putValue(this,"click_time",index)
                             dialog.dismiss()
                         }
+                        .show()
+            }
+            R.id.action_des ->{
+                MaterialDialog(this)
+                        .title(text = "关于第三方对弈平台软件声明")
+                        .message(res = R.string.des)
+                        .positiveButton(text = "确定")
                         .show()
             }
         }
@@ -227,7 +257,7 @@ class ServiceActivity : AppCompatActivity() {
             if (packName == PLATFORM_TX
                     || packName == PLATFORM_YC
                     || packName == PLATFORM_YK
-                    || packName == PLATFORM_JJ
+//                    || packName == PLATFORM_JJ
                     || packName == PLATFORM_XB
                     ) {
                 chessApps.add(info)
@@ -237,7 +267,7 @@ class ServiceActivity : AppCompatActivity() {
         val hasYK = chessApps.any { it.activityInfo.packageName == PLATFORM_YK }
         val hasTX = chessApps.any { it.activityInfo.packageName == PLATFORM_TX }
         val hasYC = chessApps.any { it.activityInfo.packageName == PLATFORM_YC }
-        val hasJJ = chessApps.any { it.activityInfo.packageName == PLATFORM_JJ }
+//        val hasJJ = chessApps.any { it.activityInfo.packageName == PLATFORM_JJ }
         val hasXB = chessApps.any { it.activityInfo.packageName == PLATFORM_XB }
         if (!hasYK){
             val resolveInfo = ResolveInfo()
@@ -254,11 +284,11 @@ class ServiceActivity : AppCompatActivity() {
             resolveInfo.match = 3
             chessApps.add(0,resolveInfo)
         }
-        if (!hasJJ){
-            val resolveInfo = ResolveInfo()
-            resolveInfo.match = 4
-            chessApps.add(0,resolveInfo)
-        }
+//        if (!hasJJ){
+//            val resolveInfo = ResolveInfo()
+//            resolveInfo.match = 4
+//            chessApps.add(0,resolveInfo)
+//        }
         if (!hasXB){
             val resolveInfo = ResolveInfo()
             resolveInfo.match = 5
@@ -283,11 +313,11 @@ class ServiceActivity : AppCompatActivity() {
                 MyService.statusH = ScreenUtil.getStatusBarHeight(this)
                 PaserUtil.thresh = 80
             }
-            PLATFORM_JJ -> {
-                PLATFORM = PLATFORM_JJ
-                MyService.statusH = 0
-                PaserUtil.thresh = 80
-            }
+//            PLATFORM_JJ -> {
+//                PLATFORM = PLATFORM_JJ
+//                MyService.statusH = 0
+//                PaserUtil.thresh = 80
+//            }
             PLATFORM_XB -> {
                 PLATFORM = PLATFORM_XB
                 MyService.statusH = 0

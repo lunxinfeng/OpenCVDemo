@@ -244,7 +244,7 @@ public class MyService extends Service implements ActivityCallBridge.PL2303Inter
                     wmParams.height = WindowManager.LayoutParams.WRAP_CONTENT;
 
                     wmParams.x = w - mFloatView.getMeasuredWidth();
-                    wmParams.y = h - 140;
+                    wmParams.y = h - 110;
                     mWindowManager.updateViewLayout(mFloatLayout, wmParams);
 
                 } else {
@@ -287,8 +287,11 @@ public class MyService extends Service implements ActivityCallBridge.PL2303Inter
                     dispose();
                     stopVirtual();
                     if (tileHelper!=null && tileHelper.isConnected())
-                        tileHelper.disConnect();
+//                        tileHelper.disConnect();
+                        tileHelper.onDestroy();
                     mPathView.moveable = true;
+                    mFloatView.performClick();
+                    mPathView.getRectF().set(new RectF(0,0,0,0));
                 }
             }
         });
@@ -471,7 +474,7 @@ public class MyService extends Service implements ActivityCallBridge.PL2303Inter
 //                                    || (game.getBw() == 2 && liveType.getAllStep().startsWith("-")))
 //                                return;
                             log("多了一颗子：" + liveType.getAllStep() + "；序列：" + liveType.getIndex());
-                            tileHelper.lamb(liveType.getAllStep(),true,90);
+                            tileHelper.lamb(liveType.getAllStep(),false,270);
                             tileHelper.putChess(liveType.getAllStep());
                             break;
                     }

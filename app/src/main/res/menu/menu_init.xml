@@ -7,4 +7,10 @@
         android:orderInCategory="100"
         android:title="双击间隔"
         app:showAsAction="never" />
+    <item
+        android:id="@+id/action_des"
+        android:icon="@mipmap/ic_launcher"
+        android:orderInCategory="100"
+        android:title="软件声明"
+        app:showAsAction="never" />
 </menu>

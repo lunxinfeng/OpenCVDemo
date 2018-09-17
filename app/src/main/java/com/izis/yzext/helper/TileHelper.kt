@@ -101,6 +101,7 @@ class TileHelper(private var pl2303interface: Pl2303InterfaceUtilNew?,private va
                 }
                 "BKY","WKY","~BKY","~WKY" ->{
                     pl2303interface?.WriteToUARTDevice("~STA#")
+//                    pl2303interface?.WriteToUARTDevice("~RGC#")
                 }
             }
 
@@ -172,10 +173,15 @@ class TileHelper(private var pl2303interface: Pl2303InterfaceUtilNew?,private va
                     SystemClock.sleep(500)
                     click(240f, 735f)
                 }
-                if (ServiceActivity.PLATFORM == PLATFORM_JJ){
+
+                if (ServiceActivity.PLATFORM == PLATFORM_YC){
                     SystemClock.sleep(500)
-                    click(480f, 367f)
+                    click(240f, 669f)
                 }
+//                if (ServiceActivity.PLATFORM == PLATFORM_JJ){
+//                    SystemClock.sleep(500)
+//                    click(480f, 367f)
+//                }
             }
             LiveType.GO_BACK -> {
                 val backNum = value.backNum

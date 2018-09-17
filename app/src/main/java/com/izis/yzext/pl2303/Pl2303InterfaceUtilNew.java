@@ -1972,6 +1972,28 @@ public class Pl2303InterfaceUtilNew {
 
     }
 
+//    /**
+//     * 点亮LED灯
+//     */
+//    public void WritesingleGoCoodinate(String singleGoCoodinate,
+//                                       boolean isbremove,int rotate) {
+//        if (singleGoCoodinate == null)
+//            return;
+//        String GoCoodinate;
+//        String WritesingleGoCoordinate = "";
+//        String color = "r000g000b255";
+//
+//        if (singleGoCoodinate.length() == 5) {
+//            GoCoodinate = GoCoordinateTransition(singleGoCoodinate, rotate);
+//            WritesingleGoCoordinate = "~QDB" + GoCoodinate + ","
+//                    + color+ ",1#";
+//        }
+//
+//        WriteToUARTDevice(WritesingleGoCoordinate);
+//        WriteToUARTDevice("~RGW#");
+//    }
+
+
     private boolean isSound;//报警声音是否开启
 
     // 发出警告音
