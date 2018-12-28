@@ -173,6 +173,7 @@ class TileHelper(private var pl2303interface: Pl2303InterfaceUtilNew?,private va
                     Single.timer(double_click_time,TimeUnit.MILLISECONDS)
                             .subscribeOn(Schedulers.io())
                             .observeOn(AndroidSchedulers.mainThread())
+                            .repeat(4)
                             .subscribe { _ -> click(xLocation, yLocation) }
 
                 }

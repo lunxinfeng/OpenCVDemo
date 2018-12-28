@@ -41,7 +41,7 @@ class ServiceActivity : AppCompatActivity() {
     private val REQUEST_MEDIA_PROJECTION = 1
     private var chessApps = mutableListOf<ResolveInfo>()
     private var appsAdapter: AppsAdapter? = null
-    private val times = listOf("200","500","1000","1500","2000")
+    private val times = listOf("200","500","800","1000","1500")
 
     companion object {
         var PLATFORM = PLATFORM_YK
