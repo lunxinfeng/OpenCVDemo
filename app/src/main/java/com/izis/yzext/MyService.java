@@ -291,7 +291,9 @@ public class MyService extends Service implements ActivityCallBridge.PL2303Inter
                         tileHelper.onDestroy();
                     mPathView.moveable = true;
                     mFloatView.performClick();
-                    mPathView.getRectF().set(new RectF(0, 0, 0, 0));
+//                    mPathView.getRectF().set(new RectF(0, 0, 0, 0));
+                    preChess = null;
+                    isFirst = true;
                 }
             }
         });
@@ -480,7 +482,8 @@ public class MyService extends Service implements ActivityCallBridge.PL2303Inter
 //                            if ((game.getBw() == 1 && liveType.getAllStep().startsWith("+"))
 //                                    || (game.getBw() == 2 && liveType.getAllStep().startsWith("-")))
 //                                return;
-                            log("多了一颗子：" + liveType.getAllStep() + "；序列：" + liveType.getIndex());
+                            String allStep = liveType.getAllStep();
+                            log("正常操作：" + allStep + "；序列：" + liveType.getIndex());
                             int rotate = 270;
                             switch (ServiceActivity.Companion.getPLATFORM()) {
                                 case ServiceActivityKt.PLATFORM_TX:
@@ -492,8 +495,34 @@ public class MyService extends Service implements ActivityCallBridge.PL2303Inter
                                     rotate = 0;
                                     break;
                             }
-                            tileHelper.lamb(liveType.getAllStep(), false, rotate);
-                            tileHelper.putChess(liveType.getAllStep());
+
+                            if (allStep.length() == 10){
+                                String self;
+                                String other;
+                                if (game.getBw() == 1){//自己执黑
+                                    if (allStep.startsWith("+")){
+                                        self = allStep.substring(0,5);//自己
+                                        other = allStep.substring(5,10);//对手
+                                    }else{
+                                        self = allStep.substring(5,10);//自己
+                                        other = allStep.substring(0,5);//对手
+                                    }
+                                }else{
+                                    if (allStep.startsWith("-")){
+                                        self = allStep.substring(0,5);//自己
+                                        other = allStep.substring(5,10);//对手
+                                    }else{
+                                        self = allStep.substring(5,10);//自己
+                                        other = allStep.substring(0,5);//对手
+                                    }
+                                }
+                                tileHelper.lamb(other, false, rotate);
+                                //一般是电脑下的快，所以先落自己的
+                                tileHelper.putChess(self + other);
+                            }else{
+                                tileHelper.lamb(allStep, false, rotate);
+                                tileHelper.putChess(allStep);
+                            }
                             break;
                     }
                 }

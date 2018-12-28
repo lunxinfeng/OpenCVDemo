@@ -59,6 +59,17 @@ public class Util {
 //                return liveType; // 有可能电子棋盘下了一步棋，点击屏幕由于开发板太卡子没上去，这时候虚拟board悔棋
 //            }
         } else if (changeList.size() > 1){
+            if (changeList.size() == 2){
+                if (changeList.get(0).getPreColor() == 0  && changeList.get(1).getPreColor() == 0){
+                    if ((changeList.get(0).getNowColor() == 1 && changeList.get(1).getNowColor() == 2) ||
+                            (changeList.get(0).getNowColor() == 2 && changeList.get(1).getNowColor() == 1)){
+                        liveType.setType(LiveType.NORMAL);
+                        liveType.setAllStep((changeList.get(0).getNowColor() == 1?"+":"-") + changeList.get(0).getStep()
+                        + (changeList.get(1).getNowColor() == 1?"+":"-") + changeList.get(1).getStep());
+                        return liveType;
+                    }
+                }
+            }
             //多个变化点，如果一个新增，其他都是消失，也认为正常（不用判断消失的是否是死子，软件会自己做好限制）
             int numAdd = 0;
             for (ChessChange change:changeList){
