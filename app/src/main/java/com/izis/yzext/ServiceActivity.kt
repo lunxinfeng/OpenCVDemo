@@ -41,7 +41,7 @@ class ServiceActivity : AppCompatActivity() {
     private val REQUEST_MEDIA_PROJECTION = 1
     private var chessApps = mutableListOf<ResolveInfo>()
     private var appsAdapter: AppsAdapter? = null
-    private val times = listOf("200","500","800","1000","1500")
+    private val times = listOf("300","500","800","1000","1500")
 
     companion object {
         var PLATFORM = PLATFORM_YK
@@ -138,7 +138,7 @@ class ServiceActivity : AppCompatActivity() {
             platformConfig(resolveInfo.activityInfo.packageName)
         }
 
-        double_click_time = times[SharedPrefsUtil.getValue(this,"click_time",2)].toLong()
+        double_click_time = times[SharedPrefsUtil.getValue(this,"click_time",1)].toLong()
     }
 
     override fun onCreateOptionsMenu(menu: Menu?): Boolean {
