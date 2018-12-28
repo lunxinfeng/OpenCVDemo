@@ -286,12 +286,12 @@ public class MyService extends Service implements ActivityCallBridge.PL2303Inter
                 } else {
                     dispose();
                     stopVirtual();
-                    if (tileHelper!=null && tileHelper.isConnected())
+                    if (tileHelper != null && tileHelper.isConnected())
 //                        tileHelper.disConnect();
                         tileHelper.onDestroy();
                     mPathView.moveable = true;
                     mFloatView.performClick();
-                    mPathView.getRectF().set(new RectF(0,0,0,0));
+                    mPathView.getRectF().set(new RectF(0, 0, 0, 0));
                 }
             }
         });
@@ -308,7 +308,7 @@ public class MyService extends Service implements ActivityCallBridge.PL2303Inter
                         Board.n = game.getBoardSize();
 
                         final Pl2303InterfaceUtilNew pl2303 = Pl2303InterfaceUtilNew.initInterface(MyService.this,
-                                game.getNextBW() == 1?"+":"-", MyService.this);
+                                game.getNextBW() == 1 ? "+" : "-", MyService.this);
                         pl2303.setIpl2303ConnectSuccess(new IPL2303ConnectSuccess() {
                             @Override
                             public void openSuccess() {
@@ -350,12 +350,19 @@ public class MyService extends Service implements ActivityCallBridge.PL2303Inter
 
     private void updatePath(int index) {
         if (rects.size() <= index) return;
-        if (index>=0){
+        if (index >= 0) {
             Rect rect = rects.get(index);
             log("当前选择区域：" + rect);
             mPathView.setRectF(new RectF(rect.x, rect.y - statusH, rect.x + rect.width, rect.y + rect.height - statusH));
-        }else {
-            mPathView.setRectF(new RectF(100, 100, 300, 300));
+        } else {
+            switch (ServiceActivity.Companion.getPLATFORM()) {
+                case ServiceActivityKt.PLATFORM_XB:
+                    mPathView.setRectF(new RectF(31, 11, 489, 469));
+                    break;
+                default:
+                    mPathView.setRectF(new RectF(100, 100, 300, 300));
+                    break;
+            }
         }
     }
 
@@ -416,7 +423,7 @@ public class MyService extends Service implements ActivityCallBridge.PL2303Inter
 //                                    Toast.makeText(MyService.this, "找到可能区域：" + rects.size() + "个", Toast.LENGTH_SHORT).show();
 //                                }
 //                            });
-                    if (firstRect){
+                    if (firstRect) {
                         updatePath(rectIndex);
                         firstRect = false;
                     }
@@ -447,11 +454,11 @@ public class MyService extends Service implements ActivityCallBridge.PL2303Inter
                 tileHelper.setRectF(mRectF);
 
                 if (cut_width > 0 && cut_height > 0) {
-                    if (mRectF.left + cut_width > bitmap.getWidth()){
-                        cut_width = bitmap.getWidth() - (int)mRectF.left;
+                    if (mRectF.left + cut_width > bitmap.getWidth()) {
+                        cut_width = bitmap.getWidth() - (int) mRectF.left;
                     }
-                    if (mRectF.top + cut_height > bitmap.getHeight()){
-                        cut_height = bitmap.getHeight() - (int)mRectF.top;
+                    if (mRectF.top + cut_height > bitmap.getHeight()) {
+                        cut_height = bitmap.getHeight() - (int) mRectF.top;
                     }
                     Bitmap cutBitmap = Bitmap.createBitmap(bitmap, (int) mRectF.left, (int) mRectF.top, cut_width, cut_height);
 //                    FileUtil.save(cutBitmap);
@@ -466,7 +473,7 @@ public class MyService extends Service implements ActivityCallBridge.PL2303Inter
                         tileHelper.updateCurBW(game.getNextBW());
                         log("第一帧数据");
                     }
-                    LiveType liveType = Util.parse(preChess, currChess,90);
+                    LiveType liveType = Util.parse(preChess, currChess, 90);//对比屏幕
                     switch (liveType.getType()) {
                         case LiveType.NORMAL:
                             preChess = result;
@@ -474,7 +481,18 @@ public class MyService extends Service implements ActivityCallBridge.PL2303Inter
 //                                    || (game.getBw() == 2 && liveType.getAllStep().startsWith("-")))
 //                                return;
                             log("多了一颗子：" + liveType.getAllStep() + "；序列：" + liveType.getIndex());
-                            tileHelper.lamb(liveType.getAllStep(),false,270);
+                            int rotate = 270;
+                            switch (ServiceActivity.Companion.getPLATFORM()) {
+                                case ServiceActivityKt.PLATFORM_TX:
+                                case ServiceActivityKt.PLATFORM_YC:
+                                case ServiceActivityKt.PLATFORM_YK:
+                                    rotate = 270;
+                                    break;
+                                case ServiceActivityKt.PLATFORM_XB:
+                                    rotate = 0;
+                                    break;
+                            }
+                            tileHelper.lamb(liveType.getAllStep(), false, rotate);
                             tileHelper.putChess(liveType.getAllStep());
                             break;
                     }

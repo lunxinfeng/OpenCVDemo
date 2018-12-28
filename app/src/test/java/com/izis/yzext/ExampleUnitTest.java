@@ -20,7 +20,7 @@ public class ExampleUnitTest {
     @Test
     public void WritesingleGoCoodinate() {
         String singleGoCoodinate = "+0102";
-        boolean isbremove = true;
+        boolean isbremove = false;
         int rotate = 270;
 
 
@@ -32,11 +32,38 @@ public class ExampleUnitTest {
 
 
 
+            int CoordinateXY = 0;
+            String CoordinateX = singleGoCoodinate.substring(3, 5);
+            String CoordinateY = singleGoCoodinate.substring(1, 3);
+            int x = Integer.valueOf(CoordinateX);
+            int y = Integer.valueOf(CoordinateY);
+
+            switch (rotate) {
+                case 0:
+                    CoordinateXY = (Board.n - y) * Board.n + (Board.n - x + 1);
+                    break;
+                case 90:
+                    CoordinateXY = (Board.n - x) * Board.n + y;
+                    break;
+                case 180:
+                    CoordinateXY = (y - 1) * Board.n + x;
+                    break;
+                case 270:
+                    CoordinateXY = (x - 1) * Board.n + (Board.n - y + 1);
+                    break;
+            }
+
+            String singleGoCoordinate = String.valueOf(CoordinateXY);
+            if (CoordinateXY < 10) {
+                singleGoCoordinate = "00" + singleGoCoordinate;
+            } else if (CoordinateXY >= 10 && CoordinateXY < 100) {
+                singleGoCoordinate = "0" + singleGoCoordinate;
+            }
+            GoCoodinate = singleGoCoordinate;
 
 
 
-
-            GoCoodinate = GoCoordinateTransition(singleGoCoodinate, rotate);
+//            GoCoodinate = GoCoordinateTransition(singleGoCoodinate, rotate);
             String colorWitle = "r000g000b000";
             if ("+".equals(curBW)) {
                 String colorRead = "r255g000b000";
@@ -50,37 +77,5 @@ public class ExampleUnitTest {
         }
         System.out.println(WritesingleGoCoordinate);
 
-    }
-
-    //坐标转换成字符
-    private String GoCoordinateTransition(String GoCoodinate, int rotate) {
-        int CoordinateXY = 0;
-        String CoordinateX = GoCoodinate.substring(3, 5);
-        String CoordinateY = GoCoodinate.substring(1, 3);
-        int x = Integer.valueOf(CoordinateX);
-        int y = Integer.valueOf(CoordinateY);
-
-        switch (rotate) {
-            case 0:
-                CoordinateXY = (Board.n - y) * Board.n + (Board.n - x + 1);
-                break;
-            case 90:
-                CoordinateXY = (Board.n - x) * Board.n + y;
-                break;
-            case 180:
-                CoordinateXY = (y - 1) * Board.n + x;
-                break;
-            case 270:
-                CoordinateXY = (x - 1) * Board.n + (Board.n - y + 1);
-                break;
-        }
-
-        String singleGoCoordinate = String.valueOf(CoordinateXY);
-        if (CoordinateXY < 10) {
-            singleGoCoordinate = "00" + singleGoCoordinate;
-        } else if (CoordinateXY >= 10 && CoordinateXY < 100) {
-            singleGoCoordinate = "0" + singleGoCoordinate;
-        }
-        return singleGoCoordinate;
     }
 }

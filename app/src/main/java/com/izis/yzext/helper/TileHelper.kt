@@ -10,6 +10,8 @@ import com.izis.yzext.pl2303.LiveType
 import com.izis.yzext.pl2303.LogToFile
 import com.izis.yzext.pl2303.LogUtils
 import com.izis.yzext.pl2303.Pl2303InterfaceUtilNew
+import io.reactivex.Observable
+import io.reactivex.Single
 import io.reactivex.android.schedulers.AndroidSchedulers
 import io.reactivex.disposables.Disposable
 import io.reactivex.schedulers.Schedulers
@@ -17,6 +19,8 @@ import lxf.widget.tileview.Board
 import lxf.widget.tileview.PieceProcess
 import java.io.IOException
 import java.util.concurrent.TimeUnit
+import kotlin.concurrent.timer
+import kotlin.concurrent.timerTask
 
 /**
  * 虚拟棋盘
@@ -166,17 +170,24 @@ class TileHelper(private var pl2303interface: Pl2303InterfaceUtilNew?,private va
                 println("点击屏幕落子:index" + index + ";x" + (x + 1) + "/" + xLocation + ";y" + (y + 1) + "/" + yLocation)
                 click(xLocation, yLocation)
                 if (ServiceActivity.PLATFORM == PLATFORM_XB){//新博需要双击
-                    SystemClock.sleep(double_click_time)
-                    click(xLocation, yLocation)
+                    Single.timer(double_click_time,TimeUnit.MILLISECONDS)
+                            .subscribeOn(Schedulers.io())
+                            .observeOn(AndroidSchedulers.mainThread())
+                            .subscribe { _ -> click(xLocation, yLocation) }
+
                 }
                 if (ServiceActivity.PLATFORM == PLATFORM_YK){
-                    SystemClock.sleep(500)
-                    click(240f, 735f)
+                    Single.timer(500,TimeUnit.MILLISECONDS)
+                            .subscribeOn(Schedulers.io())
+                            .observeOn(AndroidSchedulers.mainThread())
+                            .subscribe { _ -> click(240f, 735f) }
                 }
 
                 if (ServiceActivity.PLATFORM == PLATFORM_YC){
-                    SystemClock.sleep(500)
-                    click(240f, 669f)
+                    Single.timer(500,TimeUnit.MILLISECONDS)
+                            .subscribeOn(Schedulers.io())
+                            .observeOn(AndroidSchedulers.mainThread())
+                            .subscribe { _ -> click(240f, 669f) }
                 }
 //                if (ServiceActivity.PLATFORM == PLATFORM_JJ){
 //                    SystemClock.sleep(500)
@@ -211,6 +222,7 @@ class TileHelper(private var pl2303interface: Pl2303InterfaceUtilNew?,private va
 
     private val processBuilder = ProcessBuilder()
     private fun click(x: Float, y: Float) {
+        println("触发click")
         val order = arrayOf("input", "tap", "" + x, "" + y)
         try {
             processBuilder.command(*order).start()
