@@ -19,7 +19,7 @@
         android:id="@+id/float_id"
         android:layout_width="88dp"
         android:layout_height="88dp"
-        android:layout_marginBottom="32dp"
+        android:layout_marginBottom="8dp"
         android:background="@mipmap/xuanqu"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintDimensionRatio="1"
