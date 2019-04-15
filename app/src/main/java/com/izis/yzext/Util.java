@@ -72,19 +72,38 @@ public class Util {
             }
             //多个变化点，如果一个新增，其他都是消失，也认为正常（不用判断消失的是否是死子，软件会自己做好限制）
             int numAdd = 0;
+
+            ChessChange change1 = null;
+            ChessChange change2 = null;
             for (ChessChange change:changeList){
                 if (change.getPreColor() == 0){
                     numAdd++;
-                    liveType.setType(LiveType.NORMAL);
-                    liveType.setIndex(change.getI() + 1);
-                    if (change.getNowColor() == 1)
-                        liveType.setAllStep("+" + change.getStep());
-                    if (change.getNowColor() == 2)
-                        liveType.setAllStep("-" + change.getStep());
+                    if (numAdd == 1)
+                        change1 = change;
+                    if (numAdd == 2)
+                        change2 = change;
                 }
             }
-            if (numAdd == 1){
+            if (numAdd == 1 && change1!=null){
+                liveType.setType(LiveType.NORMAL);
+                liveType.setIndex(change1.getI() + 1);
+                if (change1.getNowColor() == 1)
+                    liveType.setAllStep("+" + change1.getStep());
+                if (change1.getNowColor() == 2)
+                    liveType.setAllStep("-" + change1.getStep());
                 return liveType;
+            }
+
+            if (numAdd == 2 && change1!=null && change2 != null){
+                if (change1.getPreColor() == 0  && change2.getPreColor() == 0){
+                    if ((change1.getNowColor() == 1 && change2.getNowColor() == 2) ||
+                            (change1.getNowColor() == 2 && change2.getNowColor() == 1)){
+                        liveType.setType(LiveType.NORMAL);
+                        liveType.setAllStep((change1.getNowColor() == 1?"+":"-") + change1.getStep()
+                                + (change2.getNowColor() == 1?"+":"-") + change2.getStep());
+                        return liveType;
+                    }
+                }
             }
         }
 

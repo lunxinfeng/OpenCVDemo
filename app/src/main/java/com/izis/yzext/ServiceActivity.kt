@@ -11,6 +11,7 @@ import android.os.Bundle
 import android.os.Environment
 import android.support.v7.app.AppCompatActivity
 import android.support.v7.widget.GridLayoutManager
+import android.text.Html
 import android.util.Log
 import android.view.Menu
 import android.view.MenuItem
@@ -53,6 +54,8 @@ class ServiceActivity : AppCompatActivity() {
 
         setSupportActionBar(toolbar)
         toolbar.inflateMenu(R.menu.menu_init)
+
+//        textDes.text = Html.fromHtml(resources.getString(R.string.scription))
 
         if(SharedPrefsUtil.getValue(this,"first",true)){
             MaterialDialog(this)

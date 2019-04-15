@@ -24,6 +24,10 @@ import java.util.concurrent.Executors;
  */
 public class LogToFile {
 
+    static {
+        init();
+    }
+
     public static boolean debug = false;
 
     private static String TAG = "LogToFile";
@@ -105,8 +109,13 @@ public class LogToFile {
         });
     }
 
-    public static void w(String tag, String msg) {
-        writeToFile(WARN, tag, msg);
+    public static void w(final String tag, final String msg) {
+        executorService.submit(new Runnable() {
+            @Override
+            public void run() {
+                writeToFile(WARN, tag, msg);
+            }
+        });
     }
 
     public static void e(String tag, String msg) {

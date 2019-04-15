@@ -101,7 +101,7 @@ class TileHelper(private var pl2303interface: Pl2303InterfaceUtilNew?,private va
                             cmdData, false, rotate)
 
                     if (liveType != null)
-                        receiveTileViewMessage(liveType)
+                        receiveTileViewMessage(liveType,cmdData)
                 }
                 "BKY","WKY","~BKY","~WKY" ->{
                     pl2303interface?.WriteToUARTDevice("~STA#")
@@ -112,7 +112,7 @@ class TileHelper(private var pl2303interface: Pl2303InterfaceUtilNew?,private va
         }
     }
 
-    fun receiveTileViewMessage(value: LiveType) {
+    fun receiveTileViewMessage(value: LiveType,cmdData:String) {
         if (LiveType.LAST_ERROR != value.type && LiveType.LITTLE_ERROR != value.type) {
             //isSound = !SharedPrefsUtil.getValue(context, "sound", false)
             data.soundWarning = false // 在1秒延迟内，设置成false后，发声子线程将不发声。
@@ -120,16 +120,29 @@ class TileHelper(private var pl2303interface: Pl2303InterfaceUtilNew?,private va
         LogToFile.d("pl2303 LiveType", value.toString())
         LogUtils.d("pl2303 LiveType", value.toString())
         when (value.type) {
-            LiveType.DA_JIE -> view.warning()
+            LiveType.DA_JIE -> {
+                view.warning()
+
+                val rotate = if (ScreenUtil.isPortrait(pl2303interface?.mcontext)) 270 else 0
+                LogToFile.w("DA_JIE","打劫:${view.board.toShortString(rotate)}\t:\t${pl2303interface?.reverStr(cmdData)}")
+            }
             LiveType.LAST_BACK -> {
-                data.tileViewHasChanged(GameStep(1))
-                view.tileViewLastBack()
+//                data.tileViewHasChanged(GameStep(1))
+//                view.tileViewLastBack()
             }
             LiveType.LAST_ERROR -> {
                 val change = value.chessChange
                 view.tileViewError("位置（" + (change.x + 64).toChar() + "，" + change.y + "）发生异常")
+
+                val rotate = if (ScreenUtil.isPortrait(pl2303interface?.mcontext)) 270 else 0
+                LogToFile.w("LAST_ERROR","错误$change:${view.board.toShortString(rotate)}\t:\t${pl2303interface?.reverStr(cmdData)}")
             }
-            LiveType.LITTLE_ERROR -> view.warning()
+            LiveType.LITTLE_ERROR -> {
+                view.warning()
+
+                val rotate = if (ScreenUtil.isPortrait(pl2303interface?.mcontext)) 270 else 0
+                LogToFile.w("LITTLE_ERROR","错误:${view.board.toShortString(rotate)}\t:\t${pl2303interface?.reverStr(cmdData)}")
+            }
             LiveType.LAST_ERROR_MORE, LiveType.LAST_ERROR_MORE_ADD -> {
                 view.warning()
                 val sb = StringBuilder()
@@ -137,9 +150,12 @@ class TileHelper(private var pl2303interface: Pl2303InterfaceUtilNew?,private va
                     sb.append("(").append((c.x + 64).toChar()).append(",").append(c.y).append(")")
                 }
                 view.tileViewError("位置" + sb + "发生异常")
+
+                val rotate = if (ScreenUtil.isPortrait(pl2303interface?.mcontext)) 270 else 0
+                LogToFile.w("MORE_ERROR","错误$sb:${view.board.toShortString(rotate)}\t:\t${pl2303interface?.reverStr(cmdData)}")
             }
             LiveType.FINISH_PICK -> {
-                view.tileViewFinshPick()
+//                view.tileViewFinshPick()
             }
             LiveType.DO_NOTHING -> {
             }
@@ -196,15 +212,15 @@ class TileHelper(private var pl2303interface: Pl2303InterfaceUtilNew?,private va
 //                }
             }
             LiveType.GO_BACK -> {
-                val backNum = value.backNum
-                data.tileViewHasChanged(GameStep(backNum))
-                view.tileViewGoBack(backNum)
+//                val backNum = value.backNum
+//                data.tileViewHasChanged(GameStep(backNum))
+//                view.tileViewGoBack(backNum)
             }
             LiveType.BACK_NEW -> {
-                val goBackNum = value.backNum
-                val newStep = value.backNew
-                data.tileViewHasChanged(GameStep(goBackNum))
-                view.tileViewBackNew(goBackNum, newStep)
+//                val goBackNum = value.backNum
+//                val newStep = value.backNew
+//                data.tileViewHasChanged(GameStep(goBackNum))
+//                view.tileViewBackNew(goBackNum, newStep)
             }
             LiveType.NEW_CHESS_2 -> {
 //                putChess(value.allStep)

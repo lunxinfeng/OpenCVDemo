@@ -88,8 +88,9 @@ public class MyService extends Service implements ActivityCallBridge.PL2303Inter
     private boolean startCapture;
     private boolean firstRect = true;//第一次自动识别
 
-    private String preChess;
-    private String currChess;
+    private String preChess;//上一帧数据
+    private String currChess;//当前帧数据
+    private int preChessBW = 2;//最后手落子颜色 1黑2白
     private TileHelper tileHelper;
     private float startX, startY;
     private int[] location = new int[2];
@@ -309,8 +310,10 @@ public class MyService extends Service implements ActivityCallBridge.PL2303Inter
                         PaserUtil.BOARD_SIZE = game.getBoardSize();
                         Board.n = game.getBoardSize();
 
+//                        final Pl2303InterfaceUtilNew pl2303 = Pl2303InterfaceUtilNew.initInterface(MyService.this,
+//                                game.getNextBW() == 1 ? "+" : "-", MyService.this);//game.getNextBW()这里这个实际是没用的
                         final Pl2303InterfaceUtilNew pl2303 = Pl2303InterfaceUtilNew.initInterface(MyService.this,
-                                game.getNextBW() == 1 ? "+" : "-", MyService.this);
+                                "+", MyService.this);
                         pl2303.setIpl2303ConnectSuccess(new IPL2303ConnectSuccess() {
                             @Override
                             public void openSuccess() {
@@ -413,7 +416,7 @@ public class MyService extends Service implements ActivityCallBridge.PL2303Inter
 //                FileUtil.save(bitmap);
 //                log("截图：" + bitmap.getWidth() + ";" + bitmap.getHeight());
 
-                if (!startCapture) {
+                if (!startCapture) { //第一次选区
                     rects = PaserUtil.findRects(bitmap);
                     System.out.println(Arrays.toString(rects.toArray()));
                     rectIndex = rects.size() - 1;
@@ -468,13 +471,24 @@ public class MyService extends Service implements ActivityCallBridge.PL2303Inter
                     String result = PaserUtil.exChange(a);
                     log(result);
                     currChess = result;
-                    if (game.getType() == 2 && isFirst) {
+
+//                    if (game.getType() == 2 && isFirst) {
+//                        isFirst = false;
+//                        preChess = result;
+//                        tileHelper.updateBoard(a);
+//                        tileHelper.updateCurBW(game.getNextBW());
+//                        log("第一帧数据");
+//                    }
+                    if (isFirst) {
                         isFirst = false;
                         preChess = result;
-                        tileHelper.updateBoard(a);
-                        tileHelper.updateCurBW(game.getNextBW());
+                        if (result.contains("1") || result.contains("2")){
+                            tileHelper.updateBoard(a);
+                            tileHelper.updateCurBW(game.getBw());//规定只有轮到自己落子才能开启服务
+                        }
                         log("第一帧数据");
                     }
+
                     LiveType liveType = Util.parse(preChess, currChess, 90);//对比屏幕
                     switch (liveType.getType()) {
                         case LiveType.NORMAL:
@@ -507,6 +521,11 @@ public class MyService extends Service implements ActivityCallBridge.PL2303Inter
                                         self = allStep.substring(5,10);//自己
                                         other = allStep.substring(0,5);//对手
                                     }
+
+                                    if (preChessBW == 2)
+                                        tileHelper.putChess(self + other);
+                                    else
+                                        tileHelper.putChess(other + self);
                                 }else{
                                     if (allStep.startsWith("-")){
                                         self = allStep.substring(0,5);//自己
@@ -515,13 +534,20 @@ public class MyService extends Service implements ActivityCallBridge.PL2303Inter
                                         self = allStep.substring(5,10);//自己
                                         other = allStep.substring(0,5);//对手
                                     }
+
+                                    if (preChessBW == 1)
+                                        tileHelper.putChess(self + other);
+                                    else
+                                        tileHelper.putChess(other + self);
                                 }
                                 tileHelper.lamb(other, false, rotate);
-                                //一般是电脑下的快，所以先落自己的
-                                tileHelper.putChess(self + other);
+//                                //一般是电脑下的快，所以先落自己的
+//                                tileHelper.putChess(self + other);
                             }else{
                                 tileHelper.lamb(allStep, false, rotate);
                                 tileHelper.putChess(allStep);
+
+                                preChessBW = allStep.contains("+")?1:2;
                             }
                             break;
                     }
