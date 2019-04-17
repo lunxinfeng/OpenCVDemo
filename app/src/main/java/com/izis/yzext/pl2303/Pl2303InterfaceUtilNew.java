@@ -13,6 +13,7 @@ import android.view.View;
 import android.widget.Toast;
 
 import com.izis.yzext.MyService;
+import com.izis.yzext.ServiceActivity;
 
 import java.io.ByteArrayOutputStream;
 import java.io.File;
@@ -32,6 +33,8 @@ import lxf.widget.tileview.PieceProcess;
 import lxf.widget.tileview.SgfHelper;
 import lxf.widget.util.SharedPrefsUtil;
 import tw.com.prolific.pl2303multilib.PL2303MultiLib;
+
+import static com.izis.yzext.ServiceActivityKt.PLATFORM_XB;
 
 
 /**
@@ -97,7 +100,9 @@ public class Pl2303InterfaceUtilNew {
 
     private void toast(String info){
 //        System.out.println(info);
-        
+        if (ServiceActivity.getPLATFORM().equals(PLATFORM_XB)){
+            return;
+        }
         Toast.makeText(mcontext,info,Toast.LENGTH_SHORT).show();
     }
 

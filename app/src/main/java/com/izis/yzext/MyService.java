@@ -335,6 +335,8 @@ public class MyService extends Service implements ActivityCallBridge.PL2303Inter
             @Override
             public void onClick(View v) {
                 stopVirtual();
+                AppUtil.killApp(MyService.this,ServiceActivity.getPLATFORM());
+                AppUtil.killApp(MyService.this,"com.izis.yzext");
                 stopSelf();
             }
         });

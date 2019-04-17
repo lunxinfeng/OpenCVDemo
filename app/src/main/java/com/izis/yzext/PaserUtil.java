@@ -13,6 +13,8 @@ import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 
+import static com.izis.yzext.ServiceActivityKt.PLATFORM_XB;
+
 
 public class PaserUtil {
     private final static boolean DEBUG = true;
@@ -206,12 +208,22 @@ public class PaserUtil {
                 }
             }
         }
-        if (numB > total / 3) {
-            return 1;
-        } else if (numW > total / 5) {
-            return 2;
-        } else {
-            return 0;
+        if (ServiceActivity.getPLATFORM().equals(PLATFORM_XB)){
+            if (numB > total / 2) {
+                return 1;
+            } else if (numW > total / 5) {
+                return 2;
+            } else {
+                return 0;
+            }
+        }else{
+            if (numB > total / 3) {
+                return 1;
+            } else if (numW > total / 5) {
+                return 2;
+            } else {
+                return 0;
+            }
         }
     }
 

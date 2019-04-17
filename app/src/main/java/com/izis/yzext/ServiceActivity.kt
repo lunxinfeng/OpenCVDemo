@@ -45,6 +45,7 @@ class ServiceActivity : AppCompatActivity() {
     private val times = listOf("300","500","800","1000","1500")
 
     companion object {
+        @JvmStatic
         var PLATFORM = PLATFORM_YK
     }
 
