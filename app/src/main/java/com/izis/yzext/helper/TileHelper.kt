@@ -279,6 +279,7 @@ class TileHelper(private var pl2303interface: Pl2303InterfaceUtilNew?,private va
         pl2303interface?.WriteToUARTDevice("~CAL#")
         pl2303interface?.WriteToUARTDevice("~CTS1#")
         pl2303interface?.WriteToUARTDevice("~BOD19#")
+        pl2303interface?.WriteToUARTDevice("~RGC#")
         pl2303interface?.callDestroy()
 
         disposable?.dispose()
