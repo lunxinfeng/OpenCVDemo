@@ -73,7 +73,7 @@ class TileHelper(private var pl2303interface: Pl2303InterfaceUtilNew?,private va
         var cmdData = ""
 
         // readdata 必须是以"~"开头或者指令开头（可能存在丢失数据包的情况），正常情况必然是以“~”开头
-        if (readdata.endsWith("#") && readdata.lastIndexOf("~") == 0)
+        if (readdata.endsWith("#"))
         // 一条完整的指令，粘包情况先不考虑
         {
             data = readdata

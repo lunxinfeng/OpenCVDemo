@@ -223,23 +223,27 @@ public class Pl2303InterfaceUtilNew {
 
                                 // ==================包含#号
                                 // 解析数据，分解成一条条指令后交给前台调用者处理===================
-                                if (ReadHub.endsWith("#")
-                                        && ReadHub.lastIndexOf("~") == 0) // 一条完整的指令
-                                {
-                                    mBridge.invokeMethod(ReadHub); // 刚好一条完整指令，则
-                                    // 直接通知前台去处理即可
-
-                                } else {
-                                    // 尝试获取第一条完整指令
-                                    int rp = firstStartCharIndex == -1 ? 0 : ReadHub.lastIndexOf("~");
-                                    for (int i = 0; i < TotalCommands.length(); i++) {
-                                        if (TotalCommands.charAt(i) == '#') {
-                                            if (rp < i + 1)
-                                                mBridge.invokeMethod(TotalCommands.substring(rp, i + 1));
-                                            rp = i + 1;
-                                        }
-                                    }
+                                if (TotalCommands.matches("^(~?[A-Z]{3})\\d*#$")) {
+                                    LogUtils.d("得到一条完整的指令:" + TotalCommands);
+                                    mBridge.invokeMethod(TotalCommands);
                                 }
+//                                if (ReadHub.endsWith("#")
+//                                        && ReadHub.lastIndexOf("~") == 0) // 一条完整的指令
+//                                {
+//                                    mBridge.invokeMethod(ReadHub); // 刚好一条完整指令，则
+//                                    // 直接通知前台去处理即可
+//
+//                                } else {
+//                                    // 尝试获取第一条完整指令
+//                                    int rp = firstStartCharIndex == -1 ? 0 : ReadHub.lastIndexOf("~");
+//                                    for (int i = 0; i < TotalCommands.length(); i++) {
+//                                        if (TotalCommands.charAt(i) == '#') {
+//                                            if (rp < i + 1)
+//                                                mBridge.invokeMethod(TotalCommands.substring(rp, i + 1));
+//                                            rp = i + 1;
+//                                        }
+//                                    }
+//                                }
 
                                 ReadHub = tempRest;
                             }
@@ -512,6 +516,7 @@ public class Pl2303InterfaceUtilNew {
                                 receiveValidData, rotate)) {
                             liveType.setIndex(change.getI()+1);
                             liveType.setType(LiveType.NORMAL);
+                            
                             liveType.setAllStep("+" + change.getStep());
                             return liveType; // 返回该棋步
                         } else {
@@ -1968,7 +1973,7 @@ public class Pl2303InterfaceUtilNew {
                 WritesingleGoCoordinate = "~SHP" + GoCoodinate + ","
                         + (isbremove ? colorWitle : colorRead) + ",1#";
             } else if ("-".equals(curBW)) {
-                String colorBlue = "r000g000b255";
+                String colorBlue = "r000g255b000";
                 WritesingleGoCoordinate = "~SHP" + GoCoodinate + ","
                         + (isbremove ? colorWitle : colorBlue) + ",1#";
             }
