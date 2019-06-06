@@ -226,6 +226,11 @@ public class Pl2303InterfaceUtilNew {
                                 if (TotalCommands.matches("^(~?[A-Z]{3})\\d*#$")) {
                                     LogUtils.d("得到一条完整的指令:" + TotalCommands);
                                     mBridge.invokeMethod(TotalCommands);
+                                    ReadHub = tempRest;
+                                } else {
+                                    LogUtils.d("丢弃异常数据");
+                                    ReadHub = "";
+                                    tempRest = "";
                                 }
 //                                if (ReadHub.endsWith("#")
 //                                        && ReadHub.lastIndexOf("~") == 0) // 一条完整的指令
@@ -245,7 +250,7 @@ public class Pl2303InterfaceUtilNew {
 //                                    }
 //                                }
 
-                                ReadHub = tempRest;
+//                                ReadHub = tempRest;
                             }
                         }
                     }

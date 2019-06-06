@@ -35,6 +35,7 @@ const val PLATFORM_YK = "com.indeed.golinks"
 //const val PLATFORM_JJ = "com.r99weiqi.dvd"
 //const val PLATFORM_JJ = "com.weiqi99.www"
 const val PLATFORM_XB = "com.cngames.weiqi_shaoer_mobile"
+const val PLATFORM_YZ = "cn.izis.mygo.mplat"
 
 class ServiceActivity : AppCompatActivity() {
     private var mediaResult = 0
@@ -81,6 +82,9 @@ class ServiceActivity : AppCompatActivity() {
             checkUpdate()
         }
 
+        val yzUserName = intent.getStringExtra("userName")
+        val yzPassword = intent.getStringExtra("password")
+
         recyclerView.layoutManager = GridLayoutManager(this, 3)
         appsAdapter = AppsAdapter(chessApps, packageManager)
         recyclerView.adapter = appsAdapter
@@ -114,6 +118,11 @@ class ServiceActivity : AppCompatActivity() {
                         platform_name = "新博围棋"
                         platform_url = "http://www.izis.cn/GoWebService/xbwq.apk"
                     }
+                    6 -> {
+                        platformConfig(PLATFORM_YZ)
+                        platform_name = "隐智围棋"
+                        platform_url = "http://www.izis.cn/GoWebService/yzwq.apk"
+                    }
                 }
 
                 MaterialDialog(this)
@@ -137,6 +146,8 @@ class ServiceActivity : AppCompatActivity() {
             val componentName = ComponentName(resolveInfo.activityInfo.packageName, resolveInfo.activityInfo.name)
             val intent = Intent()
             intent.component = componentName
+            intent.putExtra("userName",yzUserName)
+            intent.putExtra("password",yzPassword)
             startActivity(intent)
 
             platformConfig(resolveInfo.activityInfo.packageName)
@@ -263,6 +274,7 @@ class ServiceActivity : AppCompatActivity() {
                     || packName == PLATFORM_YK
 //                    || packName == PLATFORM_JJ
                     || packName == PLATFORM_XB
+                    || packName == PLATFORM_YZ
                     ) {
                 chessApps.add(info)
             }
@@ -273,6 +285,7 @@ class ServiceActivity : AppCompatActivity() {
         val hasYC = chessApps.any { it.activityInfo.packageName == PLATFORM_YC }
 //        val hasJJ = chessApps.any { it.activityInfo.packageName == PLATFORM_JJ }
         val hasXB = chessApps.any { it.activityInfo.packageName == PLATFORM_XB }
+        val hasYZ = chessApps.any { it.activityInfo.packageName == PLATFORM_YZ }
         if (!hasYK){
             val resolveInfo = ResolveInfo()
             resolveInfo.match = 1
@@ -296,6 +309,12 @@ class ServiceActivity : AppCompatActivity() {
         if (!hasXB){
             val resolveInfo = ResolveInfo()
             resolveInfo.match = 5
+            chessApps.add(0,resolveInfo)
+        }
+
+        if (!hasYZ){
+            val resolveInfo = ResolveInfo()
+            resolveInfo.match = 6
             chessApps.add(0,resolveInfo)
         }
     }
@@ -326,6 +345,11 @@ class ServiceActivity : AppCompatActivity() {
                 PLATFORM = PLATFORM_XB
                 MyService.statusH = 0
                 PaserUtil.thresh = 100
+            }
+            PLATFORM_YZ -> {
+                PLATFORM = PLATFORM_YZ
+                MyService.statusH = 0
+                PaserUtil.thresh = 80
             }
         }
     }

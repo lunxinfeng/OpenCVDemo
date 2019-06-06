@@ -70,6 +70,10 @@ public class AppsAdapter extends RecyclerView.Adapter<AppsAdapter.MyViewHolder> 
                     holder.icon.setImageResource(R.mipmap.ic_launcher);
                     holder.name.setText("新博围棋");
                     break;
+                case 6:
+                    holder.icon.setImageResource(R.mipmap.ic_launcher);
+                    holder.name.setText("隐智围棋");
+                    break;
             }
         }
 

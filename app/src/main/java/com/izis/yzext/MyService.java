@@ -507,6 +507,7 @@ public class MyService extends Service implements ActivityCallBridge.PL2303Inter
                                 case ServiceActivityKt.PLATFORM_TX:
                                 case ServiceActivityKt.PLATFORM_YC:
                                 case ServiceActivityKt.PLATFORM_YK:
+                                case ServiceActivityKt.PLATFORM_YZ:
                                     rotate = 270;
                                     break;
                                 case ServiceActivityKt.PLATFORM_XB:
