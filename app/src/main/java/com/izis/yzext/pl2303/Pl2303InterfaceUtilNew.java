@@ -24,6 +24,8 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.concurrent.TimeUnit;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 import io.reactivex.Flowable;
 import io.reactivex.functions.Consumer;
@@ -209,6 +211,8 @@ public class Pl2303InterfaceUtilNew {
                                     if (ReadHub.lastIndexOf("#") < ReadHub.length() - 1) {//包含了部分下一条指令
                                         tempRest = ReadHub.substring(ReadHub
                                                 .lastIndexOf("#") + 1); // 得到最后的#号之后的半截数据
+                                    }else{
+                                        tempRest  = "";
                                     }
 
                                     TotalCommands = ReadHub.substring(0,
@@ -223,15 +227,29 @@ public class Pl2303InterfaceUtilNew {
 
                                 // ==================包含#号
                                 // 解析数据，分解成一条条指令后交给前台调用者处理===================
-                                if (TotalCommands.matches("^(~?[A-Z]{3})\\d*#$")) {
-                                    LogUtils.d("得到一条完整的指令:" + TotalCommands);
-                                    mBridge.invokeMethod(TotalCommands);
-                                    ReadHub = tempRest;
-                                } else {
-                                    LogUtils.d("丢弃异常数据");
-                                    ReadHub = "";
-                                    tempRest = "";
+                                String p = "~?[A-Z]{3}[0-2]*#";
+                                Pattern r = Pattern.compile(p);
+                                Matcher m = r.matcher(TotalCommands);
+                                while (m.find()) {
+                                    String group = m.group();
+                                    LogUtils.d("得到一条完整的指令:" + group);
+                                    mBridge.invokeMethod(group);
                                 }
+
+                                ReadHub = tempRest;
+
+
+//                                if (TotalCommands.matches("^(~?[A-Z]{3})\\d*#$")) {
+//                                    LogUtils.d("得到一条完整的指令:" + TotalCommands);
+//                                    mBridge.invokeMethod(TotalCommands);
+//                                    ReadHub = tempRest;
+//                                } else {
+//                                    LogUtils.d("丢弃异常数据");
+//                                    ReadHub = "";
+//                                    tempRest = "";
+//                                }
+
+
 //                                if (ReadHub.endsWith("#")
 //                                        && ReadHub.lastIndexOf("~") == 0) // 一条完整的指令
 //                                {
