@@ -17,8 +17,10 @@ import io.reactivex.disposables.Disposable
 import io.reactivex.schedulers.Schedulers
 import lxf.widget.tileview.Board
 import lxf.widget.tileview.PieceProcess
+import lxf.widget.tileview.SgfHelper
 import java.io.IOException
 import java.util.concurrent.TimeUnit
+import java.util.regex.Pattern
 import kotlin.concurrent.timer
 import kotlin.concurrent.timerTask
 
@@ -236,6 +238,19 @@ class TileHelper(private var pl2303interface: Pl2303InterfaceUtilNew?,private va
               isbremove:Boolean,  rotate:Int){
         pl2303interface?.WritesingleGoCoodinate(singleGoCoodinate,isbremove,rotate)
     }
+
+    //是否是正常的棋谱，黑白交替的
+    fun isNormalChess(): Boolean {
+        val sgf = sgf()
+        val compile = Pattern.compile("(\\+[0-9]{4}-[0-9]{4})+(?:\\+[0-9]{4})?")
+        val matcher = compile.matcher(sgf)
+        if (matcher.find()) {
+            return matcher.group(0).length == sgf.length
+        }
+        return false
+    }
+
+    fun sgf() = SgfHelper.getBoardsgfStr(view.board)
 
     private val processBuilder = ProcessBuilder()
     private fun click(x: Float, y: Float) {

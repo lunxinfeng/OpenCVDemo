@@ -2,6 +2,7 @@ package com.izis.yzext;
 
 import android.app.Service;
 import android.content.Context;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.res.Configuration;
 import android.graphics.Bitmap;
@@ -15,6 +16,7 @@ import android.media.projection.MediaProjection;
 import android.media.projection.MediaProjectionManager;
 import android.os.IBinder;
 import android.support.constraint.ConstraintLayout;
+import android.support.v7.app.AlertDialog;
 import android.util.DisplayMetrics;
 import android.util.Log;
 import android.view.Gravity;
@@ -24,15 +26,21 @@ import android.view.View;
 import android.view.WindowManager;
 import android.widget.Button;
 import android.widget.CompoundButton;
+import android.widget.Toast;
 import android.widget.ToggleButton;
 
+import com.afollestad.materialdialogs.MaterialDialog;
 import com.izis.yzext.helper.TileHelper;
+import com.izis.yzext.net.NetKt;
+import com.izis.yzext.net.NetWorkSoap;
+import com.izis.yzext.net.ProgressSubscriber;
 import com.izis.yzext.pl2303.ActivityCallBridge;
 import com.izis.yzext.pl2303.IPL2303ConnectSuccess;
 import com.izis.yzext.pl2303.LiveType;
 import com.izis.yzext.pl2303.Pl2303InterfaceUtilNew;
 
 import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 import org.opencv.android.OpenCVLoader;
 import org.opencv.core.Rect;
 
@@ -42,8 +50,13 @@ import java.util.List;
 import java.util.concurrent.TimeUnit;
 
 import io.reactivex.Flowable;
+import io.reactivex.Observer;
+import io.reactivex.android.schedulers.AndroidSchedulers;
 import io.reactivex.disposables.Disposable;
 import io.reactivex.functions.Consumer;
+import io.reactivex.schedulers.Schedulers;
+import kotlin.Unit;
+import kotlin.jvm.functions.Function1;
 import lxf.widget.tileview.Board;
 
 import static com.izis.yzext.PaserUtil.BOARD_SIZE;
@@ -295,6 +308,8 @@ public class MyService extends Service implements ActivityCallBridge.PL2303Inter
 //                    mPathView.getRectF().set(new RectF(0, 0, 0, 0));
                     preChess = null;
                     isFirst = true;
+
+                    uploadChess();
                 }
             }
         });
@@ -335,10 +350,10 @@ public class MyService extends Service implements ActivityCallBridge.PL2303Inter
             @Override
             public void onClick(View v) {
                 stopVirtual();
-                if (tileHelper!=null)
+                if (tileHelper != null)
                     tileHelper.onDestroy();
-                AppUtil.killApp(MyService.this,ServiceActivity.getPLATFORM());
-                AppUtil.killApp(MyService.this,"com.izis.yzext");
+                AppUtil.killApp(MyService.this, ServiceActivity.getPLATFORM());
+                AppUtil.killApp(MyService.this, "com.izis.yzext");
                 stopSelf();
             }
         });
@@ -355,6 +370,59 @@ public class MyService extends Service implements ActivityCallBridge.PL2303Inter
                 }
             }
         });
+    }
+
+    private void uploadChess() {
+        if (tileHelper != null && tileHelper.isNormalChess() && ServiceActivity.getBoardId() != null) {
+            AlertDialog dialog = new AlertDialog.Builder(MyService.this, R.style.dialog)
+                    .setTitle("保存棋谱")
+                    .setMessage("棋谱保存后可以在标准版应用中查询，是否保存当前对局棋谱?")
+                    .setPositiveButton("保存", new DialogInterface.OnClickListener() {
+                        @Override
+                        public void onClick(DialogInterface dialogInterface, int i) {
+                            NetWorkSoap.Companion.getInstance()
+                                    .postSoap(
+                                            NetWorkSoap.Companion.getMETHOD_NAME_UPDATE(),
+                                            NetKt.getRobot_result(),
+                                            NetKt.robotResult(
+                                                    tileHelper.sgf(),
+                                                    tileHelper.sgf().length() / 5,
+                                                    game.getBoardSize(),
+                                                    "第三方对弈",
+                                                    game.getBw() == 1 ? "自己" : "三方棋友",
+                                                    game.getBw() == 1 ? "三方棋友" : "自己",
+                                                    "",
+                                                    "",
+                                                    "",
+                                                    200
+                                            ),
+                                            ServiceActivity.getBoardId(),
+                                            String.class
+                                    )
+                                    .subscribeOn(Schedulers.io())
+                                    .observeOn(AndroidSchedulers.mainThread())
+                                    .subscribe(new ProgressSubscriber<String>(getApplicationContext(), true, false, "正在提交", WindowManager.LayoutParams.TYPE_SYSTEM_ALERT) {
+                                        @Override
+                                        public void _onError(@Nullable String error) {
+                                        }
+
+                                        @Override
+                                        public void _onNext(String s) {
+                                            Toast.makeText(getApplicationContext(), s, Toast.LENGTH_SHORT).show();
+                                        }
+                                    });
+                        }
+                    })
+                    .setNegativeButton("不保存", new DialogInterface.OnClickListener() {
+                        @Override
+                        public void onClick(DialogInterface dialogInterface, int i) {
+                            dialogInterface.dismiss();
+                        }
+                    })
+                    .create();
+            dialog.getWindow().setType(WindowManager.LayoutParams.TYPE_SYSTEM_ALERT);
+            dialog.show();
+        }
     }
 
     private void updatePath(int index) {
@@ -486,7 +554,7 @@ public class MyService extends Service implements ActivityCallBridge.PL2303Inter
                     if (isFirst) {
                         isFirst = false;
                         preChess = result;
-                        if (result.contains("1") || result.contains("2")){
+                        if (result.contains("1") || result.contains("2")) {
                             tileHelper.updateBoard(a);
                             tileHelper.updateCurBW(game.getBw());//规定只有轮到自己落子才能开启服务
                         }
@@ -507,7 +575,7 @@ public class MyService extends Service implements ActivityCallBridge.PL2303Inter
                                 case ServiceActivityKt.PLATFORM_TX:
                                 case ServiceActivityKt.PLATFORM_YC:
                                 case ServiceActivityKt.PLATFORM_YK:
-                                case ServiceActivityKt.PLATFORM_YZ:
+//                                case ServiceActivityKt.PLATFORM_YZ:
                                     rotate = 270;
                                     break;
                                 case ServiceActivityKt.PLATFORM_XB:
@@ -515,29 +583,29 @@ public class MyService extends Service implements ActivityCallBridge.PL2303Inter
                                     break;
                             }
 
-                            if (allStep.length() == 10){
+                            if (allStep.length() == 10) {
                                 String self;
                                 String other;
-                                if (game.getBw() == 1){//自己执黑
-                                    if (allStep.startsWith("+")){
-                                        self = allStep.substring(0,5);//自己
-                                        other = allStep.substring(5,10);//对手
-                                    }else{
-                                        self = allStep.substring(5,10);//自己
-                                        other = allStep.substring(0,5);//对手
+                                if (game.getBw() == 1) {//自己执黑
+                                    if (allStep.startsWith("+")) {
+                                        self = allStep.substring(0, 5);//自己
+                                        other = allStep.substring(5, 10);//对手
+                                    } else {
+                                        self = allStep.substring(5, 10);//自己
+                                        other = allStep.substring(0, 5);//对手
                                     }
 
                                     if (preChessBW == 2)
                                         tileHelper.putChess(self + other);
                                     else
                                         tileHelper.putChess(other + self);
-                                }else{
-                                    if (allStep.startsWith("-")){
-                                        self = allStep.substring(0,5);//自己
-                                        other = allStep.substring(5,10);//对手
-                                    }else{
-                                        self = allStep.substring(5,10);//自己
-                                        other = allStep.substring(0,5);//对手
+                                } else {
+                                    if (allStep.startsWith("-")) {
+                                        self = allStep.substring(0, 5);//自己
+                                        other = allStep.substring(5, 10);//对手
+                                    } else {
+                                        self = allStep.substring(5, 10);//自己
+                                        other = allStep.substring(0, 5);//对手
                                     }
 
                                     if (preChessBW == 1)
@@ -548,11 +616,11 @@ public class MyService extends Service implements ActivityCallBridge.PL2303Inter
                                 tileHelper.lamb(other, false, rotate);
 //                                //一般是电脑下的快，所以先落自己的
 //                                tileHelper.putChess(self + other);
-                            }else{
+                            } else {
                                 tileHelper.lamb(allStep, false, rotate);
                                 tileHelper.putChess(allStep);
 
-                                preChessBW = allStep.contains("+")?1:2;
+                                preChessBW = allStep.contains("+") ? 1 : 2;
                             }
                             break;
                     }

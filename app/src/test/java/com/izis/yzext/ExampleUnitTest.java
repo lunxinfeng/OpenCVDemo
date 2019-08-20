@@ -2,6 +2,9 @@ package com.izis.yzext;
 
 import org.junit.Test;
 
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
+
 import lxf.widget.tileview.Board;
 
 import static org.junit.Assert.*;
@@ -12,6 +15,25 @@ import static org.junit.Assert.*;
  * @see <a href="http://d.android.com/tools/testing">Testing documentation</a>
  */
 public class ExampleUnitTest {
+    @Test
+    public void sgf(){
+//        String sgf = "+0102";
+//        String sgf = "+0102-0203";
+//        String sgf = "+0102-0203+0506";
+//        String sgf = "+0102-0203+0506-0606";
+//        String sgf = "+0102-0203+0506-0606+0809";
+//        String sgf = "+0102-0203+0506-0606+0809-0105";
+        String sgf = "+0102+0201-0203+0506-0606+0809-0105+0603";
+        Pattern compile = Pattern.compile("(\\+[0-9]{4}-[0-9]{4})+(?:\\+[0-9]{4})?");//(?:\+[0-9]{4})?
+        Matcher matcher = compile.matcher(sgf);
+        if (matcher.find()){
+            System.out.println(matcher.group());
+            System.out.println(matcher.group(0));
+            System.out.println(matcher.group(1));
+//            System.out.println(matcher.group(2));
+        }
+    }
+
     @Test
     public void addition_isCorrect() throws Exception {
         assertEquals(4, 2 + 2);

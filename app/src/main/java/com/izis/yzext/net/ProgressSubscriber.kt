@@ -30,18 +30,18 @@ abstract class ProgressSubscriber<T> : Observer<T> {
     /**
      * 默认显示且不可取消 加载框
      */
-    constructor(context: Context, show: Boolean = true, cancel: Boolean = false, msg: String? = null) {
+    constructor(context: Context, show: Boolean = true, cancel: Boolean = false, msg: String? = null, windowType:Int? = null) {
         this.mActivity = WeakReference(context)
         this.show = show
         this.cancel = cancel
-        initProgressDialog(msg)
+        initProgressDialog(msg,windowType)
     }
 
 
     /**
      * 初始化加载框
      */
-    private fun initProgressDialog(msg: String?) {
+    private fun initProgressDialog(msg: String?, windowType:Int? = null) {
         val context = mActivity!!.get()
         if (waitDialog == null && context != null && show) {
             if (msg == null)
@@ -49,6 +49,7 @@ abstract class ProgressSubscriber<T> : Observer<T> {
             else
                 waitDialog = WaitDialog(context, R.style.dialog, msg)
             waitDialog?.setCancelable(cancel)
+            windowType?.let { waitDialog?.window?.setType(windowType) }
             if (cancel) {
                 waitDialog?.setOnCancelListener { onCancelProgress() }
             }

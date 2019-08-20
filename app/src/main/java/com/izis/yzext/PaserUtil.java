@@ -14,7 +14,6 @@ import java.util.Collections;
 import java.util.List;
 
 import static com.izis.yzext.ServiceActivityKt.PLATFORM_XB;
-import static com.izis.yzext.ServiceActivityKt.PLATFORM_YZ;
 
 
 public class PaserUtil {
@@ -209,8 +208,9 @@ public class PaserUtil {
                 }
             }
         }
-        if (ServiceActivity.getPLATFORM().equals(PLATFORM_XB) ||
-                ServiceActivity.getPLATFORM().equals(PLATFORM_YZ)){
+        if (ServiceActivity.getPLATFORM().equals(PLATFORM_XB)
+//                || ServiceActivity.getPLATFORM().equals(PLATFORM_YZ)
+        ){
             if (numB > total / 2) {
                 return 1;
             } else if (numW > total / 5) {

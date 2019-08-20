@@ -2,7 +2,6 @@ package com.izis.yzext.net
 
 import android.text.TextUtils
 import android.util.Xml
-import com.jakewharton.retrofit2.adapter.rxjava2.RxJava2CallAdapterFactory
 import com.izis.yzext.getGson
 import com.izis.yzext.gsonToBean
 import com.izis.yzext.gsonToList
@@ -15,6 +14,7 @@ import okhttp3.OkHttpClient
 import org.xmlpull.v1.XmlPullParser
 import org.xmlpull.v1.XmlPullParserException
 import retrofit2.Retrofit
+import retrofit2.adapter.rxjava2.RxJava2CallAdapterFactory
 import java.io.IOException
 import java.io.InputStream
 import java.util.concurrent.TimeUnit

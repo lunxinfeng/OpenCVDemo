@@ -25,7 +25,7 @@ fun net_info_getServerCode(type: String = "5"): String = "{\"root\":[{\"type\":\
  */
 val net_code_createLiveRoom = "2302_3"
 
-fun net_info_createLiveRoom(blackName: String, whiteName: String,userId:Int): String {
+fun net_info_createLiveRoom(blackName: String, whiteName: String, userId: Int): String {
     return "{\"root\":[{\"matchid\":\"0\",\"round\":\"0\",\"blackname\":\"$blackName\",\"whitename\":\"$whiteName\",\"f_gamename\":\"\",\"f_add_user\":\"$userId\"}]}"
 }
 
@@ -48,4 +48,14 @@ fun net_info_downChess(id: Int) = "{\"root\":[{\"Id\":\"$id\"}]}"
  */
 val net_code_liveSetScore = "2305"
 
-fun net_info_liveSetScore(gameId:Int, sscore:String, oscore:String, strResult:String) = "{\"root\":[{\"id\":\"$gameId\",\"sscore\":\"$sscore\",\"oscore\":\"$oscore\",\"result\":\"$strResult\"}]}"
+fun net_info_liveSetScore(gameId: Int, sscore: String, oscore: String, strResult: String) = "{\"root\":[{\"id\":\"$gameId\",\"sscore\":\"$sscore\",\"oscore\":\"$oscore\",\"result\":\"$strResult\"}]}"
+
+/**
+ * 人机对弈，提交对局结果
+ */
+val robot_result = "0101_1"
+
+fun robotResult(allStep: String, playNum: Int, boardSize: Int, gameName: String, blackName: String, whiteName: String, level: String, result: String, memo: String, stype: Int) = ("{\"root\":[{\"allstep\":\"" + allStep + "\",\"playnum\":\"" + playNum
+        + "\",\"f_sz\":\"" + boardSize + "\",\"gamename\":\"" + gameName + "\",\"blackname\":\"" + blackName
+        + "\",\"whitename\":\"" + whiteName + "\",\"level\":\"" + level + "\",\"result\":\""
+        + result + "\"" + ",\"memo\":\"" + memo + "\",\"stype\":\"" + stype + " \"}]}")
