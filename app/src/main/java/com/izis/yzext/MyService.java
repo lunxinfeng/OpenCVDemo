@@ -1,5 +1,6 @@
 package com.izis.yzext;
 
+import android.app.AlertDialog;
 import android.app.Service;
 import android.content.Context;
 import android.content.DialogInterface;
@@ -16,7 +17,6 @@ import android.media.projection.MediaProjection;
 import android.media.projection.MediaProjectionManager;
 import android.os.IBinder;
 import android.support.constraint.ConstraintLayout;
-import android.support.v7.app.AlertDialog;
 import android.util.DisplayMetrics;
 import android.util.Log;
 import android.view.Gravity;
@@ -452,7 +452,7 @@ public class MyService extends Service implements ActivityCallBridge.PL2303Inter
     }
 
     private void interval() {
-        disposable = Flowable.interval(3000, 3000, TimeUnit.MILLISECONDS)
+        disposable = Flowable.interval(3000, 500, TimeUnit.MILLISECONDS)
                 .subscribe(new Consumer<Long>() {
                     @Override
                     public void accept(Long aLong) throws Exception {
@@ -555,8 +555,21 @@ public class MyService extends Service implements ActivityCallBridge.PL2303Inter
                         isFirst = false;
                         preChess = result;
                         if (result.contains("1") || result.contains("2")) {
-                            tileHelper.updateBoard(a);
-                            tileHelper.updateCurBW(game.getBw());//规定只有轮到自己落子才能开启服务
+                            int count = 0;
+                            for (int i = 0; i < result.length(); i++) {
+                                char c = result.charAt(i);
+                                if (c != 0)
+                                    count++;
+                            }
+
+                            if (count > 1) {
+                                tileHelper.updateBoard(a);
+                                tileHelper.updateCurBW(game.getBw());//规定只有轮到自己落子才能开启服务
+                            } else {
+                                //todo 如果只有一颗子,不要直接替换board二维数组,调用显示棋步的方法
+                                tileHelper.updateBoard(a);
+                                tileHelper.updateCurBW(game.getBw());//规定只有轮到自己落子才能开启服务
+                            }
                         }
                         log("第一帧数据");
                     }
@@ -617,6 +630,7 @@ public class MyService extends Service implements ActivityCallBridge.PL2303Inter
 //                                //一般是电脑下的快，所以先落自己的
 //                                tileHelper.putChess(self + other);
                             } else {
+
                                 tileHelper.lamb(allStep, false, rotate);
                                 tileHelper.putChess(allStep);
 

@@ -3,6 +3,8 @@ package com.izis.yzext.update;
 import android.content.Context;
 import android.content.Intent;
 import android.net.Uri;
+import android.os.Build;
+import android.support.v4.content.FileProvider;
 
 import com.izis.yzext.net.NetWork;
 
@@ -69,10 +71,11 @@ public class UpdateManager {
                     public void onComplete() {
                         System.out.println("UpdateManager.onComplete");
                         //安装apk
-                        Intent intent = new Intent(Intent.ACTION_VIEW);
-                        intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
-                        intent.setDataAndType(Uri.fromFile(new File(apkPath)), "application/vnd.android.package-archive");
-                        context.startActivity(intent);
+                        installApk(apkPath,context);
+//                        Intent intent = new Intent(Intent.ACTION_VIEW);
+//                        intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+//                        intent.setDataAndType(Uri.fromFile(new File(apkPath)), "application/vnd.android.package-archive");
+//                        context.startActivity(intent);
 
                         unSubscribe(cd);
                     }
@@ -105,5 +108,34 @@ public class UpdateManager {
     private static void unSubscribe(CompositeDisposable cd) {
         if (cd != null && !cd.isDisposed())
             cd.dispose();
+    }
+
+    /**
+     * 安装APK文件
+     */
+    private static void installApk(String filePath,Context context) {
+        File apkfile = new File(filePath);
+        if (!apkfile.exists()) {
+            return;
+        }
+        // 通过Intent安装APK文件
+        Intent intent = new Intent(Intent.ACTION_VIEW);
+        intent.setFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION);
+        intent.setDataAndType(getUriForFile(context, apkfile),
+                "application/vnd.android.package-archive");
+        context.startActivity(intent);
+    }
+
+    private  static Uri getUriForFile(Context context, File file) {
+        if (context == null || file == null) {
+            throw new NullPointerException();
+        }
+        Uri uri;
+        if (Build.VERSION.SDK_INT >= 24) {
+            uri = FileProvider.getUriForFile(context.getApplicationContext(), "com.izis.yzext.fileprovider", file);
+        } else {
+            uri = Uri.fromFile(file);
+        }
+        return uri;
     }
 }
