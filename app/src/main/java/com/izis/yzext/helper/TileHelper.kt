@@ -245,7 +245,7 @@ class TileHelper(private var pl2303interface: Pl2303InterfaceUtilNew?,private va
         val compile = Pattern.compile("(\\+[0-9]{4}-[0-9]{4})+(?:\\+[0-9]{4})?")
         val matcher = compile.matcher(sgf)
         if (matcher.find()) {
-            return matcher.group(0).length == sgf.length
+            return matcher.group(0).length == sgf.length && isNormalChess
         }
         return false
     }
@@ -276,8 +276,10 @@ class TileHelper(private var pl2303interface: Pl2303InterfaceUtilNew?,private va
                 .subscribe { pl2303interface?.OpenUARTDevice(view, Board.n) }
     }
 
+    private var isNormalChess = true
     fun updateBoard(a: Array<IntArray>) {
         view.board.currentGrid.a = a
+        isNormalChess = false
     }
 
     fun updateCurBW(bw:Int){

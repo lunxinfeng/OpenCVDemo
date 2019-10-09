@@ -408,7 +408,12 @@ public class MyService extends Service implements ActivityCallBridge.PL2303Inter
 
                                         @Override
                                         public void _onNext(String s) {
-                                            Toast.makeText(getApplicationContext(), s, Toast.LENGTH_SHORT).show();
+                                            try {
+                                                if (Integer.parseInt(s) > 0)
+                                                    Toast.makeText(getApplicationContext(), "保存成功", Toast.LENGTH_SHORT).show();
+                                            } catch (Exception e) {
+                                                e.printStackTrace();
+                                            }
                                         }
                                     });
                         }
@@ -556,19 +561,26 @@ public class MyService extends Service implements ActivityCallBridge.PL2303Inter
                         preChess = result;
                         if (result.contains("1") || result.contains("2")) {
                             int count = 0;
+                            int index = 0;
                             for (int i = 0; i < result.length(); i++) {
                                 char c = result.charAt(i);
-                                if (c != 0)
+                                if (c != 0) {
+                                    index = i;
                                     count++;
+                                }
                             }
 
                             if (count > 1) {
                                 tileHelper.updateBoard(a);
                                 tileHelper.updateCurBW(game.getBw());//规定只有轮到自己落子才能开启服务
                             } else {
-                                //todo 如果只有一颗子,不要直接替换board二维数组,调用显示棋步的方法
-                                tileHelper.updateBoard(a);
-                                tileHelper.updateCurBW(game.getBw());//规定只有轮到自己落子才能开启服务
+                                //如果只有一颗子,不要直接替换board二维数组,调用显示棋步的方法
+                                preChess = "";
+                                for (int i = 0; i < game.getBoardSize(); i++) {
+                                    for (int j = 0; j < game.getBoardSize(); j++) {
+                                        preChess = preChess + "0";
+                                    }
+                                }
                             }
                         }
                         log("第一帧数据");
