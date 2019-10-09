@@ -561,11 +561,9 @@ public class MyService extends Service implements ActivityCallBridge.PL2303Inter
                         preChess = result;
                         if (result.contains("1") || result.contains("2")) {
                             int count = 0;
-                            int index = 0;
                             for (int i = 0; i < result.length(); i++) {
                                 char c = result.charAt(i);
-                                if (c != 0) {
-                                    index = i;
+                                if (c != '0') {
                                     count++;
                                 }
                             }

@@ -18,14 +18,14 @@ android {
     }
     signingConfigs {
         release {
-            storeFile file("../sign/demo7.1.jks")
+            storeFile file("../sign/demo.jks")
             storePassword '123456'
             keyAlias 'demo'
             keyPassword '123456'
         }
 
         debug {
-            storeFile file("../sign/demo7.1.jks")
+            storeFile file("../sign/demo.jks")
             storePassword '123456'
                     keyAlias 'demo'
             keyPassword '123456'
