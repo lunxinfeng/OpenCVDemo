@@ -120,7 +120,8 @@ public class UpdateManager {
         }
         // 通过Intent安装APK文件
         Intent intent = new Intent(Intent.ACTION_VIEW);
-        intent.setFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION);
+        intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+        intent.addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION);
         intent.setDataAndType(getUriForFile(context, apkfile),
                 "application/vnd.android.package-archive");
         context.startActivity(intent);
