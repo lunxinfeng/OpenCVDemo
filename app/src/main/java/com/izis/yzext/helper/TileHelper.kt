@@ -1,10 +1,14 @@
 package com.izis.yzext.helper
 
+import android.content.Intent
 import android.graphics.RectF
+import android.os.Build
 import android.os.SystemClock
 import android.support.v4.util.SparseArrayCompat
 import android.view.View
 import com.izis.yzext.*
+import com.izis.yzext.base.RxBus
+import com.izis.yzext.base.RxEvent
 import com.izis.yzext.bean.GameStep
 import com.izis.yzext.pl2303.LiveType
 import com.izis.yzext.pl2303.LogToFile
@@ -28,7 +32,7 @@ import kotlin.concurrent.timerTask
  * 虚拟棋盘
  * Created by lxf on 18-5-29.
  */
-class TileHelper(private var pl2303interface: Pl2303InterfaceUtilNew?,private val game:GameInfo) {
+class TileHelper(private var pl2303interface: Pl2303InterfaceUtilNew?, private val game: GameInfo) {
     /**
      * 储存死子列表
      */
@@ -95,17 +99,17 @@ class TileHelper(private var pl2303interface: Pl2303InterfaceUtilNew?,private va
             LogToFile.d("pl2303指令", command + cmdData)
             LogUtils.d("pl2303指令", command + cmdData)
             // 收到全盘信息
-            when(command){
-                "SDA","~SDA" ->{
+            when (command) {
+                "SDA", "~SDA" -> {
                     // 收到完整的盘面
                     val rotate = if (ScreenUtil.isPortrait(pl2303interface?.mcontext)) 270 else 0
                     val liveType = pl2303interface?.handleReceiveDataRobot(view.board,
                             cmdData, false, rotate)
 
                     if (liveType != null)
-                        receiveTileViewMessage(liveType,cmdData)
+                        receiveTileViewMessage(liveType, cmdData)
                 }
-                "BKY","WKY","~BKY","~WKY" ->{
+                "BKY", "WKY", "~BKY", "~WKY" -> {
                     pl2303interface?.WriteToUARTDevice("~STA#")
 //                    pl2303interface?.WriteToUARTDevice("~RGC#")
                 }
@@ -114,7 +118,7 @@ class TileHelper(private var pl2303interface: Pl2303InterfaceUtilNew?,private va
         }
     }
 
-    fun receiveTileViewMessage(value: LiveType,cmdData:String) {
+    fun receiveTileViewMessage(value: LiveType, cmdData: String) {
         if (LiveType.LAST_ERROR != value.type && LiveType.LITTLE_ERROR != value.type) {
             //isSound = !SharedPrefsUtil.getValue(context, "sound", false)
             data.soundWarning = false // 在1秒延迟内，设置成false后，发声子线程将不发声。
@@ -126,7 +130,7 @@ class TileHelper(private var pl2303interface: Pl2303InterfaceUtilNew?,private va
                 view.warning()
 
                 val rotate = if (ScreenUtil.isPortrait(pl2303interface?.mcontext)) 270 else 0
-                LogToFile.w("DA_JIE","打劫:${view.board.toShortString(rotate)}\t:\t${pl2303interface?.reverStr(cmdData)}")
+                LogToFile.w("DA_JIE", "打劫:${view.board.toShortString(rotate)}\t:\t${pl2303interface?.reverStr(cmdData)}")
             }
             LiveType.LAST_BACK -> {
 //                data.tileViewHasChanged(GameStep(1))
@@ -137,13 +141,13 @@ class TileHelper(private var pl2303interface: Pl2303InterfaceUtilNew?,private va
                 view.tileViewError("位置（" + (change.x + 64).toChar() + "，" + change.y + "）发生异常")
 
                 val rotate = if (ScreenUtil.isPortrait(pl2303interface?.mcontext)) 270 else 0
-                LogToFile.w("LAST_ERROR","错误$change:${view.board.toShortString(rotate)}\t:\t${pl2303interface?.reverStr(cmdData)}")
+                LogToFile.w("LAST_ERROR", "错误$change:${view.board.toShortString(rotate)}\t:\t${pl2303interface?.reverStr(cmdData)}")
             }
             LiveType.LITTLE_ERROR -> {
                 view.warning()
 
                 val rotate = if (ScreenUtil.isPortrait(pl2303interface?.mcontext)) 270 else 0
-                LogToFile.w("LITTLE_ERROR","错误:${view.board.toShortString(rotate)}\t:\t${pl2303interface?.reverStr(cmdData)}")
+                LogToFile.w("LITTLE_ERROR", "错误:${view.board.toShortString(rotate)}\t:\t${pl2303interface?.reverStr(cmdData)}")
             }
             LiveType.LAST_ERROR_MORE, LiveType.LAST_ERROR_MORE_ADD -> {
                 view.warning()
@@ -154,7 +158,7 @@ class TileHelper(private var pl2303interface: Pl2303InterfaceUtilNew?,private va
                 view.tileViewError("位置" + sb + "发生异常")
 
                 val rotate = if (ScreenUtil.isPortrait(pl2303interface?.mcontext)) 270 else 0
-                LogToFile.w("MORE_ERROR","错误$sb:${view.board.toShortString(rotate)}\t:\t${pl2303interface?.reverStr(cmdData)}")
+                LogToFile.w("MORE_ERROR", "错误$sb:${view.board.toShortString(rotate)}\t:\t${pl2303interface?.reverStr(cmdData)}")
             }
             LiveType.FINISH_PICK -> {
 //                view.tileViewFinshPick()
@@ -187,23 +191,23 @@ class TileHelper(private var pl2303interface: Pl2303InterfaceUtilNew?,private va
                 val yLocation = rectF.top + size * (x + 0.5f)
                 println("点击屏幕落子:index" + index + ";x" + (x + 1) + "/" + xLocation + ";y" + (y + 1) + "/" + yLocation)
                 click(xLocation, yLocation)
-                if (ServiceActivity.PLATFORM == PLATFORM_XB){//新博需要双击
-                    Single.timer(double_click_time,TimeUnit.MILLISECONDS)
+                if (ServiceActivity.PLATFORM == PLATFORM_XB) {//新博需要双击
+                    Single.timer(double_click_time, TimeUnit.MILLISECONDS)
                             .subscribeOn(Schedulers.io())
                             .observeOn(AndroidSchedulers.mainThread())
                             .repeat(4)
                             .subscribe { _ -> click(xLocation, yLocation) }
 
                 }
-                if (ServiceActivity.PLATFORM == PLATFORM_YK){
-                    Single.timer(500,TimeUnit.MILLISECONDS)
+                if (ServiceActivity.PLATFORM == PLATFORM_YK) {
+                    Single.timer(500, TimeUnit.MILLISECONDS)
                             .subscribeOn(Schedulers.io())
                             .observeOn(AndroidSchedulers.mainThread())
                             .subscribe { _ -> click(240f, 735f) }
                 }
 
-                if (ServiceActivity.PLATFORM == PLATFORM_YC){
-                    Single.timer(500,TimeUnit.MILLISECONDS)
+                if (ServiceActivity.PLATFORM == PLATFORM_YC) {
+                    Single.timer(500, TimeUnit.MILLISECONDS)
                             .subscribeOn(Schedulers.io())
                             .observeOn(AndroidSchedulers.mainThread())
                             .subscribe { _ -> click(240f, 669f) }
@@ -234,9 +238,9 @@ class TileHelper(private var pl2303interface: Pl2303InterfaceUtilNew?,private va
         view.tileViewNormal(step)
     }
 
-    fun lamb( singleGoCoodinate:String,
-              isbremove:Boolean,  rotate:Int){
-        pl2303interface?.WritesingleGoCoodinate(singleGoCoodinate,isbremove,rotate)
+    fun lamb(singleGoCoodinate: String,
+             isbremove: Boolean, rotate: Int) {
+        pl2303interface?.WritesingleGoCoodinate(singleGoCoodinate, isbremove, rotate)
     }
 
     //是否是正常的棋谱，黑白交替的
@@ -254,12 +258,15 @@ class TileHelper(private var pl2303interface: Pl2303InterfaceUtilNew?,private va
 
     private val processBuilder = ProcessBuilder()
     private fun click(x: Float, y: Float) {
-        println("触发click")
-        val order = arrayOf("input", "tap", "" + x, "" + y)
-        try {
-            processBuilder.command(*order).start()
-        } catch (e: IOException) {
-            e.printStackTrace()
+        if (Build.VERSION.SDK_INT < 24) {
+            val order = arrayOf("input", "tap", "" + x, "" + y)
+            try {
+                processBuilder.command(*order).start()
+            } catch (e: IOException) {
+                e.printStackTrace()
+            }
+        } else {
+            RxBus.getDefault().send(RxEvent(RxEvent.click, "$x,$y"))
         }
     }
 
@@ -282,13 +289,13 @@ class TileHelper(private var pl2303interface: Pl2303InterfaceUtilNew?,private va
         isNormalChess = false
     }
 
-    fun updateCurBW(bw:Int){
+    fun updateCurBW(bw: Int) {
         view.board.setCurBW(if (bw == 1) 1 else 2)
     }
 
-    fun isConnected() = pl2303interface?.PL2303MultiLiblinkExist()?:false
+    fun isConnected() = pl2303interface?.PL2303MultiLiblinkExist() ?: false
 
-    fun disConnect(){
+    fun disConnect() {
         pl2303interface?.pl2303DisConnect()
     }
 

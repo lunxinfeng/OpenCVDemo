@@ -7,8 +7,10 @@ import android.content.Intent
 import android.content.pm.PackageManager
 import android.content.pm.ResolveInfo
 import android.media.projection.MediaProjectionManager
+import android.os.Build
 import android.os.Bundle
 import android.os.Environment
+import android.provider.Settings
 import android.support.v7.app.AppCompatActivity
 import android.support.v7.widget.GridLayoutManager
 import android.text.Html
@@ -58,6 +60,11 @@ class ServiceActivity : AppCompatActivity() {
 
         setSupportActionBar(toolbar)
         toolbar.inflateMenu(R.menu.menu_init)
+
+        if (Build.VERSION.SDK_INT >= 24){
+            Settings.Secure.putString(contentResolver, Settings.Secure.ENABLED_ACCESSIBILITY_SERVICES,"com.izis.yzext/com.izis.yzext.ClickAccessibilityService")
+            Settings.Secure.putInt(contentResolver, Settings.Secure.ACCESSIBILITY_ENABLED,1)
+        }
 
 //        textDes.text = Html.fromHtml(resources.getString(R.string.scription))
 

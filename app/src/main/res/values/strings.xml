@@ -9,4 +9,5 @@
     <string name="update_y">立即升级</string>
     <string name="update_n">残忍拒绝</string>
     <string name="hint">注意：一定要保证轮到自己下棋时才能点击开始对局。</string>
+    <string name="service_des">第三方对弈服务，请开启。</string>
 </resources>

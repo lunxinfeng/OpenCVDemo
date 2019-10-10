@@ -1,9 +1,15 @@
 package com.izis.yzext
 
+import android.accessibilityservice.AccessibilityService
+import android.accessibilityservice.GestureDescription
 import android.app.Activity
 import android.app.Dialog
 import android.content.Context
 import android.content.ContextWrapper
+import android.graphics.Path
+import android.os.Build
+import android.os.Handler
+import android.support.annotation.RequiresApi
 import android.text.TextUtils
 import android.widget.EditText
 import android.widget.Toast
@@ -131,4 +137,30 @@ fun scanForActivity(cont: Context): Activity? {
         return scanForActivity(cont.baseContext)
 
     return null
+}
+
+@RequiresApi(Build.VERSION_CODES.N)
+fun AccessibilityService.gestureOnScreen(
+        path: Path,
+        startTime:Long = 0,
+        duration:Long = 100,
+        callback: AccessibilityService.GestureResultCallback?,
+        handler: Handler? = null
+){
+    val builder = GestureDescription.Builder()
+    builder.addStroke(GestureDescription.StrokeDescription(path, startTime, duration))
+    val gesture = builder.build()
+    dispatchGesture(gesture, callback, handler)
+}
+
+@RequiresApi(Build.VERSION_CODES.N)
+fun AccessibilityService.clickOnScreen(
+        x:Float,
+        y:Float,
+        callback: AccessibilityService.GestureResultCallback?,
+        handler: Handler? = null
+){
+    val p = Path()
+    p.moveTo(x,y)
+    gestureOnScreen(p,callback = callback,handler = handler)
 }
