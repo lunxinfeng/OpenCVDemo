@@ -6,12 +6,17 @@ import android.net.Uri;
 import android.os.Build;
 import android.support.v4.content.FileProvider;
 
+import com.izis.yzext.base.RxBus;
+import com.izis.yzext.net.FileLoadingBean;
 import com.izis.yzext.net.NetWork;
 
 import java.io.File;
 import java.io.IOException;
 
+import io.reactivex.Observable;
+import io.reactivex.ObservableSource;
 import io.reactivex.Observer;
+import io.reactivex.android.schedulers.AndroidSchedulers;
 import io.reactivex.disposables.CompositeDisposable;
 import io.reactivex.disposables.Disposable;
 import io.reactivex.functions.Function;
@@ -27,18 +32,111 @@ import okio.Okio;
  */
 public class UpdateManager {
 
+    private Disposable disposableDownload;
+    private Disposable disposableListener;
+    public long downloadLength;
+    public long totalLength;
+
+    private DownloadListener listener;
+
+    public UpdateManager() {
+        RxBus.getDefault().toObservable(FileLoadingBean.class)
+                .observeOn(AndroidSchedulers.mainThread())
+                .subscribe(new Observer<FileLoadingBean>() {
+                    @Override
+                    public void onSubscribe(Disposable d) {
+                        disposableListener = d;
+                    }
+
+                    @Override
+                    public void onNext(FileLoadingBean value) {
+                        int progress =
+                                (int) Math.round((value.getBytesReaded() + downloadLength) / (double) totalLength * 100);
+                        if (listener != null)
+                            listener.onProgress(progress);
+                    }
+
+                    @Override
+                    public void onError(Throwable e) {
+                        if (disposableListener != null)
+                            disposableListener.dispose();
+                    }
+
+                    @Override
+                    public void onComplete() {
+                        if (disposableListener != null)
+                            disposableListener.dispose();
+                    }
+                });
+    }
+
+    public void setListener(DownloadListener listener) {
+        this.listener = listener;
+    }
+
+    public interface DownloadListener {
+        void onProgress(int progress);
+
+        void onComplete();
+
+        void onFail();
+    }
+
     /**
      * 是否需要更新,需要则下载
      *
-     * @param context     上下文
      * @param url         新版本地址
      * @param apkPath     本地apk保存路径
      */
-    public static void downloadApk(final Context context, final String url, final String apkPath, final CompositeDisposable cd) {
-        NetWork.Companion.getInstance().down(url)
+    public void downloadApk(final String url, final String apkPath) {
+        NetWork.Companion.getInstance()
+                .fileLength(url)
+//                .retryWhen(new Function<Observable<Throwable>, ObservableSource<?>>() {and
+//                    @Override
+//                    public ObservableSource<?> apply(Observable<Throwable> throwableObservable) {
+//                        System.out.println("重试");
+//                        return Observable.timer(2000, TimeUnit.MILLISECONDS);
+//                    }
+//                })
+                .map(new Function<ResponseBody, Long>() {
+                    @Override
+                    public Long apply(ResponseBody responseBody) {
+                        if (responseBody == null)
+                            return 0L;
+                        totalLength = responseBody.contentLength();
+                        System.out.println("请求文件长度：" + totalLength);
+                        return totalLength;
+                    }
+                })
+                .flatMap(new Function<Long, ObservableSource<ResponseBody>>() {
+                    @Override
+                    public ObservableSource<ResponseBody> apply(Long contentLength) {
+                        if (contentLength == 0) {
+                            return Observable.error(new RuntimeException("请求异常"));
+                        }
+                        File file = new File(apkPath);
+                        if (!file.exists()) {
+                            downloadLength = 0;
+                        } else {
+                            downloadLength = file.length();
+                        }
+                        System.out.println("本地文件长度：" + downloadLength);
+                        if (downloadLength > contentLength) {
+                            //异常，删除文件重新下
+                            file.delete();
+                            downloadLength = 0;
+                        } else if (downloadLength == contentLength) {
+                            //下载已经完成
+                            return Observable.empty();
+                        }
+                        return NetWork.Companion.getInstance().down("bytes=" + downloadLength + "-" + contentLength, url);
+                    }
+                })
                 .map(new Function<ResponseBody, BufferedSource>() {
                     @Override
-                    public BufferedSource apply(ResponseBody responseBody) throws Exception {
+                    public BufferedSource apply(ResponseBody responseBody) {
+                        totalLength = downloadLength + responseBody.contentLength();
+                        System.out.println("获取文件流，总长度：" + downloadLength + "+" + responseBody.contentLength() + "=" + totalLength);
                         return responseBody.source();
                     }
                 })
@@ -48,52 +146,56 @@ public class UpdateManager {
                     @Override
                     public void onSubscribe(Disposable d) {
                         System.out.println("UpdateManager.onSubscribe");
-                        cd.add(d);
+                        disposableDownload = d;
                     }
 
                     @Override
                     public void onNext(BufferedSource bufferedSource) {
                         System.out.println("UpdateManager.onNext");
                         try {
+                            System.out.println("写入文件");
                             writeFile(bufferedSource, new File(apkPath));
                         } catch (IOException e) {
-                            e.printStackTrace();
+                            onError(e);
                         }
                     }
 
                     @Override
                     public void onError(Throwable e) {
-                        System.out.println("UpdateManager.onError");
-                        unSubscribe(cd);
+                        System.out.println("UpdateManager.onError：" + e.getMessage());
+                        stop();
+                        if (listener != null)
+                            listener.onFail();
                     }
 
                     @Override
                     public void onComplete() {
                         System.out.println("UpdateManager.onComplete");
+                        stop();
+                        if (listener != null)
+                            listener.onComplete();
                         //安装apk
-                        installApk(apkPath,context);
-//                        Intent intent = new Intent(Intent.ACTION_VIEW);
-//                        intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
-//                        intent.setDataAndType(Uri.fromFile(new File(apkPath)), "application/vnd.android.package-archive");
-//                        context.startActivity(intent);
-
-                        unSubscribe(cd);
+//                        installApk(apkPath,context);
                     }
                 });
     }
 
+    public void stop() {
+        if (disposableDownload != null)
+            disposableDownload.dispose();
+    }
 
     /**
      * 写入文件
      */
-    private static void writeFile(BufferedSource source, File file) throws IOException {
-        if (!file.getParentFile().exists())
-            file.getParentFile().mkdirs();
+    private void writeFile(BufferedSource source, File file) throws IOException {
+//        if (!file.getParentFile().exists())
+//            file.getParentFile().mkdirs();
 
-        if (file.exists())
-            file.delete();
+//        if (file.exists())
+//            file.delete();
 
-        BufferedSink bufferedSink = Okio.buffer(Okio.sink(file));
+        BufferedSink bufferedSink = Okio.buffer(Okio.appendingSink(file));
         bufferedSink.writeAll(source);
 
         bufferedSink.close();
@@ -101,19 +203,9 @@ public class UpdateManager {
     }
 
     /**
-     * 解除订阅
-     *
-     * @param cd 订阅关系集合
-     */
-    private static void unSubscribe(CompositeDisposable cd) {
-        if (cd != null && !cd.isDisposed())
-            cd.dispose();
-    }
-
-    /**
      * 安装APK文件
      */
-    private static void installApk(String filePath,Context context) {
+    public void installApk(String filePath, Context context) {
         File apkfile = new File(filePath);
         if (!apkfile.exists()) {
             return;
@@ -127,7 +219,7 @@ public class UpdateManager {
         context.startActivity(intent);
     }
 
-    private  static Uri getUriForFile(Context context, File file) {
+    private Uri getUriForFile(Context context, File file) {
         if (context == null || file == null) {
             throw new NullPointerException();
         }

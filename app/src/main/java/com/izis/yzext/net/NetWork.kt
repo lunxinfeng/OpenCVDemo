@@ -35,7 +35,11 @@ interface Api {
 
     @Streaming
     @GET
-    fun down(@Url url: String): Observable<ResponseBody>
+    fun down(@Header("Range") range:String, @Url url: String): Observable<ResponseBody>
+
+    @Streaming
+    @GET
+    fun fileLength(@Url url: String): Observable<ResponseBody>
 }
 
 
@@ -98,9 +102,13 @@ class NetWork private constructor() {
                 .compose(handleList(cls))
     }
 
-    fun down(url: String): Observable<ResponseBody> {
+    fun fileLength(url: String): Observable<ResponseBody>{
+        return api.fileLength(url)
+    }
+
+    fun down(range: String, url: String): Observable<ResponseBody> {
         val client = OkHttpClient.Builder()
-                .connectTimeout(CONNECT_TIME_OUT, TimeUnit.MILLISECONDS)
+                .connectTimeout(8000, TimeUnit.MILLISECONDS)
                 .addNetworkInterceptor { chain ->
                     val originalResponse = chain.proceed(chain.request())
                     originalResponse
@@ -112,12 +120,13 @@ class NetWork private constructor() {
 
         val retrofit = Retrofit.Builder()
                 .client(client)
-                .baseUrl(BASE_URL)
+                .baseUrl("http://app.izis.cn/GoWebService/")
                 .addCallAdapterFactory(RxJava2CallAdapterFactory.create())
                 .build()
         val api = retrofit.create(Api::class.java)
-        return api.down(url)
+        return api.down(range, url)
     }
+
 
     /**
      * 对结果进行预处理

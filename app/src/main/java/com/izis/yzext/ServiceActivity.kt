@@ -1,6 +1,7 @@
 package com.izis.yzext
 
 import android.app.Activity
+import android.app.AlertDialog
 import android.content.ComponentName
 import android.content.Context
 import android.content.Intent
@@ -13,7 +14,6 @@ import android.os.Environment
 import android.provider.Settings
 import android.support.v7.app.AppCompatActivity
 import android.support.v7.widget.GridLayoutManager
-import android.text.Html
 import android.util.Log
 import android.view.Menu
 import android.view.MenuItem
@@ -134,16 +134,14 @@ class ServiceActivity : AppCompatActivity() {
 //                        platform_url = "http://www.izis.cn/GoWebService/yzwq.apk"
 //                    }
                 }
-
+                val apkPath = Environment.getExternalStorageDirectory().path + File.separator + "$platform_name.apk"
                 MaterialDialog(this)
                         .message(text = "未检测到$platform_name，是否下载安装？")
                         .positiveButton(text = "立即下载"){
-                            val progressDialog = ProgressDialog(this)
-                            progressDialog.show()
-                            val url = platform_url
-                            val apkPath = Environment.getExternalStorageDirectory().path + File.separator + "$platform_name.apk"
-//                            UpdateManager.downloadApk(this,url,apkPath, CompositeDisposable())
-                            MyIntentService.startUpdateService(this,url,apkPath,progressDialog)
+                            downloadApk(platform_url, apkPath)
+
+
+//                            MyIntentService.startUpdateService(this,url,apkPath,progressDialog)
                         }
                         .negativeButton(text = "暂不下载"){
                             finish()
@@ -164,6 +162,86 @@ class ServiceActivity : AppCompatActivity() {
         }
 
         double_click_time = times[SharedPrefsUtil.getValue(this,"click_time",1)].toLong()
+    }
+
+    private fun downloadApk(platform_url: String, apkPath: String) {
+        val downloadManager = UpdateManager()
+
+        val progressDialog = ProgressDialog(this)
+        progressDialog.setOnDismissListener {
+            downloadManager.stop()
+        }
+        progressDialog.show()
+
+
+        downloadManager.setListener(object : UpdateManager.DownloadListener {
+            override fun onComplete() {
+                downloadManager.installApk(
+                        apkPath,
+                        this@ServiceActivity
+                )
+                progressDialog.dismiss()
+                downloadManager.stop()
+            }
+
+            override fun onFail() {
+                runOnUiThread {
+                    downloadManager.stop()
+                    progressDialog.dismiss()
+                    MaterialDialog(this@ServiceActivity)
+                            .apply {
+                                setCancelable(false)
+                                setCanceledOnTouchOutside(false)
+                            }
+                            .title(
+                                    text = "下载失败"
+                            )
+                            .message(
+                                    text = "下载失败，是否重试？"
+                            )
+                            .positiveButton(
+                                    text = "重试"
+                            ){
+                                it.dismiss()
+                                downloadApk(
+                                        platform_url,
+                                        apkPath
+                                )
+                            }
+                            .negativeButton(
+                                    text = "取消"
+                            ){
+                                it.dismiss()
+                                downloadManager.stop()
+                            }
+                            .show()
+//                    val dialog = AlertDialog.Builder(this@ServiceActivity)
+//                            .setTitle("下载失败")
+//                            .setMessage("下载失败，是否重试？")
+//                            .setPositiveButton("重试") { dialog, _ ->
+//                                dialog.dismiss()
+//                                downloadApk(
+//                                        platform_url,
+//                                        apkPath
+//                                )
+//                            }
+//                            .setNegativeButton("取消") { dialog, _ ->
+//                                dialog.dismiss()
+//                                downloadManager.stop()
+//                            }
+//                            .create()
+//                    dialog.setCanceledOnTouchOutside(false)
+//                    dialog.setCancelable(false)
+//                    dialog.show()
+                }
+            }
+
+            override fun onProgress(progress: Int) {
+                progressDialog.updateProgress(progress)
+            }
+        })
+
+        downloadManager.downloadApk(platform_url, apkPath)
     }
 
     override fun onCreateOptionsMenu(menu: Menu?): Boolean {
@@ -247,11 +325,11 @@ class ServiceActivity : AppCompatActivity() {
                             val dialog = UpdateDialog(this@ServiceActivity, R.style.dialog, decription)
                             dialog.setClickListener(object : UpdateDialog.ClickListener {
                                 override fun doUpdate() {
-                                    val progressDialog = ProgressDialog(this@ServiceActivity)
-                                    progressDialog.show()
+
                                     val downUrl = String.format(DOWNLOAD_URL, serverVersionCode)
                                     val apkPath = Environment.getExternalStorageDirectory().path + File.separator + "yzExt.apk"
-                                    MyIntentService.startUpdateService(this@ServiceActivity, downUrl, apkPath,progressDialog)
+                                    downloadApk(downUrl,apkPath)
+//                                    MyIntentService.startUpdateService(this@ServiceActivity, downUrl, apkPath,progressDialog)
                                 }
 
                                 override fun doCancel() {

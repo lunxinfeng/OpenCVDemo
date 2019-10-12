@@ -28,7 +28,7 @@
         </activity>
 
         <service android:name=".MyService" />
-        <service android:name=".update.MyIntentService"/>
+        <!--<service android:name=".update.MyIntentService"/>-->
 
         <activity android:name=".ServiceActivity"
             android:screenOrientation="nosensor"
