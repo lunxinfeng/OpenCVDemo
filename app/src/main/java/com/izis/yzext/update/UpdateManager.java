@@ -2,6 +2,8 @@ package com.izis.yzext.update;
 
 import android.content.Context;
 import android.content.Intent;
+import android.content.pm.PackageInfo;
+import android.content.pm.PackageManager;
 import android.net.Uri;
 import android.os.Build;
 import android.support.v4.content.FileProvider;
@@ -32,6 +34,7 @@ import okio.Okio;
  */
 public class UpdateManager {
 
+    private Context context;
     private Disposable disposableDownload;
     private Disposable disposableListener;
     public long downloadLength;
@@ -39,7 +42,8 @@ public class UpdateManager {
 
     private DownloadListener listener;
 
-    public UpdateManager() {
+    public UpdateManager(Context context) {
+        this.context = context;
         RxBus.getDefault().toObservable(FileLoadingBean.class)
                 .observeOn(AndroidSchedulers.mainThread())
                 .subscribe(new Observer<FileLoadingBean>() {
@@ -85,10 +89,11 @@ public class UpdateManager {
     /**
      * 是否需要更新,需要则下载
      *
-     * @param url         新版本地址
-     * @param apkPath     本地apk保存路径
+     * @param url               新版本地址
+     * @param apkPath           本地apk保存路径
+     * @param versionCodeServer 服务器的版本号，如果不需要验证传-1
      */
-    public void downloadApk(final String url, final String apkPath) {
+    public void downloadApk(final String url, final String apkPath, final int versionCodeServer) {
         NetWork.Companion.getInstance()
                 .fileLength(url)
 //                .retryWhen(new Function<Observable<Throwable>, ObservableSource<?>>() {and
@@ -118,7 +123,17 @@ public class UpdateManager {
                         if (!file.exists()) {
                             downloadLength = 0;
                         } else {
-                            downloadLength = file.length();
+                            if (versionCodeServer != -1) {//需要验证版本号
+                                PackageInfo info = context.getPackageManager().getPackageArchiveInfo(apkPath, PackageManager.GET_ACTIVITIES);
+                                if (info.versionCode == versionCodeServer) {//是最新文件，可能下载了一半
+                                    downloadLength = file.length();
+                                } else {//不是最新文件，重新下载
+                                    file.delete();
+                                    downloadLength = 0;
+                                }
+                            } else {
+                                downloadLength = file.length();
+                            }
                         }
                         System.out.println("本地文件长度：" + downloadLength);
                         if (downloadLength > contentLength) {

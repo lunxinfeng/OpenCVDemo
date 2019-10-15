@@ -45,13 +45,13 @@ class ServiceActivity : AppCompatActivity() {
     private val REQUEST_MEDIA_PROJECTION = 1
     private var chessApps = mutableListOf<ResolveInfo>()
     private var appsAdapter: AppsAdapter? = null
-    private val times = listOf("300","500","800","1000","1500")
+    private val times = listOf("300", "500", "800", "1000", "1500")
 
     companion object {
         @JvmStatic
         var PLATFORM = PLATFORM_YK
         @JvmStatic
-        var boardId:String? = null
+        var boardId: String? = null
     }
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -61,33 +61,33 @@ class ServiceActivity : AppCompatActivity() {
         setSupportActionBar(toolbar)
         toolbar.inflateMenu(R.menu.menu_init)
 
-        if (Build.VERSION.SDK_INT >= 24){
-            Settings.Secure.putString(contentResolver, Settings.Secure.ENABLED_ACCESSIBILITY_SERVICES,"com.izis.yzext/com.izis.yzext.ClickAccessibilityService")
-            Settings.Secure.putInt(contentResolver, Settings.Secure.ACCESSIBILITY_ENABLED,1)
+        if (Build.VERSION.SDK_INT >= 24) {
+            Settings.Secure.putString(contentResolver, Settings.Secure.ENABLED_ACCESSIBILITY_SERVICES, "com.izis.yzext/com.izis.yzext.ClickAccessibilityService")
+            Settings.Secure.putInt(contentResolver, Settings.Secure.ACCESSIBILITY_ENABLED, 1)
         }
 
 //        textDes.text = Html.fromHtml(resources.getString(R.string.scription))
 
-        if(SharedPrefsUtil.getValue(this,"first",true)){
+        if (SharedPrefsUtil.getValue(this, "first", true)) {
             MaterialDialog(this)
                     .apply {
-                        setActionButtonEnabled(WhichButton.POSITIVE,false)
+                        setActionButtonEnabled(WhichButton.POSITIVE, false)
                         setCancelable(false)
-                        checkBoxPrompt(text = "我同意"){
-                            setActionButtonEnabled(WhichButton.POSITIVE,it)
+                        checkBoxPrompt(text = "我同意") {
+                            setActionButtonEnabled(WhichButton.POSITIVE, it)
                         }
                     }
                     .title(text = "关于第三方对弈平台软件声明")
                     .message(res = R.string.des)
-                    .positiveButton(text = "确定"){
-                        SharedPrefsUtil.putValue(this,"first",false)
+                    .positiveButton(text = "确定") {
+                        SharedPrefsUtil.putValue(this, "first", false)
                         checkUpdate()
                     }
-                    .negativeButton(text = "取消"){
+                    .negativeButton(text = "取消") {
                         finish()
                     }
                     .show()
-        }else{
+        } else {
             checkUpdate()
         }
 
@@ -99,7 +99,7 @@ class ServiceActivity : AppCompatActivity() {
         appsAdapter = AppsAdapter(chessApps, packageManager)
         recyclerView.adapter = appsAdapter
         appsAdapter?.setOnItemClickListener { resolveInfo ->
-            if (resolveInfo.activityInfo == null){
+            if (resolveInfo.activityInfo == null) {
                 var platform_name = ""
                 var platform_url = ""
                 when (resolveInfo.match) {
@@ -137,13 +137,13 @@ class ServiceActivity : AppCompatActivity() {
                 val apkPath = Environment.getExternalStorageDirectory().path + File.separator + "$platform_name.apk"
                 MaterialDialog(this)
                         .message(text = "未检测到$platform_name，是否下载安装？")
-                        .positiveButton(text = "立即下载"){
+                        .positiveButton(text = "立即下载") {
                             downloadApk(platform_url, apkPath)
 
 
 //                            MyIntentService.startUpdateService(this,url,apkPath,progressDialog)
                         }
-                        .negativeButton(text = "暂不下载"){
+                        .negativeButton(text = "暂不下载") {
                             finish()
                         }
                         .show()
@@ -161,11 +161,11 @@ class ServiceActivity : AppCompatActivity() {
             platformConfig(resolveInfo.activityInfo.packageName)
         }
 
-        double_click_time = times[SharedPrefsUtil.getValue(this,"click_time",1)].toLong()
+        double_click_time = times[SharedPrefsUtil.getValue(this, "click_time", 1)].toLong()
     }
 
-    private fun downloadApk(platform_url: String, apkPath: String) {
-        val downloadManager = UpdateManager()
+    private fun downloadApk(platform_url: String, apkPath: String, versionCodeServer: Int = -1) {
+        val downloadManager = UpdateManager(this)
 
         val progressDialog = ProgressDialog(this)
         progressDialog.setOnDismissListener {
@@ -201,16 +201,17 @@ class ServiceActivity : AppCompatActivity() {
                             )
                             .positiveButton(
                                     text = "重试"
-                            ){
+                            ) {
                                 it.dismiss()
                                 downloadApk(
                                         platform_url,
-                                        apkPath
+                                        apkPath,
+                                        versionCodeServer
                                 )
                             }
                             .negativeButton(
                                     text = "取消"
-                            ){
+                            ) {
                                 it.dismiss()
                                 downloadManager.stop()
                             }
@@ -241,7 +242,7 @@ class ServiceActivity : AppCompatActivity() {
             }
         })
 
-        downloadManager.downloadApk(platform_url, apkPath)
+        downloadManager.downloadApk(platform_url, apkPath, versionCodeServer)
     }
 
     override fun onCreateOptionsMenu(menu: Menu?): Boolean {
@@ -250,21 +251,21 @@ class ServiceActivity : AppCompatActivity() {
     }
 
     override fun onOptionsItemSelected(item: MenuItem?): Boolean {
-        when(item?.itemId){
-            R.id.action_time ->{
+        when (item?.itemId) {
+            R.id.action_time -> {
                 MaterialDialog(this)
                         .title(text = "设置双击时间的有效间隔(ms)")
                         .listItemsSingleChoice(
-                                initialSelection = SharedPrefsUtil.getValue(this,"click_time",2),
+                                initialSelection = SharedPrefsUtil.getValue(this, "click_time", 2),
                                 items = times
-                        ){dialog, index, text ->
+                        ) { dialog, index, text ->
                             double_click_time = text.toLong()
-                            SharedPrefsUtil.putValue(this,"click_time",index)
+                            SharedPrefsUtil.putValue(this, "click_time", index)
                             dialog.dismiss()
                         }
                         .show()
             }
-            R.id.action_des ->{
+            R.id.action_des -> {
                 MaterialDialog(this)
                         .title(text = "关于第三方对弈平台软件声明")
                         .message(res = R.string.des)
@@ -312,7 +313,7 @@ class ServiceActivity : AppCompatActivity() {
     }
 
     private fun checkUpdate() {
-        getObject(net_code_getServerCode, net_info_getServerCode(),0, VersionMessage::class.java)
+        getObject(net_code_getServerCode, net_info_getServerCode(), 0, VersionMessage::class.java)
                 .subscribe(object : ProgressSubscriber<VersionMessage>(this, false, false) {
                     override fun _onNext(t: VersionMessage) {
                         println(t)
@@ -328,7 +329,7 @@ class ServiceActivity : AppCompatActivity() {
 
                                     val downUrl = String.format(DOWNLOAD_URL, serverVersionCode)
                                     val apkPath = Environment.getExternalStorageDirectory().path + File.separator + "yzExt.apk"
-                                    downloadApk(downUrl,apkPath)
+                                    downloadApk(downUrl, apkPath, serverVersionCode)
 //                                    MyIntentService.startUpdateService(this@ServiceActivity, downUrl, apkPath,progressDialog)
                                 }
 
@@ -337,7 +338,7 @@ class ServiceActivity : AppCompatActivity() {
                                 }
                             })
                             dialog.show()
-                        }else{
+                        } else {
                             startIntent()
                         }
                     }
@@ -363,7 +364,7 @@ class ServiceActivity : AppCompatActivity() {
 //                    || packName == PLATFORM_JJ
                     || packName == PLATFORM_XB
 //                    || packName == PLATFORM_YZ
-                    ) {
+            ) {
                 chessApps.add(info)
             }
         }
@@ -374,30 +375,30 @@ class ServiceActivity : AppCompatActivity() {
 //        val hasJJ = chessApps.any { it.activityInfo.packageName == PLATFORM_JJ }
         val hasXB = chessApps.any { it.activityInfo.packageName == PLATFORM_XB }
 //        val hasYZ = chessApps.any { it.activityInfo.packageName == PLATFORM_YZ }
-        if (!hasYK){
+        if (!hasYK) {
             val resolveInfo = ResolveInfo()
             resolveInfo.match = 1
-            chessApps.add(0,resolveInfo)
+            chessApps.add(0, resolveInfo)
         }
-        if (!hasTX){
+        if (!hasTX) {
             val resolveInfo = ResolveInfo()
             resolveInfo.match = 2
-            chessApps.add(0,resolveInfo)
+            chessApps.add(0, resolveInfo)
         }
-        if (!hasYC){
+        if (!hasYC) {
             val resolveInfo = ResolveInfo()
             resolveInfo.match = 3
-            chessApps.add(0,resolveInfo)
+            chessApps.add(0, resolveInfo)
         }
 //        if (!hasJJ){
 //            val resolveInfo = ResolveInfo()
 //            resolveInfo.match = 4
 //            chessApps.add(0,resolveInfo)
 //        }
-        if (!hasXB){
+        if (!hasXB) {
             val resolveInfo = ResolveInfo()
             resolveInfo.match = 5
-            chessApps.add(0,resolveInfo)
+            chessApps.add(0, resolveInfo)
         }
 
 //        if (!hasYZ){
