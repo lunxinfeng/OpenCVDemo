@@ -91,9 +91,9 @@ public class UpdateManager {
      *
      * @param url               新版本地址
      * @param apkPath           本地apk保存路径
-     * @param versionCodeServer 服务器的版本号，如果不需要验证传-1
+//     * @param versionCodeServer 服务器的版本号，如果不需要验证传-1
      */
-    public void downloadApk(final String url, final String apkPath, final int versionCodeServer) {
+    public void downloadApk(final String url, final String apkPath) {
         NetWork.Companion.getInstance()
                 .fileLength(url)
 //                .retryWhen(new Function<Observable<Throwable>, ObservableSource<?>>() {and
@@ -120,20 +120,22 @@ public class UpdateManager {
                             return Observable.error(new RuntimeException("请求异常"));
                         }
                         File file = new File(apkPath);
-                        if (!file.exists()) {
+                        if (!file.exists()) {//文件不存在
                             downloadLength = 0;
-                        } else {
-                            if (versionCodeServer != -1) {//需要验证版本号
-                                PackageInfo info = context.getPackageManager().getPackageArchiveInfo(apkPath, PackageManager.GET_ACTIVITIES);
-                                if (info.versionCode == versionCodeServer) {//是最新文件，可能下载了一半
-                                    downloadLength = file.length();
-                                } else {//不是最新文件，重新下载
-                                    file.delete();
-                                    downloadLength = 0;
-                                }
-                            } else {
-                                downloadLength = file.length();
-                            }
+                        } else {//文件存在
+                            //下载中断时不完整的apk无法获取版本号，验证版本号是否最新这种方法无效，只能每次新版本名字不同
+//                            if (versionCodeServer != -1) {//需要验证版本号
+//                                PackageInfo info = context.getPackageManager().getPackageArchiveInfo(apkPath, PackageManager.GET_ACTIVITIES);
+//                                if (info.versionCode == versionCodeServer) {//是最新文件，可能下载了一半
+//                                    downloadLength = file.length();
+//                                } else {//不是最新文件，重新下载
+//                                    file.delete();
+//                                    downloadLength = 0;
+//                                }
+//                            } else {
+//                                downloadLength = file.length();
+//                            }
+                            downloadLength = file.length();
                         }
                         System.out.println("本地文件长度：" + downloadLength);
                         if (downloadLength > contentLength) {

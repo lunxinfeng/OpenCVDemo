@@ -164,7 +164,7 @@ class ServiceActivity : AppCompatActivity() {
         double_click_time = times[SharedPrefsUtil.getValue(this, "click_time", 1)].toLong()
     }
 
-    private fun downloadApk(platform_url: String, apkPath: String, versionCodeServer: Int = -1) {
+    private fun downloadApk(platform_url: String, apkPath: String) {
         val downloadManager = UpdateManager(this)
 
         val progressDialog = ProgressDialog(this)
@@ -205,8 +205,7 @@ class ServiceActivity : AppCompatActivity() {
                                 it.dismiss()
                                 downloadApk(
                                         platform_url,
-                                        apkPath,
-                                        versionCodeServer
+                                        apkPath
                                 )
                             }
                             .negativeButton(
@@ -242,7 +241,7 @@ class ServiceActivity : AppCompatActivity() {
             }
         })
 
-        downloadManager.downloadApk(platform_url, apkPath, versionCodeServer)
+        downloadManager.downloadApk(platform_url, apkPath)
     }
 
     override fun onCreateOptionsMenu(menu: Menu?): Boolean {
@@ -328,8 +327,8 @@ class ServiceActivity : AppCompatActivity() {
                                 override fun doUpdate() {
 
                                     val downUrl = String.format(DOWNLOAD_URL, serverVersionCode)
-                                    val apkPath = Environment.getExternalStorageDirectory().path + File.separator + "yzExt.apk"
-                                    downloadApk(downUrl, apkPath, serverVersionCode)
+                                    val apkPath = Environment.getExternalStorageDirectory().path + File.separator + t.app_name + ".apk"
+                                    downloadApk(downUrl, apkPath)
 //                                    MyIntentService.startUpdateService(this@ServiceActivity, downUrl, apkPath,progressDialog)
                                 }
 
