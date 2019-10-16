@@ -2,11 +2,13 @@
 
     <!-- Base application theme. -->
     <!-- Base application theme. -->
-    <style name="AppTheme" parent="Theme.MaterialComponents.Light.NoActionBar">
+    <!--<style name="AppTheme" parent="Theme.MaterialComponents.Light.NoActionBar">-->
+    <style name="AppTheme" parent="Theme.AppCompat.Light.NoActionBar">
         <!-- Customize your theme here. -->
         <item name="colorPrimary">@color/colorPrimary</item>
         <item name="colorPrimaryDark">@color/colorPrimaryDark</item>
         <item name="colorAccent">@color/colorAccent</item>
+        <item name="colorButtonNormal">@color/blue</item>
     </style>
 
     <style name="ToolbarPopupTheme" parent="@style/ThemeOverlay.AppCompat.Light">
@@ -17,5 +19,10 @@
     </style>
     <style name="OverflowMenuStyle" parent="Widget.AppCompat.Light.PopupMenu.Overflow">
         <item name="overlapAnchor">false</item>  <!--把该属性改为false即可使menu位置位于toolbar之下-->
+    </style>
+
+    <style name="BlueButton" parent="@style/AppTheme">
+        <item name="colorButtonNormal">@color/blue</item><!--正常状态下的颜色  -->
+        <item name="colorControlHighlight">@color/blue</item><!--覆盖色，按下的颜色  -->
     </style>
 </resources>

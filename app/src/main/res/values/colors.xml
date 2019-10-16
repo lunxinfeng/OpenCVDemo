@@ -2,8 +2,9 @@
 <resources>
     <color name="colorPrimary">#3F51B5</color>
     <color name="colorPrimaryDark">#303F9F</color>
-    <color name="colorAccent">#df5c06</color>
+    <color name="colorAccent">#FF4081</color>
     <color name="black">#000000</color>
+    <color name="blue">#18abe9</color>
     <color name="update_btn_selected">#df5c06</color>
     <color name="text_low">#875b3d</color>
     <color name="text_high">#4a2e13</color>
