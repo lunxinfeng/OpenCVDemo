@@ -34,7 +34,6 @@ import okio.Okio;
  */
 public class UpdateManager {
 
-    private Context context;
     private Disposable disposableDownload;
     private Disposable disposableListener;
     public long downloadLength;
@@ -42,8 +41,7 @@ public class UpdateManager {
 
     private DownloadListener listener;
 
-    public UpdateManager(Context context) {
-        this.context = context;
+    public UpdateManager() {
         RxBus.getDefault().toObservable(FileLoadingBean.class)
                 .observeOn(AndroidSchedulers.mainThread())
                 .subscribe(new Observer<FileLoadingBean>() {

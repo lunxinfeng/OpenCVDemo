@@ -165,10 +165,13 @@ class ServiceActivity : AppCompatActivity() {
     }
 
     private fun downloadApk(platform_url: String, apkPath: String) {
-        val downloadManager = UpdateManager(this)
+        val downloadManager = UpdateManager()
 
         val progressDialog = ProgressDialog(this)
         progressDialog.setOnDismissListener {
+            downloadManager.stop()
+        }
+        progressDialog.setOnCancelListener {
             downloadManager.stop()
         }
         progressDialog.show()
