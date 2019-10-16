@@ -32,7 +32,7 @@ public class UpdateDialog extends Dialog implements View.OnClickListener {
         tv_update_info.setText(info);
         Button btnY = findViewById(R.id.btnY);
         btnY.setOnClickListener(this);
-        btnY.requestFocus();
+//        btnY.requestFocus();
         Button btnN = findViewById(R.id.btnN);
         btnN.setOnClickListener(this);
     }
