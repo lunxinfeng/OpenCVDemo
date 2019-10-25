@@ -679,21 +679,26 @@ public class Pl2303InterfaceUtilNew {
 
                 // 一个子新增或改变，多个子消失，消失的子为最后面的棋步。可能是悔棋多步落子【应该要兼容，悔1步，落1步拖子情况】。
                 String[] aStr = doWithLoseAndAlter(board, changeList,deadList);
-                if (aStr[0].equals("")) {
-                    liveType.setErrorList(changeList);
-                    liveType.setType(LiveType.LAST_ERROR_MORE_ADD);
-                    return liveType;
-                }else if(aStr[0].equalsIgnoreCase("wait-pick")) {
-                    liveType.setType(LiveType.DO_NOTHING);
-                    return liveType;
-                }
-                    else
-                {
-                    liveType.setType(LiveType.BACK_NEW);
-                    liveType.setBackNum(Integer.parseInt(aStr[0]));
-                    liveType.setBackNew(aStr[1]);
-                    return liveType;
-                }
+
+                //第三方对弈以第三方棋谱为准，没有下面那么多骚操作，只要不一致，就是error
+                liveType.setErrorList(changeList);
+                liveType.setType(LiveType.LAST_ERROR_MORE_ADD);
+                return liveType;
+//                if (aStr[0].equals("")) {
+//                    liveType.setErrorList(changeList);
+//                    liveType.setType(LiveType.LAST_ERROR_MORE_ADD);
+//                    return liveType;
+//                }else if(aStr[0].equalsIgnoreCase("wait-pick")) {
+//                    liveType.setType(LiveType.DO_NOTHING);
+//                    return liveType;
+//                }
+//                    else
+//                {
+//                    liveType.setType(LiveType.BACK_NEW);
+//                    liveType.setBackNum(Integer.parseInt(aStr[0]));
+//                    liveType.setBackNew(aStr[1]);
+//                    return liveType;
+//                }
 
             }
         }
@@ -1992,11 +1997,11 @@ public class Pl2303InterfaceUtilNew {
             GoCoodinate = GoCoordinateTransition(singleGoCoodinate, rotate);
             String colorWitle = "r000g000b000";
             if ("+".equals(curBW)) {
-                String colorRead = "r255g000b000";
+                String colorRead = "r000g255b000";
                 WritesingleGoCoordinate = "~SHP" + GoCoodinate + ","
                         + (isbremove ? colorWitle : colorRead) + ",1#";
             } else if ("-".equals(curBW)) {
-                String colorBlue = "r000g255b000";
+                String colorBlue = "r255g000b000";
                 WritesingleGoCoordinate = "~SHP" + GoCoodinate + ","
                         + (isbremove ? colorWitle : colorBlue) + ",1#";
             }

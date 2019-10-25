@@ -11,6 +11,11 @@ import android.util.AttributeSet;
 import android.view.MotionEvent;
 import android.view.View;
 
+import com.izis.yzext.pl2303.ChessChange;
+
+import java.util.ArrayList;
+import java.util.List;
+
 /**
  * 路径view，用来屏幕区域截图
  * Created by lxf on 18-5-25.
@@ -28,6 +33,8 @@ public class PathView extends View {
     private float preX, preY;//手指滑动时上一帧的坐标
 
     public boolean moveable = true;
+    private List<float[]> errorPoints = new ArrayList<>();
+    private Paint paintError;
 
     public PathView(Context context) {
         super(context);
@@ -50,6 +57,10 @@ public class PathView extends View {
         mPaint.setStyle(Paint.Style.STROKE);
         mPaint.setStrokeWidth(2);
 
+        paintError = new Paint();
+        paintError.setColor(Color.RED);
+//        mPaint.setStrokeWidth(1);
+        paintError.setStyle(Paint.Style.FILL);
 //        WindowManager manager = (WindowManager) context.getSystemService(Context.WINDOW_SERVICE);
 //        DisplayMetrics outMetrics = new DisplayMetrics();
 //        if (manager != null) {
@@ -67,10 +78,37 @@ public class PathView extends View {
         mPath.addRect(mRectF, Path.Direction.CW);
     }
 
+    public void clearErrorPoint() {
+        errorPoints.clear();
+    }
+
+    public void drawErrorPoint(List<ChessChange> chessChangeList, int boardSize) {
+        for (ChessChange chessChange : chessChangeList) {
+            drawErrorPoint(chessChange, boardSize);
+        }
+    }
+
+    public void drawErrorPoint(ChessChange chessChange, int boardSize) {
+        int x = chessChange.getX();
+        int y = chessChange.getY();
+        size = mRectF.width() / (boardSize - 1);
+        errorPoints.add(new float[]{(y - 1) * size, (x - 1) * size});
+        invalidate();
+    }
+
+    private float size;
+
     @Override
     protected void onDraw(Canvas canvas) {
         super.onDraw(canvas);
         canvas.drawPath(mPath, mPaint);
+
+        if (errorPoints.size() > 0) {
+            for (float[] item : errorPoints) {
+                canvas.drawCircle(mRectF.left + item[0], mRectF.top + item[1], 3, paintError);
+//                canvas.drawRect(mRectF.left + item[0] - size / 2,mRectF.top + item[1] - size/2,mRectF.left + item[0] + size / 2,mRectF.top + item[1] + size/2,paintError);
+            }
+        }
     }
 
     @Override
@@ -149,7 +187,7 @@ public class PathView extends View {
         invalidate();
     }
 
-    public void reset(){
+    public void reset() {
         setRectF(new RectF());
     }
 }

@@ -32,7 +32,7 @@ import kotlin.concurrent.timerTask
  * 虚拟棋盘
  * Created by lxf on 18-5-29.
  */
-class TileHelper(private var pl2303interface: Pl2303InterfaceUtilNew?, private val game: GameInfo) {
+class TileHelper(private var pl2303interface: Pl2303InterfaceUtilNew?, private val game: GameInfo, private val errorListener:OnErrorListener) {
     /**
      * 储存死子列表
      */
@@ -137,6 +137,9 @@ class TileHelper(private var pl2303interface: Pl2303InterfaceUtilNew?, private v
 //                view.tileViewLastBack()
             }
             LiveType.LAST_ERROR -> {
+                view.warning()
+                MyService.TILE_ERROR = true
+                errorListener.onError(value.chessChange)
                 val change = value.chessChange
                 view.tileViewError("位置（" + (change.x + 64).toChar() + "，" + change.y + "）发生异常")
 
@@ -151,6 +154,8 @@ class TileHelper(private var pl2303interface: Pl2303InterfaceUtilNew?, private v
             }
             LiveType.LAST_ERROR_MORE, LiveType.LAST_ERROR_MORE_ADD -> {
                 view.warning()
+                MyService.TILE_ERROR = true
+                errorListener.onErrorList(value.errorList)
                 val sb = StringBuilder()
                 for (c in value.errorList) {
                     sb.append("(").append((c.x + 64).toChar()).append(",").append(c.y).append(")")
@@ -162,11 +167,17 @@ class TileHelper(private var pl2303interface: Pl2303InterfaceUtilNew?, private v
             }
             LiveType.FINISH_PICK -> {
 //                view.tileViewFinshPick()
+                MyService.TILE_ERROR = false
+                errorListener.onSuccess()
             }
             LiveType.DO_NOTHING -> {
+                MyService.TILE_ERROR = false
+                errorListener.onSuccess()
             }
             LiveType.NORMAL -> {
 //                putChess(value.allStep)
+                MyService.TILE_ERROR = false
+                errorListener.onSuccess()
                 if ((game.bw == 1 && value.allStep.startsWith("-"))
                         || (game.bw == 2 && value.allStep.startsWith("+")))
                     return

@@ -35,6 +35,7 @@ import com.izis.yzext.net.NetKt;
 import com.izis.yzext.net.NetWorkSoap;
 import com.izis.yzext.net.ProgressSubscriber;
 import com.izis.yzext.pl2303.ActivityCallBridge;
+import com.izis.yzext.pl2303.ChessChange;
 import com.izis.yzext.pl2303.IPL2303ConnectSuccess;
 import com.izis.yzext.pl2303.LiveType;
 import com.izis.yzext.pl2303.Pl2303InterfaceUtilNew;
@@ -64,6 +65,7 @@ import static com.izis.yzext.PaserUtil.BOARD_SIZE;
 
 public class MyService extends Service implements ActivityCallBridge.PL2303Interface {
     private static final boolean DEBUG = true;
+    public static boolean TILE_ERROR = false;//棋盘可能出现错误
 
     //定义浮动窗口布局
     private ConstraintLayout mFloatLayout;
@@ -180,6 +182,58 @@ public class MyService extends Service implements ActivityCallBridge.PL2303Inter
         return null;
     }
 
+    private OnErrorListener errorListener = new OnErrorListener() {
+        @Override
+        public void onError(final ChessChange chessChange) {
+            //停止截图
+            dispose();
+            mFloatView.post(new Runnable() {
+                @Override
+                public void run() {
+                    //显示透明层
+                    if (mPathView.getVisibility() == View.GONE) {
+                        mFloatView.performClick();
+                    }
+                    //绘制错误点
+                    mPathView.clearErrorPoint();
+                    mPathView.drawErrorPoint(chessChange, game.getBoardSize());
+                }
+            });
+
+        }
+
+        @Override
+        public void onErrorList(final List<ChessChange> chessChangeList) {
+            //停止截图
+            dispose();
+            mFloatView.post(new Runnable() {
+                @Override
+                public void run() {
+                    //显示透明层
+                    if (mPathView.getVisibility() == View.GONE) {
+                        mFloatView.performClick();
+                    }
+                    //绘制错误点
+                    mPathView.clearErrorPoint();
+                    mPathView.drawErrorPoint(chessChangeList, game.getBoardSize());
+                }
+            });
+        }
+
+        @Override
+        public void onSuccess() {
+            mFloatView.post(new Runnable() {
+                @Override
+                public void run() {
+                    if (mPathView.getVisibility() == View.VISIBLE){
+                        mFloatView.performClick();
+                        interval();
+                        startVirtual();
+                    }
+                }
+            });
+        }
+    };
 
     private void createFloatView() {
         wmParams = new WindowManager.LayoutParams();
@@ -339,7 +393,7 @@ public class MyService extends Service implements ActivityCallBridge.PL2303Inter
                                 startVirtual();
                             }
                         });
-                        tileHelper = new TileHelper(pl2303, game);
+                        tileHelper = new TileHelper(pl2303, game, errorListener);
                         tileHelper.connect(null);
                     }
                 });
@@ -509,6 +563,10 @@ public class MyService extends Service implements ActivityCallBridge.PL2303Inter
                         updatePath(rectIndex);
                         firstRect = false;
                     }
+                    return;
+                }
+
+                if(TILE_ERROR){//error状态不处理
                     return;
                 }
 
