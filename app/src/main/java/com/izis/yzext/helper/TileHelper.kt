@@ -32,7 +32,7 @@ import kotlin.concurrent.timerTask
  * 虚拟棋盘
  * Created by lxf on 18-5-29.
  */
-class TileHelper(private var pl2303interface: Pl2303InterfaceUtilNew?, private val game: GameInfo, private val errorListener:OnErrorListener) {
+class TileHelper(private var pl2303interface: Pl2303InterfaceUtilNew?, private val game: GameInfo, private val errorListener: OnErrorListener) {
     /**
      * 储存死子列表
      */
@@ -107,8 +107,14 @@ class TileHelper(private var pl2303interface: Pl2303InterfaceUtilNew?, private v
                 "SDA", "~SDA" -> {
                     // 收到完整的盘面
                     val rotate = if (ScreenUtil.isPortrait(pl2303interface?.mcontext)) 270 else 0
-                    val liveType = pl2303interface?.handleReceiveDataRobot(view.board,
-                            cmdData, false, rotate)
+
+                    val liveType = try {
+                        pl2303interface?.handleReceiveDataRobot(view.board,
+                                cmdData, false, rotate)
+                    } catch (e: Exception) {
+                        e.printStackTrace()
+                        null
+                    }
 
                     if (liveType != null)
                         receiveTileViewMessage(liveType, cmdData)
