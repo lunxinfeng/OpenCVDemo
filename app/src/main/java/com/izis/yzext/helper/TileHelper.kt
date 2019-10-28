@@ -68,6 +68,10 @@ class TileHelper(private var pl2303interface: Pl2303InterfaceUtilNew?, private v
      * 旋转角度
      */
     var rotate: Int = 0
+    /**
+     * 是否是中途进入对局的第一帧数据
+     */
+    private var isMiddleFirst = false
 
 
     val data: PlayChessModel = PlayChessModelImpl()
@@ -308,6 +312,7 @@ class TileHelper(private var pl2303interface: Pl2303InterfaceUtilNew?, private v
 
     fun disConnect() {
         pl2303interface?.pl2303DisConnect()
+        disposable?.dispose()
     }
 
     fun onDestroy() {

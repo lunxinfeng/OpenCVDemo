@@ -28,8 +28,6 @@ import android.widget.Button;
 import android.widget.CompoundButton;
 import android.widget.Toast;
 import android.widget.ToggleButton;
-
-import com.afollestad.materialdialogs.MaterialDialog;
 import com.izis.yzext.helper.TileHelper;
 import com.izis.yzext.net.NetKt;
 import com.izis.yzext.net.NetWorkSoap;
@@ -51,13 +49,12 @@ import java.util.List;
 import java.util.concurrent.TimeUnit;
 
 import io.reactivex.Flowable;
-import io.reactivex.Observer;
+import io.reactivex.Observable;
 import io.reactivex.android.schedulers.AndroidSchedulers;
 import io.reactivex.disposables.Disposable;
 import io.reactivex.functions.Consumer;
+import io.reactivex.functions.Predicate;
 import io.reactivex.schedulers.Schedulers;
-import kotlin.Unit;
-import kotlin.jvm.functions.Function1;
 import lxf.widget.tileview.Board;
 
 import static com.izis.yzext.PaserUtil.BOARD_SIZE;
@@ -227,8 +224,8 @@ public class MyService extends Service implements ActivityCallBridge.PL2303Inter
                 public void run() {
                     if (mPathView.getVisibility() == View.VISIBLE){
                         mFloatView.performClick();
-                        interval();
-                        startVirtual();
+                        interval(200);
+//                        startVirtual();
                     }
                 }
             });
@@ -334,36 +331,29 @@ public class MyService extends Service implements ActivityCallBridge.PL2303Inter
             public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
                 startCapture = isChecked;
                 if (isChecked) {
-//                    SharedPreferences sharedPreferences = getSharedPreferences("lxf_path", Context.MODE_PRIVATE);
-//                    SharedPreferences.Editor editor = sharedPreferences.edit();
-//                    editor.putInt("width", (int) mPathView.getRectF().width());
-//                    editor.putInt("left", (int) mPathView.getRectF().left);
-//                    editor.putInt("top", (int) mPathView.getRectF().top);
-//                    editor.apply();
-
-//                    if (tileHelper!=null && tileHelper.isConnected()){
-//                        mFloatView.performClick();
-//                        interval();
-//                        startVirtual();
-//                    }else{
-//                        btnConnect.performClick();
-//                    }
                     btnConnect.performClick();
-
                     mPathView.moveable = false;
                 } else {
                     dispose();
-                    stopVirtual();
-                    if (tileHelper != null && tileHelper.isConnected())
-//                        tileHelper.disConnect();
-                        tileHelper.onDestroy();
-                    mPathView.moveable = true;
-                    mFloatView.performClick();
-//                    mPathView.getRectF().set(new RectF(0, 0, 0, 0));
-                    preChess = null;
-                    isFirst = true;
 
-                    uploadChess();
+                    Observable.timer(500,TimeUnit.MILLISECONDS)
+                            .observeOn(AndroidSchedulers.mainThread())
+                            .subscribe(new Consumer<Long>() {
+                                @Override
+                                public void accept(Long aLong) throws Exception {
+                                    if (tileHelper != null && tileHelper.isConnected())
+                                        tileHelper.disConnect();
+                                    mPathView.moveable = true;
+                                    mFloatView.performClick();
+                                    preChess = null;
+                                    isFirst = true;
+                                    TILE_ERROR = false;
+                                    mPathView.clearErrorPoint();
+                                    mPathView.invalidate();
+
+                                    uploadChess();
+                                }
+                            });
                 }
             }
         });
@@ -378,9 +368,6 @@ public class MyService extends Service implements ActivityCallBridge.PL2303Inter
                         game = gameInfo;
                         PaserUtil.BOARD_SIZE = game.getBoardSize();
                         Board.n = game.getBoardSize();
-
-//                        final Pl2303InterfaceUtilNew pl2303 = Pl2303InterfaceUtilNew.initInterface(MyService.this,
-//                                game.getNextBW() == 1 ? "+" : "-", MyService.this);//game.getNextBW()这里这个实际是没用的
                         final Pl2303InterfaceUtilNew pl2303 = Pl2303InterfaceUtilNew.initInterface(MyService.this,
                                 "+", MyService.this);
                         pl2303.setIpl2303ConnectSuccess(new IPL2303ConnectSuccess() {
@@ -389,8 +376,8 @@ public class MyService extends Service implements ActivityCallBridge.PL2303Inter
                                 pl2303.WriteToUARTDevice("~CTS0#");
 
                                 mFloatView.performClick();
-                                interval();
-                                startVirtual();
+                                interval(2000);
+//                                startVirtual();
                             }
                         });
                         tileHelper = new TileHelper(pl2303, game, errorListener);
@@ -510,12 +497,19 @@ public class MyService extends Service implements ActivityCallBridge.PL2303Inter
 //        btnFindRect.setVisibility(visibility ? View.VISIBLE : View.GONE);
     }
 
-    private void interval() {
-        disposable = Flowable.interval(3000, 500, TimeUnit.MILLISECONDS)
+    private void interval(long initTime) {
+        disposable = Flowable.interval(initTime, 300, TimeUnit.MILLISECONDS)
+                .filter(new Predicate<Long>() {
+                    @Override
+                    public boolean test(Long aLong) {
+                        return !isHanding;
+                    }
+                })
                 .subscribe(new Consumer<Long>() {
                     @Override
-                    public void accept(Long aLong) throws Exception {
-                        startVirtual();
+                    public void accept(Long aLong) {
+//                        startVirtual();
+                        handleCapture();
                     }
                 });
     }
@@ -536,179 +530,6 @@ public class MyService extends Service implements ActivityCallBridge.PL2303Inter
         mWindowManager.getDefaultDisplay().getMetrics(metrics);
         mScreenDensity = metrics.densityDpi;
         mImageReader = ImageReader.newInstance(w, h, PixelFormat.RGBA_8888, 1);
-        mImageReader.setOnImageAvailableListener(new ImageReader.OnImageAvailableListener() {
-
-            @Override
-            public void onImageAvailable(ImageReader reader) {
-//                log("onImageAvailable");
-                stopVirtual();
-
-                Bitmap bitmap = startCapture();
-//                FileUtil.save(bitmap);
-//                log("截图：" + bitmap.getWidth() + ";" + bitmap.getHeight());
-
-                if (!startCapture) { //第一次选区
-                    rects = PaserUtil.findRects(bitmap);
-                    System.out.println(Arrays.toString(rects.toArray()));
-                    rectIndex = rects.size() - 1;
-//                    Observable.just(1)
-//                            .observeOn(AndroidSchedulers.mainThread())
-//                            .subscribe(new Consumer<Integer>() {
-//                                @Override
-//                                public void accept(Integer integer) throws Exception {
-//                                    Toast.makeText(MyService.this, "找到可能区域：" + rects.size() + "个", Toast.LENGTH_SHORT).show();
-//                                }
-//                            });
-                    if (firstRect) {
-                        updatePath(rectIndex);
-                        firstRect = false;
-                    }
-                    return;
-                }
-
-                if(TILE_ERROR){//error状态不处理
-                    return;
-                }
-
-                mRectF = new RectF(mPathView.getRectF());
-                log("原始区域：" + mRectF);
-                //选框扩大0.5个格子
-                float width = mRectF.width();
-                mRectF.left = mRectF.left - width / (BOARD_SIZE - 1) / 2;
-                mRectF.right = mRectF.right + width / (BOARD_SIZE - 1) / 2;
-                mRectF.top = mRectF.top - width / (BOARD_SIZE - 1) / 2 + statusH;
-                mRectF.bottom = mRectF.bottom + width / (BOARD_SIZE - 1) / 2 + statusH;
-
-                if (mRectF.left < 0)
-                    mRectF.left = 0;
-                if (mRectF.right < 0)
-                    mRectF.right = 0;
-                if (mRectF.top < 0)
-                    mRectF.top = 0;
-                if (mRectF.bottom < 0)
-                    mRectF.bottom = 0;
-                int cut_width = (int) Math.abs(mRectF.right - mRectF.left);
-                int cut_height = (int) Math.abs(mRectF.bottom - mRectF.top);
-                log("转换区域：" + mRectF);
-
-                tileHelper.setRectF(mRectF);
-
-                if (cut_width > 0 && cut_height > 0) {
-                    if (mRectF.left + cut_width > bitmap.getWidth()) {
-                        cut_width = bitmap.getWidth() - (int) mRectF.left;
-                    }
-                    if (mRectF.top + cut_height > bitmap.getHeight()) {
-                        cut_height = bitmap.getHeight() - (int) mRectF.top;
-                    }
-                    Bitmap cutBitmap = Bitmap.createBitmap(bitmap, (int) mRectF.left, (int) mRectF.top, cut_width, cut_height);
-//                    FileUtil.save(cutBitmap);
-                    int[][] a = PaserUtil.parse(cutBitmap);
-                    String result = PaserUtil.exChange(a);
-                    log(result);
-                    currChess = result;
-
-//                    if (game.getType() == 2 && isFirst) {
-//                        isFirst = false;
-//                        preChess = result;
-//                        tileHelper.updateBoard(a);
-//                        tileHelper.updateCurBW(game.getNextBW());
-//                        log("第一帧数据");
-//                    }
-                    if (isFirst) {
-                        isFirst = false;
-                        preChess = result;
-                        if (result.contains("1") || result.contains("2")) {
-                            int count = 0;
-                            for (int i = 0; i < result.length(); i++) {
-                                char c = result.charAt(i);
-                                if (c != '0') {
-                                    count++;
-                                }
-                            }
-
-                            if (count > 1) {
-                                tileHelper.updateBoard(a);
-                                tileHelper.updateCurBW(game.getBw());//规定只有轮到自己落子才能开启服务
-                            } else {
-                                //如果只有一颗子,不要直接替换board二维数组,调用显示棋步的方法
-                                preChess = "";
-                                for (int i = 0; i < game.getBoardSize(); i++) {
-                                    for (int j = 0; j < game.getBoardSize(); j++) {
-                                        preChess = preChess + "0";
-                                    }
-                                }
-                            }
-                        }
-                        log("第一帧数据");
-                    }
-
-                    LiveType liveType = Util.parse(preChess, currChess, 90);//对比屏幕
-                    switch (liveType.getType()) {
-                        case LiveType.NORMAL:
-                            preChess = result;
-//                            if ((game.getBw() == 1 && liveType.getAllStep().startsWith("+"))
-//                                    || (game.getBw() == 2 && liveType.getAllStep().startsWith("-")))
-//                                return;
-                            String allStep = liveType.getAllStep();
-                            log("正常操作：" + allStep + "；序列：" + liveType.getIndex());
-                            int rotate = 270;
-                            switch (ServiceActivity.Companion.getPLATFORM()) {
-                                case ServiceActivityKt.PLATFORM_TX:
-                                case ServiceActivityKt.PLATFORM_YC:
-                                case ServiceActivityKt.PLATFORM_YK:
-//                                case ServiceActivityKt.PLATFORM_YZ:
-                                    rotate = 270;
-                                    break;
-                                case ServiceActivityKt.PLATFORM_XB:
-                                    rotate = 0;
-                                    break;
-                            }
-
-                            if (allStep.length() == 10) {
-                                String self;
-                                String other;
-                                if (game.getBw() == 1) {//自己执黑
-                                    if (allStep.startsWith("+")) {
-                                        self = allStep.substring(0, 5);//自己
-                                        other = allStep.substring(5, 10);//对手
-                                    } else {
-                                        self = allStep.substring(5, 10);//自己
-                                        other = allStep.substring(0, 5);//对手
-                                    }
-
-                                    if (preChessBW == 2)
-                                        tileHelper.putChess(self + other);
-                                    else
-                                        tileHelper.putChess(other + self);
-                                } else {
-                                    if (allStep.startsWith("-")) {
-                                        self = allStep.substring(0, 5);//自己
-                                        other = allStep.substring(5, 10);//对手
-                                    } else {
-                                        self = allStep.substring(5, 10);//自己
-                                        other = allStep.substring(0, 5);//对手
-                                    }
-
-                                    if (preChessBW == 1)
-                                        tileHelper.putChess(self + other);
-                                    else
-                                        tileHelper.putChess(other + self);
-                                }
-                                tileHelper.lamb(other, false, rotate);
-//                                //一般是电脑下的快，所以先落自己的
-//                                tileHelper.putChess(self + other);
-                            } else {
-
-                                tileHelper.lamb(allStep, false, rotate);
-                                tileHelper.putChess(allStep);
-
-                                preChessBW = allStep.contains("+") ? 1 : 2;
-                            }
-                            break;
-                    }
-                }
-            }
-        }, null);
     }
 
     @Override
@@ -734,6 +555,31 @@ public class MyService extends Service implements ActivityCallBridge.PL2303Inter
             setUpMediaProjection();
             virtualDisplay();
         }
+
+        mImageReader.setOnImageAvailableListener(new ImageReader.OnImageAvailableListener() {
+            @Override
+            public void onImageAvailable(ImageReader reader) {
+                isHanding = true;
+                mImageReader.setOnImageAvailableListener(null,null);
+                Bitmap bitmap = startCapture();
+                if (!startCapture && bitmap != null) { //第一次选区
+                    rects = PaserUtil.findRects(bitmap);
+                    System.out.println(Arrays.toString(rects.toArray()));
+                    rectIndex = rects.size() - 1;
+                    if (firstRect) {
+                        updatePath(rectIndex);
+                        firstRect = false;
+                    }
+                }
+                isHanding = false;
+            }
+        },null);
+//        try {
+//            Thread.sleep(1000);
+//        } catch (InterruptedException e) {
+//            e.printStackTrace();
+//        }
+//        handleCapture();//截一张图来画区域
     }
 
     private void screenOrientation() {
@@ -780,9 +626,10 @@ public class MyService extends Service implements ActivityCallBridge.PL2303Inter
                 mImageReader.getSurface(), null, null);
     }
 
-    public Bitmap startCapture() {
+    private Bitmap startCapture() {
         Image image = mImageReader.acquireNextImage();
-
+        if (image == null)
+            return null;
         int width = image.getWidth();
         int height = image.getHeight();
 
@@ -799,5 +646,148 @@ public class MyService extends Service implements ActivityCallBridge.PL2303Inter
         image.close();
 
         return bitmap;
+    }
+
+    private boolean isHanding = false;
+    public void handleCapture() {
+        isHanding = true;
+
+        Bitmap bitmap = startCapture();
+//                FileUtil.save(bitmap);
+//                log("截图：" + bitmap.getWidth() + ";" + bitmap.getHeight());
+
+
+        if(TILE_ERROR || bitmap == null){//error状态不处理
+            isHanding = false;
+            return;
+        }
+
+        mRectF = new RectF(mPathView.getRectF());
+        log("原始区域：" + mRectF);
+        //选框扩大0.5个格子
+        float width = mRectF.width();
+        mRectF.left = mRectF.left - width / (BOARD_SIZE - 1) / 2;
+        mRectF.right = mRectF.right + width / (BOARD_SIZE - 1) / 2;
+        mRectF.top = mRectF.top - width / (BOARD_SIZE - 1) / 2 + statusH;
+        mRectF.bottom = mRectF.bottom + width / (BOARD_SIZE - 1) / 2 + statusH;
+
+        if (mRectF.left < 0)
+            mRectF.left = 0;
+        if (mRectF.right < 0)
+            mRectF.right = 0;
+        if (mRectF.top < 0)
+            mRectF.top = 0;
+        if (mRectF.bottom < 0)
+            mRectF.bottom = 0;
+        int cut_width = (int) Math.abs(mRectF.right - mRectF.left);
+        int cut_height = (int) Math.abs(mRectF.bottom - mRectF.top);
+        log("转换区域：" + mRectF);
+
+        tileHelper.setRectF(mRectF);
+
+        if (cut_width > 0 && cut_height > 0) {
+            if (mRectF.left + cut_width > bitmap.getWidth()) {
+                cut_width = bitmap.getWidth() - (int) mRectF.left;
+            }
+            if (mRectF.top + cut_height > bitmap.getHeight()) {
+                cut_height = bitmap.getHeight() - (int) mRectF.top;
+            }
+            Bitmap cutBitmap = Bitmap.createBitmap(bitmap, (int) mRectF.left, (int) mRectF.top, cut_width, cut_height);
+//                    FileUtil.save(cutBitmap);
+            int[][] a = PaserUtil.parse(cutBitmap);
+            String result = PaserUtil.exChange(a);
+            log(result);
+            currChess = result;
+
+            if (isFirst) {
+                isFirst = false;
+                preChess = result;
+                if (result.contains("1") || result.contains("2")) {
+                    int count = 0;
+                    for (int i = 0; i < result.length(); i++) {
+                        char c = result.charAt(i);
+                        if (c != '0') {
+                            count++;
+                        }
+                    }
+
+                    if (count > 1) {
+                        log("重新给board赋值");
+                        tileHelper.updateBoard(a);
+                        tileHelper.updateCurBW(game.getBw());//规定只有轮到自己落子才能开启服务
+                    } else {
+                        //如果只有一颗子,不要直接替换board二维数组,调用显示棋步的方法
+                        preChess = "";
+                        for (int i = 0; i < game.getBoardSize(); i++) {
+                            for (int j = 0; j < game.getBoardSize(); j++) {
+                                preChess = preChess + "0";
+                            }
+                        }
+                    }
+                }
+                log("第一帧数据");
+            }
+
+            LiveType liveType = Util.parse(preChess, currChess, 90);//对比屏幕
+            switch (liveType.getType()) {
+                case LiveType.NORMAL:
+                    preChess = result;
+
+                    String allStep = liveType.getAllStep();
+                    log("正常操作：" + allStep + "；序列：" + liveType.getIndex());
+                    int rotate = 270;
+                    switch (ServiceActivity.Companion.getPLATFORM()) {
+                        case ServiceActivityKt.PLATFORM_TX:
+                        case ServiceActivityKt.PLATFORM_YC:
+                        case ServiceActivityKt.PLATFORM_YK:
+//                                case ServiceActivityKt.PLATFORM_YZ:
+                            rotate = 270;
+                            break;
+                        case ServiceActivityKt.PLATFORM_XB:
+                            rotate = 0;
+                            break;
+                    }
+
+                    if (allStep.length() == 10) {
+                        String self;
+                        String other;
+                        if (game.getBw() == 1) {//自己执黑
+                            if (allStep.startsWith("+")) {
+                                self = allStep.substring(0, 5);//自己
+                                other = allStep.substring(5, 10);//对手
+                            } else {
+                                self = allStep.substring(5, 10);//自己
+                                other = allStep.substring(0, 5);//对手
+                            }
+
+                            if (preChessBW == 2)
+                                tileHelper.putChess(self + other);
+                            else
+                                tileHelper.putChess(other + self);
+                        } else {
+                            if (allStep.startsWith("-")) {
+                                self = allStep.substring(0, 5);//自己
+                                other = allStep.substring(5, 10);//对手
+                            } else {
+                                self = allStep.substring(5, 10);//自己
+                                other = allStep.substring(0, 5);//对手
+                            }
+
+                            if (preChessBW == 1)
+                                tileHelper.putChess(self + other);
+                            else
+                                tileHelper.putChess(other + self);
+                        }
+                        tileHelper.lamb(other, false, rotate);
+                    } else {
+                        tileHelper.lamb(allStep, false, rotate);
+                        tileHelper.putChess(allStep);
+
+                        preChessBW = allStep.contains("+") ? 1 : 2;
+                    }
+                    break;
+            }
+        }
+        isHanding = false;
     }
 }

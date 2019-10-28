@@ -105,7 +105,7 @@ public class PathView extends View {
 
         if (errorPoints.size() > 0) {
             for (float[] item : errorPoints) {
-                canvas.drawCircle(mRectF.left + item[0], mRectF.top + item[1], 3, paintError);
+                canvas.drawCircle(mRectF.left + item[0], mRectF.top + item[1], 5, paintError);
 //                canvas.drawRect(mRectF.left + item[0] - size / 2,mRectF.top + item[1] - size/2,mRectF.left + item[0] + size / 2,mRectF.top + item[1] + size/2,paintError);
             }
         }
