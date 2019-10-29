@@ -223,6 +223,8 @@ public class MyService extends Service implements ActivityCallBridge.PL2303Inter
                 @Override
                 public void run() {
                     if (mPathView.getVisibility() == View.VISIBLE){
+                        mPathView.clearErrorPoint();
+                        mPathView.invalidate();
                         mFloatView.performClick();
                         interval(200);
 //                        startVirtual();
