@@ -27,6 +27,7 @@ import okhttp3.ResponseBody;
 import okio.BufferedSink;
 import okio.BufferedSource;
 import okio.Okio;
+import retrofit2.Response;
 
 /**
  * app更新管理类
@@ -101,12 +102,12 @@ public class UpdateManager {
 //                        return Observable.timer(2000, TimeUnit.MILLISECONDS);
 //                    }
 //                })
-                .map(new Function<ResponseBody, Long>() {
+                .map(new Function<Response<Void>, Long>() {
                     @Override
-                    public Long apply(ResponseBody responseBody) {
-                        if (responseBody == null)
+                    public Long apply(Response<Void> response) {
+                        if (response == null)
                             return 0L;
-                        totalLength = responseBody.contentLength();
+                        totalLength = Long.parseLong(response.headers().get("Content-Length"));
                         System.out.println("请求文件长度：" + totalLength);
                         return totalLength;
                     }

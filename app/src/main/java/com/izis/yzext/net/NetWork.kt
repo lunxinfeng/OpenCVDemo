@@ -12,6 +12,7 @@ import io.reactivex.android.schedulers.AndroidSchedulers
 import io.reactivex.schedulers.Schedulers
 import okhttp3.OkHttpClient
 import okhttp3.ResponseBody
+import retrofit2.Response
 import retrofit2.Retrofit
 import retrofit2.adapter.rxjava2.RxJava2CallAdapterFactory
 import retrofit2.converter.gson.GsonConverterFactory
@@ -37,9 +38,8 @@ interface Api {
     @GET
     fun down(@Header("Range") range:String, @Url url: String): Observable<ResponseBody>
 
-    @Streaming
-    @GET
-    fun fileLength(@Url url: String): Observable<ResponseBody>
+    @HEAD
+    fun fileLength(@Url url: String): Observable<Response<Void>>
 }
 
 
@@ -102,7 +102,7 @@ class NetWork private constructor() {
                 .compose(handleList(cls))
     }
 
-    fun fileLength(url: String): Observable<ResponseBody>{
+    fun fileLength(url: String): Observable<Response<Void>>{
         return api.fileLength(url)
     }
 

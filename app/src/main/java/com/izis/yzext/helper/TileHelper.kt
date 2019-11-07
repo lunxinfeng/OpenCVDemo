@@ -233,10 +233,12 @@ class TileHelper(private var pl2303interface: Pl2303InterfaceUtilNew?, private v
                             .observeOn(AndroidSchedulers.mainThread())
                             .subscribe { _ -> click(240f, 669f) }
                 }
-//                if (ServiceActivity.PLATFORM == PLATFORM_JJ){
-//                    SystemClock.sleep(500)
-//                    click(480f, 367f)
-//                }
+                if (ServiceActivity.PLATFORM == PLATFORM_JJ){
+                    Single.timer(500, TimeUnit.MILLISECONDS)
+                            .subscribeOn(Schedulers.io())
+                            .observeOn(AndroidSchedulers.mainThread())
+                            .subscribe { _ -> click(480f, 367f) }
+                }
             }
             LiveType.GO_BACK -> {
 //                val backNum = value.backNum
@@ -317,6 +319,7 @@ class TileHelper(private var pl2303interface: Pl2303InterfaceUtilNew?, private v
     fun isConnected() = pl2303interface?.PL2303MultiLiblinkExist() ?: false
 
     fun disConnect() {
+        pl2303interface?.WriteToUARTDevice("~RGC#")
         pl2303interface?.pl2303DisConnect()
         disposable?.dispose()
     }

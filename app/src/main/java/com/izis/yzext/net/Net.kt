@@ -11,7 +11,8 @@ const val CONNECT_TIME_OUT: Long = 8000
 const val BASE_URL = "http://app.izis.cn/GoWebService/"
 const val BASE_URL_SOAP = "http://app.izis.cn/GoWebService/"
 //const val BASE_URL_SOAP = "http://192.168.150.191:8080/GoWebService/"
-const val DOWNLOAD_URL = "http://www.izis.cn/GoWebService/yzext_%1\$d.apk"
+const val DOWNLOAD_URL_5 = "http://www.izis.cn/GoWebService/yzext5_%1\$d.apk"
+const val DOWNLOAD_URL_7 = "http://www.izis.cn/GoWebService/yzext7_%1\$d.apk"
 
 /**
  * 获取服务器版本号

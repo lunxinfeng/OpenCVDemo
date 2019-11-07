@@ -22,10 +22,7 @@ import com.afollestad.materialdialogs.WhichButton
 import com.afollestad.materialdialogs.actions.setActionButtonEnabled
 import com.afollestad.materialdialogs.checkbox.checkBoxPrompt
 import com.afollestad.materialdialogs.list.listItemsSingleChoice
-import com.izis.yzext.net.DOWNLOAD_URL
-import com.izis.yzext.net.ProgressSubscriber
-import com.izis.yzext.net.net_code_getServerCode
-import com.izis.yzext.net.net_info_getServerCode
+import com.izis.yzext.net.*
 import com.izis.yzext.update.*
 import kotlinx.android.synthetic.main.activity_service.*
 import lxf.widget.util.SharedPrefsUtil
@@ -35,7 +32,7 @@ const val PLATFORM_TX = "com.tencent.tmgp.ttwq"
 const val PLATFORM_YC = "com.eweiqi.android"
 const val PLATFORM_YK = "com.indeed.golinks"
 //const val PLATFORM_JJ = "com.r99weiqi.dvd"
-//const val PLATFORM_JJ = "com.weiqi99.www"
+const val PLATFORM_JJ = "com.weiqi99.www"
 const val PLATFORM_XB = "com.cngames.weiqi_shaoer_mobile"
 //const val PLATFORM_YZ = "cn.izis.mygo.mplat"
 
@@ -118,11 +115,11 @@ class ServiceActivity : AppCompatActivity() {
                         platform_name = "弈城围棋"
                         platform_url = "http://www.izis.cn/GoWebService/ycwq.apk"
                     }
-//                    4 -> {
-//                        platformConfig(PLATFORM_JJ)
-//                        platform_name = "99围棋"
-//                        platform_url = "http://www.izis.cn/GoWebService/jjwq.apk"
-//                    }
+                    4 -> {
+                        platformConfig(PLATFORM_JJ)
+                        platform_name = "99围棋"
+                        platform_url = "http://www.izis.cn/GoWebService/jjwq.apk"
+                    }
                     5 -> {
                         platformConfig(PLATFORM_XB)
                         platform_name = "新博围棋"
@@ -328,9 +325,10 @@ class ServiceActivity : AppCompatActivity() {
                             val dialog = UpdateDialog(this@ServiceActivity, R.style.dialog, decription)
                             dialog.setClickListener(object : UpdateDialog.ClickListener {
                                 override fun doUpdate() {
-
-                                    val downUrl = String.format(DOWNLOAD_URL, serverVersionCode)
-                                    val apkPath = Environment.getExternalStorageDirectory().path + File.separator + t.app_name + ".apk"
+                                    val url = if (Build.VERSION.SDK_INT >= 24) DOWNLOAD_URL_7 else DOWNLOAD_URL_5
+                                    val downUrl = String.format(url, serverVersionCode)
+                                    val appName = downUrl.substring(downUrl.lastIndexOf("/"))
+                                    val apkPath = Environment.getExternalStorageDirectory().path + File.separator + appName
                                     downloadApk(downUrl, apkPath)
 //                                    MyIntentService.startUpdateService(this@ServiceActivity, downUrl, apkPath,progressDialog)
                                 }
@@ -363,7 +361,7 @@ class ServiceActivity : AppCompatActivity() {
             if (packName == PLATFORM_TX
                     || packName == PLATFORM_YC
                     || packName == PLATFORM_YK
-//                    || packName == PLATFORM_JJ
+                    || packName == PLATFORM_JJ
                     || packName == PLATFORM_XB
 //                    || packName == PLATFORM_YZ
             ) {
@@ -374,7 +372,7 @@ class ServiceActivity : AppCompatActivity() {
         val hasYK = chessApps.any { it.activityInfo.packageName == PLATFORM_YK }
         val hasTX = chessApps.any { it.activityInfo.packageName == PLATFORM_TX }
         val hasYC = chessApps.any { it.activityInfo.packageName == PLATFORM_YC }
-//        val hasJJ = chessApps.any { it.activityInfo.packageName == PLATFORM_JJ }
+        val hasJJ = chessApps.any { it.activityInfo.packageName == PLATFORM_JJ }
         val hasXB = chessApps.any { it.activityInfo.packageName == PLATFORM_XB }
 //        val hasYZ = chessApps.any { it.activityInfo.packageName == PLATFORM_YZ }
         if (!hasYK) {
@@ -392,11 +390,11 @@ class ServiceActivity : AppCompatActivity() {
             resolveInfo.match = 3
             chessApps.add(0, resolveInfo)
         }
-//        if (!hasJJ){
-//            val resolveInfo = ResolveInfo()
-//            resolveInfo.match = 4
-//            chessApps.add(0,resolveInfo)
-//        }
+        if (!hasJJ){
+            val resolveInfo = ResolveInfo()
+            resolveInfo.match = 4
+            chessApps.add(0,resolveInfo)
+        }
         if (!hasXB) {
             val resolveInfo = ResolveInfo()
             resolveInfo.match = 5
@@ -427,11 +425,11 @@ class ServiceActivity : AppCompatActivity() {
                 MyService.statusH = ScreenUtil.getStatusBarHeight(this)
                 PaserUtil.thresh = 80
             }
-//            PLATFORM_JJ -> {
-//                PLATFORM = PLATFORM_JJ
-//                MyService.statusH = 0
-//                PaserUtil.thresh = 80
-//            }
+            PLATFORM_JJ -> {
+                PLATFORM = PLATFORM_JJ
+                MyService.statusH = 0
+                PaserUtil.thresh = 80
+            }
             PLATFORM_XB -> {
                 PLATFORM = PLATFORM_XB
                 MyService.statusH = 0

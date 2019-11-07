@@ -16,6 +16,7 @@ import android.media.ImageReader;
 import android.media.projection.MediaProjection;
 import android.media.projection.MediaProjectionManager;
 import android.os.IBinder;
+import android.os.SystemClock;
 import android.support.constraint.ConstraintLayout;
 import android.util.DisplayMetrics;
 import android.util.Log;
@@ -222,10 +223,11 @@ public class MyService extends Service implements ActivityCallBridge.PL2303Inter
             mFloatView.post(new Runnable() {
                 @Override
                 public void run() {
-                    if (mPathView.getVisibility() == View.VISIBLE){
+                    if (disposable == null || disposable.isDisposed()){
                         mPathView.clearErrorPoint();
                         mPathView.invalidate();
-                        mFloatView.performClick();
+                        if (mPathView.getVisibility() == View.VISIBLE)
+                            mFloatView.performClick();
                         interval(200);
 //                        startVirtual();
                     }
@@ -314,6 +316,10 @@ public class MyService extends Service implements ActivityCallBridge.PL2303Inter
                     wmParams.y = h - 110;
                     mWindowManager.updateViewLayout(mFloatLayout, wmParams);
 
+                    //只要最小化，就清除错误点的绘制，防止手动最小化和自动最小化时发生错乱
+//                    mPathView.clearErrorPoint();
+//                    mPathView.invalidate();
+
                 } else {
                     otherVisibility(true);
                     wmParams.width = WindowManager.LayoutParams.MATCH_PARENT;
@@ -349,6 +355,7 @@ public class MyService extends Service implements ActivityCallBridge.PL2303Inter
                                     mFloatView.performClick();
                                     preChess = null;
                                     isFirst = true;
+                                    isHanding = false;
                                     TILE_ERROR = false;
                                     mPathView.clearErrorPoint();
                                     mPathView.invalidate();
@@ -395,6 +402,7 @@ public class MyService extends Service implements ActivityCallBridge.PL2303Inter
                 stopVirtual();
                 if (tileHelper != null)
                     tileHelper.onDestroy();
+                SystemClock.sleep(100);
                 AppUtil.killApp(MyService.this, ServiceActivity.getPLATFORM());
                 AppUtil.killApp(MyService.this, "com.izis.yzext");
                 stopSelf();
