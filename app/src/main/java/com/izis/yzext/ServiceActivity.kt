@@ -27,6 +27,7 @@ import com.izis.yzext.update.*
 import kotlinx.android.synthetic.main.activity_service.*
 import lxf.widget.util.SharedPrefsUtil
 import java.io.File
+import java.util.*
 
 const val PLATFORM_TX = "com.tencent.tmgp.ttwq"
 const val PLATFORM_YC = "com.eweiqi.android"
@@ -131,7 +132,9 @@ class ServiceActivity : AppCompatActivity() {
 //                        platform_url = "http://www.izis.cn/GoWebService/yzwq.apk"
 //                    }
                 }
-                val apkPath = Environment.getExternalStorageDirectory().path + File.separator + "$platform_name.apk"
+                val calendar = Calendar.getInstance()
+                val apkPath = Environment.getExternalStorageDirectory().path + File.separator +
+                        "${platform_name + calendar.get(Calendar.YEAR) + calendar.get(Calendar.MONTH) + calendar.get(Calendar.DAY_OF_MONTH)}.apk"
                 MaterialDialog(this)
                         .message(text = "未检测到$platform_name，是否下载安装？")
                         .positiveButton(text = "立即下载") {
