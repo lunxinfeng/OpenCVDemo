@@ -103,27 +103,27 @@ class ServiceActivity : AppCompatActivity() {
                     1 -> {
                         platformConfig(PLATFORM_YK)
                         platform_name = "弈客围棋"
-                        platform_url = "http://www.izis.cn/GoWebService/yike.apk"
+                        platform_url = "http://app.izis.cn/GoWebService/yike.apk"
                     }
                     2 -> {
                         platformConfig(PLATFORM_TX)
                         platform_name = "腾讯围棋"
-                        platform_url = "http://www.izis.cn/GoWebService/txwq.apk"
+                        platform_url = "http://app.izis.cn/GoWebService/txwq.apk"
                     }
                     3 -> {
                         platformConfig(PLATFORM_YC)
                         platform_name = "弈城围棋"
-                        platform_url = "http://www.izis.cn/GoWebService/ycwq.apk"
+                        platform_url = "http://app.izis.cn/GoWebService/ycwq.apk"
                     }
                     4 -> {
                         platformConfig(PLATFORM_JJ)
                         platform_name = "99围棋"
-                        platform_url = "http://www.izis.cn/GoWebService/jjwq.apk"
+                        platform_url = "http://app.izis.cn/GoWebService/jjwq.apk"
                     }
                     5 -> {
                         platformConfig(PLATFORM_XB)
                         platform_name = "新博围棋"
-                        platform_url = "http://www.izis.cn/GoWebService/xbwq.apk"
+                        platform_url = "http://app.izis.cn/GoWebService/xbwq.apk"
                     }
 //                    6 -> {
 //                        platformConfig(PLATFORM_YZ)
