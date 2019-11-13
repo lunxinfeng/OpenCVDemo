@@ -364,7 +364,7 @@ class ServiceActivity : AppCompatActivity() {
             if (packName == PLATFORM_TX
                     || packName == PLATFORM_YC
                     || packName == PLATFORM_YK
-                    || packName == PLATFORM_JJ
+//                    || packName == PLATFORM_JJ
                     || packName == PLATFORM_XB
 //                    || packName == PLATFORM_YZ
             ) {
@@ -393,11 +393,11 @@ class ServiceActivity : AppCompatActivity() {
             resolveInfo.match = 3
             chessApps.add(0, resolveInfo)
         }
-        if (!hasJJ){
-            val resolveInfo = ResolveInfo()
-            resolveInfo.match = 4
-            chessApps.add(0,resolveInfo)
-        }
+//        if (!hasJJ){
+//            val resolveInfo = ResolveInfo()
+//            resolveInfo.match = 4
+//            chessApps.add(0,resolveInfo)
+//        }
         if (!hasXB) {
             val resolveInfo = ResolveInfo()
             resolveInfo.match = 5
