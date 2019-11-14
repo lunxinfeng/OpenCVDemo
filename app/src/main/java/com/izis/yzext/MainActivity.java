@@ -63,7 +63,7 @@ public class MainActivity extends AppCompatActivity {
         iv_result = findViewById(R.id.iv_result);
         spinner = findViewById(R.id.spinner);
 
-        String[] items = new String[]{"隐智", "弈客", "弈城", "99", "腾讯", "新博"};
+        String[] items = new String[]{"隐智", "弈客", "弈城", "99", "腾讯", "新博", "新博7"};
         spinner.setAdapter(new ArrayAdapter<>(this, android.R.layout.simple_list_item_1, items));
         spinner.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
             @Override
@@ -87,6 +87,9 @@ public class MainActivity extends AppCompatActivity {
                         break;
                     case 5:
                         res = R.mipmap.xb;
+                        break;
+                    case 6:
+                        res = R.mipmap.xb_7;
                         break;
                 }
                 srcBitmap = BitmapFactory.decodeResource(getResources(), res);
@@ -316,7 +319,7 @@ public class MainActivity extends AppCompatActivity {
     public void thres(View view) {
         Mat src = PaserUtil.bitmapToMat(srcBitmap);
         Mat gray = PaserUtil.gray(src);
-        Mat thres = PaserUtil.threshold(gray,80,255,Imgproc.THRESH_BINARY);
+        Mat thres = PaserUtil.threshold(gray, 120, 255, Imgproc.THRESH_BINARY);
         iv_result.setImageBitmap(PaserUtil.matToBitmap(thres));
     }
 
@@ -352,23 +355,23 @@ public class MainActivity extends AppCompatActivity {
             x2 = points[2];
             y2 = points[3];
 
-            if (x1 == x2){
-                int min = (int) Math.min(y1,y2);
-                int max = (int) Math.max(y1,y2);
-                for (int j = min;j<=max;j++){
-                    for (int k = 0;k<5;k++){
-                        grayMat.put((int)x1+k,j,150);
-                        grayMat.put((int)x1-k,j,150);
+            if (x1 == x2) {
+                int min = (int) Math.min(y1, y2);
+                int max = (int) Math.max(y1, y2);
+                for (int j = min; j <= max; j++) {
+                    for (int k = 0; k < 5; k++) {
+                        grayMat.put((int) x1 + k, j, 150);
+                        grayMat.put((int) x1 - k, j, 150);
                     }
                 }
             }
-            if (y1 == y2){
-                int min = (int) Math.min(x1,x2);
-                int max = (int) Math.max(x1,x2);
-                for (int j = min;j<=max;j++){
-                    for (int k = 0;k<5;k++){
-                        grayMat.put(j,(int)y1+k,150);
-                        grayMat.put(j,(int)y1-k,150);
+            if (y1 == y2) {
+                int min = (int) Math.min(x1, x2);
+                int max = (int) Math.max(x1, x2);
+                for (int j = min; j <= max; j++) {
+                    for (int k = 0; k < 5; k++) {
+                        grayMat.put(j, (int) y1 + k, 150);
+                        grayMat.put(j, (int) y1 - k, 150);
                     }
 
                 }
@@ -391,7 +394,8 @@ public class MainActivity extends AppCompatActivity {
     public void lunKuo(View view) {
 //        List<MatOfPoint> contourList = PaserUtil.yiCheng(srcBitmap);
         Mat gray = PaserUtil.gray(PaserUtil.bitmapToMat(srcBitmap));
-        Mat threshold = PaserUtil.threshold(gray,80,255,Imgproc.THRESH_BINARY);
+//        Mat threshold = PaserUtil.threshold(gray,80,255,Imgproc.THRESH_BINARY);
+        Mat threshold = PaserUtil.threshold(gray, 100, 255, Imgproc.THRESH_BINARY);
         List<MatOfPoint> contourList = new ArrayList<>();
         Mat dst = new Mat();
         Imgproc.findContours(threshold, contourList, dst, Imgproc.RETR_CCOMP, Imgproc.CHAIN_APPROX_SIMPLE);
@@ -401,13 +405,13 @@ public class MainActivity extends AppCompatActivity {
         Mat contours = new Mat();
         contours.create(srcBitmap.getHeight(), srcBitmap.getWidth(), CvType.CV_8UC3);
 
-        Random random = new Random();
+//        Random random = new Random();
         for (int i = 0; i < contourList.size(); i++) {
             MatOfPoint mp = contourList.get(i);
             Rect rect = Imgproc.boundingRect(mp);
             double ratio = rect.width / (double) rect.height;
-            if (ratio > 0.95 && ratio < 1.05 && rect.width > 300) {
-                Imgproc.drawContours(contours, contourList, i, new Scalar(random.nextInt(255), random.nextInt(255), random.nextInt(255)), 1);
+            if (ratio > 0.95 && ratio < 1.05 && rect.width > 200) {
+                Imgproc.drawContours(contours, contourList, i, new Scalar(255, 255, 255), 1);
 //                System.out.println(mp);
 //                System.out.println(Arrays.toString(mp.toArray()));
                 System.out.println(rect);
@@ -442,7 +446,7 @@ public class MainActivity extends AppCompatActivity {
 //        iv_result.setImageBitmap(PaserUtil.matToBitmap(dst));
 
         Mat gray = PaserUtil.gray(PaserUtil.bitmapToMat(srcBitmap));
-        Mat threshold = PaserUtil.threshold(gray,180,255,Imgproc.THRESH_BINARY);
+        Mat threshold = PaserUtil.threshold(gray, 120, 255, Imgproc.THRESH_BINARY);
         List<MatOfPoint> contourList = new ArrayList<>();
         Mat dst = new Mat();
         Imgproc.findContours(threshold, contourList, dst, Imgproc.RETR_CCOMP, Imgproc.CHAIN_APPROX_SIMPLE);
@@ -456,9 +460,11 @@ public class MainActivity extends AppCompatActivity {
 //        System.out.println("测试-hierarchy[2]：" + Arrays.toString(dst.get(0,2)));
         int size = contourList.size();
         int num = 0;
-        for (int i=0;i<size;i++){
-            System.out.println("测试-hierarchy[" + i +"]：" + Arrays.toString(dst.get(0,i)));
-            System.out.println("测试-hierarchy[" + i +"]：" + Imgproc.boundingRect(contourList.get(i)));
+        for (int i = 0; i < size; i++) {
+            if (Imgproc.boundingRect(contourList.get(i)).width < 100)
+                continue;
+            System.out.println("测试-hierarchy[" + i + "]：" + Arrays.toString(dst.get(0, i)));
+            System.out.println("测试-hierarchy[" + i + "]：" + Imgproc.boundingRect(contourList.get(i)));
 //            if (dst.get(0,i)[2]>=0||dst.get(0,i)[3]>=0){
 //                System.out.println("测试-hierarchy[" + i +"]：" + Arrays.toString(dst.get(0,i)));
 //                num++;
@@ -481,7 +487,7 @@ public class MainActivity extends AppCompatActivity {
         Imgproc.Canny(grayMat, cannyEdges, 200, 240);
 
 //        Imgproc.HoughCircles(cannyEdges,cricles,Imgproc.CV_HOUGH_GRADIENT,1,5);
-        Imgproc.HoughCircles(cannyEdges,cricles,Imgproc.CV_HOUGH_GRADIENT,1,5,240,10,cannyEdges.rows()/25/2,cannyEdges.rows()/15/2);
+        Imgproc.HoughCircles(cannyEdges, cricles, Imgproc.CV_HOUGH_GRADIENT, 1, 5, 240, 10, cannyEdges.rows() / 25 / 2, cannyEdges.rows() / 15 / 2);
         PaserUtil.cout(cricles);
         System.out.println(cricles);
 
@@ -491,7 +497,7 @@ public class MainActivity extends AppCompatActivity {
         //在图像上绘制圆
         for (int i = 0; i < cricles.cols(); i++) {
             double[] points = cricles.get(0, i);
-            double x,y;
+            double x, y;
             int r;
 
             x = points[0];

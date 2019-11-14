@@ -47,7 +47,7 @@ class ServiceActivity : AppCompatActivity() {
 
     companion object {
         @JvmStatic
-        var PLATFORM = PLATFORM_YK
+        var PLATFORM = PLATFORM_XB
         @JvmStatic
         var boardId: String? = null
     }
@@ -315,7 +315,7 @@ class ServiceActivity : AppCompatActivity() {
     }
 
     private fun checkUpdate() {
-        getObject(net_code_getServerCode, net_info_getServerCode(), 0, VersionMessage::class.java)
+        getObject(net_code_getServerCode, net_info_getServerCode(), boardId?.toIntOrNull()?:0, VersionMessage::class.java)
                 .subscribe(object : ProgressSubscriber<VersionMessage>(this, false, false) {
                     override fun _onNext(t: VersionMessage) {
                         println(t)

@@ -1,20 +1,16 @@
 package com.izis.yzext.helper
 
-import android.content.Intent
 import android.graphics.RectF
 import android.os.Build
-import android.os.SystemClock
 import android.support.v4.util.SparseArrayCompat
 import android.view.View
 import com.izis.yzext.*
 import com.izis.yzext.base.RxBus
 import com.izis.yzext.base.RxEvent
-import com.izis.yzext.bean.GameStep
 import com.izis.yzext.pl2303.LiveType
 import com.izis.yzext.pl2303.LogToFile
 import com.izis.yzext.pl2303.LogUtils
 import com.izis.yzext.pl2303.Pl2303InterfaceUtilNew
-import io.reactivex.Observable
 import io.reactivex.Single
 import io.reactivex.android.schedulers.AndroidSchedulers
 import io.reactivex.disposables.Disposable
@@ -25,8 +21,6 @@ import lxf.widget.tileview.SgfHelper
 import java.io.IOException
 import java.util.concurrent.TimeUnit
 import java.util.regex.Pattern
-import kotlin.concurrent.timer
-import kotlin.concurrent.timerTask
 
 /**
  * 虚拟棋盘
@@ -106,7 +100,7 @@ class TileHelper(private var pl2303interface: Pl2303InterfaceUtilNew?, private v
             when (command) {
                 "SDA", "~SDA" -> {
                     // 收到完整的盘面
-                    val rotate = if (ScreenUtil.isPortrait(pl2303interface?.mcontext)) 270 else 0
+                    val rotate = rotate()
 
                     val liveType = try {
                         pl2303interface?.handleReceiveDataRobot(view.board,
@@ -139,7 +133,7 @@ class TileHelper(private var pl2303interface: Pl2303InterfaceUtilNew?, private v
             LiveType.DA_JIE -> {
                 view.warning()
 
-                val rotate = if (ScreenUtil.isPortrait(pl2303interface?.mcontext)) 270 else 0
+                val rotate = rotate()
                 LogToFile.w("DA_JIE", "打劫:${view.board.toShortString(rotate)}\t:\t${pl2303interface?.reverStr(cmdData)}")
             }
             LiveType.LAST_BACK -> {
@@ -153,13 +147,13 @@ class TileHelper(private var pl2303interface: Pl2303InterfaceUtilNew?, private v
                 val change = value.chessChange
                 view.tileViewError("位置（" + (change.x + 64).toChar() + "，" + change.y + "）发生异常")
 
-                val rotate = if (ScreenUtil.isPortrait(pl2303interface?.mcontext)) 270 else 0
+                val rotate = rotate()
                 LogToFile.w("LAST_ERROR", "错误$change:${view.board.toShortString(rotate)}\t:\t${pl2303interface?.reverStr(cmdData)}")
             }
             LiveType.LITTLE_ERROR -> {
                 view.warning()
 
-                val rotate = if (ScreenUtil.isPortrait(pl2303interface?.mcontext)) 270 else 0
+                val rotate = rotate()
                 LogToFile.w("LITTLE_ERROR", "错误:${view.board.toShortString(rotate)}\t:\t${pl2303interface?.reverStr(cmdData)}")
             }
             LiveType.LAST_ERROR_MORE, LiveType.LAST_ERROR_MORE_ADD -> {
@@ -172,7 +166,7 @@ class TileHelper(private var pl2303interface: Pl2303InterfaceUtilNew?, private v
                 }
                 view.tileViewError("位置" + sb + "发生异常")
 
-                val rotate = if (ScreenUtil.isPortrait(pl2303interface?.mcontext)) 270 else 0
+                val rotate = rotate()
                 LogToFile.w("MORE_ERROR", "错误$sb:${view.board.toShortString(rotate)}\t:\t${pl2303interface?.reverStr(cmdData)}")
             }
             LiveType.FINISH_PICK -> {
@@ -193,16 +187,22 @@ class TileHelper(private var pl2303interface: Pl2303InterfaceUtilNew?, private v
                     return
                 //点击屏幕落子
                 val index = value.index//返回的数据棋盘白方左手边为1，白方右手边为19，即棋盘的左下角为1，横向右下角为19
-                val x: Int
-                val y: Int
+                var x: Int
+                var y: Int
                 if (ScreenUtil.isPortrait(pl2303interface?.mcontext)) {//竖屏
-                    //转换为棋盘右下角为1，横向左下角为19
+                    //转换为棋盘右下角为1，横向左下角为19  棋盘返回1时对应点屏幕棋盘左下角
                     x = Board.n - index / Board.n - if (index % Board.n == 0) 0 else 1//0-18
                     y = if (index % Board.n == 0) Board.n - 1 else index % Board.n - 1 //0-18
                 } else {//横屏
-                    //转换为棋盘右上角为1，竖向右下角为19
+                    //转换为棋盘右上角为1，竖向右下角为19  棋盘返回1时对应点屏幕棋盘左上角
                     x = if (index % Board.n == 0) Board.n - 1 else index % Board.n - 1 //0-18
                     y = index / Board.n - if (index % Board.n == 0) 1 else 0 //0-18
+
+                    //棋盘返回1时对应点屏幕棋盘右下角, 7.1系统对比5.1横屏旋转了180
+                    if (Build.VERSION.SDK_INT >= 24) {
+                        x = Board.n - 1 - x
+                        y = Board.n - 1 - y
+                    }
                 }
 
 
@@ -233,7 +233,7 @@ class TileHelper(private var pl2303interface: Pl2303InterfaceUtilNew?, private v
                             .observeOn(AndroidSchedulers.mainThread())
                             .subscribe { _ -> click(240f, 669f) }
                 }
-                if (ServiceActivity.PLATFORM == PLATFORM_JJ){
+                if (ServiceActivity.PLATFORM == PLATFORM_JJ) {
                     Single.timer(500, TimeUnit.MILLISECONDS)
                             .subscribeOn(Schedulers.io())
                             .observeOn(AndroidSchedulers.mainThread())
@@ -254,6 +254,14 @@ class TileHelper(private var pl2303interface: Pl2303InterfaceUtilNew?, private v
             LiveType.NEW_CHESS_2 -> {
 //                putChess(value.allStep)
             }
+        }
+    }
+
+    private fun rotate(): Int {
+        return when {
+            ScreenUtil.isPortrait(pl2303interface?.mcontext) -> 270
+            Build.VERSION.SDK_INT >= 24 -> 180
+            else -> 0
         }
     }
 

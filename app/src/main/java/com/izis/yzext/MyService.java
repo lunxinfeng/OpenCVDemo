@@ -15,6 +15,7 @@ import android.media.Image;
 import android.media.ImageReader;
 import android.media.projection.MediaProjection;
 import android.media.projection.MediaProjectionManager;
+import android.os.Build;
 import android.os.IBinder;
 import android.os.SystemClock;
 import android.support.constraint.ConstraintLayout;
@@ -29,6 +30,7 @@ import android.widget.Button;
 import android.widget.CompoundButton;
 import android.widget.Toast;
 import android.widget.ToggleButton;
+
 import com.izis.yzext.helper.TileHelper;
 import com.izis.yzext.net.NetKt;
 import com.izis.yzext.net.NetWorkSoap;
@@ -223,7 +225,7 @@ public class MyService extends Service implements ActivityCallBridge.PL2303Inter
             mFloatView.post(new Runnable() {
                 @Override
                 public void run() {
-                    if (disposable == null || disposable.isDisposed()){
+                    if (disposable == null || disposable.isDisposed()) {
                         mPathView.clearErrorPoint();
                         mPathView.invalidate();
                         if (mPathView.getVisibility() == View.VISIBLE)
@@ -344,7 +346,7 @@ public class MyService extends Service implements ActivityCallBridge.PL2303Inter
                 } else {
                     dispose();
 
-                    Observable.timer(500,TimeUnit.MILLISECONDS)
+                    Observable.timer(500, TimeUnit.MILLISECONDS)
                             .observeOn(AndroidSchedulers.mainThread())
                             .subscribe(new Consumer<Long>() {
                                 @Override
@@ -570,7 +572,7 @@ public class MyService extends Service implements ActivityCallBridge.PL2303Inter
             @Override
             public void onImageAvailable(ImageReader reader) {
                 isHanding = true;
-                mImageReader.setOnImageAvailableListener(null,null);
+                mImageReader.setOnImageAvailableListener(null, null);
                 Bitmap bitmap = startCapture();
                 if (!startCapture && bitmap != null) { //第一次选区
                     rects = PaserUtil.findRects(bitmap);
@@ -583,7 +585,7 @@ public class MyService extends Service implements ActivityCallBridge.PL2303Inter
                 }
                 isHanding = false;
             }
-        },null);
+        }, null);
 //        try {
 //            Thread.sleep(1000);
 //        } catch (InterruptedException e) {
@@ -602,8 +604,13 @@ public class MyService extends Service implements ActivityCallBridge.PL2303Inter
             h = min;
             w = max;
 
-            mediaW = w + nativeH;
-            mediaH = h;
+            if (Build.VERSION.SDK_INT < 24) {
+                mediaW = w + nativeH;
+                mediaH = h;
+            } else {
+                mediaW = w;
+                mediaH = 480;
+            }
         } else if (ori == Configuration.ORIENTATION_PORTRAIT) {
             //竖屏
             int max = Math.max(w, h);
@@ -659,6 +666,7 @@ public class MyService extends Service implements ActivityCallBridge.PL2303Inter
     }
 
     private boolean isHanding = false;
+
     public void handleCapture() {
         isHanding = true;
 
@@ -667,7 +675,7 @@ public class MyService extends Service implements ActivityCallBridge.PL2303Inter
 //                log("截图：" + bitmap.getWidth() + ";" + bitmap.getHeight());
 
 
-        if(TILE_ERROR || bitmap == null){//error状态不处理
+        if (TILE_ERROR || bitmap == null) {//error状态不处理
             isHanding = false;
             return;
         }
@@ -754,7 +762,7 @@ public class MyService extends Service implements ActivityCallBridge.PL2303Inter
                             rotate = 270;
                             break;
                         case ServiceActivityKt.PLATFORM_XB:
-                            rotate = 0;
+                            rotate = Build.VERSION.SDK_INT >= 24 ? 180 : 0;
                             break;
                     }
 
