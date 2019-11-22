@@ -228,6 +228,7 @@ class TileHelper(private var pl2303interface: Pl2303InterfaceUtilNew?, private v
                     Single.timer(500, TimeUnit.MILLISECONDS)
                             .subscribeOn(Schedulers.io())
                             .observeOn(AndroidSchedulers.mainThread())
+                            .repeat(4)
                             .subscribe { _ -> click(240f, 735f) }
                 }
 
@@ -235,12 +236,14 @@ class TileHelper(private var pl2303interface: Pl2303InterfaceUtilNew?, private v
                     Single.timer(500, TimeUnit.MILLISECONDS)
                             .subscribeOn(Schedulers.io())
                             .observeOn(AndroidSchedulers.mainThread())
+                            .repeat(4)
                             .subscribe { _ -> click(240f, 669f) }
                 }
                 if (ServiceActivity.PLATFORM == PLATFORM_JJ) {
                     Single.timer(500, TimeUnit.MILLISECONDS)
                             .subscribeOn(Schedulers.io())
                             .observeOn(AndroidSchedulers.mainThread())
+                            .repeat(4)
                             .subscribe { _ -> click(480f, 367f) }
                 }
             }

@@ -2,9 +2,14 @@ package com.izis.yzext;
 
 import org.junit.Test;
 
+import java.util.concurrent.TimeUnit;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+import io.reactivex.Single;
+import io.reactivex.android.schedulers.AndroidSchedulers;
+import io.reactivex.functions.Consumer;
+import io.reactivex.schedulers.Schedulers;
 import lxf.widget.tileview.Board;
 
 import static org.junit.Assert.*;
@@ -36,7 +41,20 @@ public class ExampleUnitTest {
 
     @Test
     public void addition_isCorrect() throws Exception {
-        assertEquals(4, 2 + 2);
+//        assertEquals(4, 2 + 2);
+        System.out.println(System.currentTimeMillis());
+        Single.timer(500, TimeUnit.MILLISECONDS)
+                .subscribeOn(Schedulers.io())
+//                .observeOn(AndroidSchedulers.mainThread())
+                .repeat(4)
+                .subscribe(new Consumer<Long>() {
+                    @Override
+                    public void accept(Long aLong) throws Exception {
+                        System.out.println(System.currentTimeMillis());
+                    }
+                });
+
+        Thread.sleep(100000);
     }
 
     @Test
