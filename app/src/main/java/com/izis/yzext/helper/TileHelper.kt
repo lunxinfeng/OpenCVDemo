@@ -180,8 +180,12 @@ class TileHelper(private var pl2303interface: Pl2303InterfaceUtilNew?, private v
             }
             LiveType.NORMAL -> {
 //                putChess(value.allStep)
-                MyService.TILE_ERROR = false
-                errorListener.onSuccess()
+                if (MyService.TILE_ERROR){
+                    MyService.TILE_ERROR = false
+                    errorListener.onSuccess()
+                    Thread.sleep(500)
+                }
+
                 if ((game.bw == 1 && value.allStep.startsWith("-"))
                         || (game.bw == 2 && value.allStep.startsWith("+")))
                     return
