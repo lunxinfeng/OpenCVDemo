@@ -4,6 +4,7 @@ import android.graphics.RectF
 import android.os.Build
 import android.support.v4.util.SparseArrayCompat
 import android.view.View
+import android.widget.Toast
 import com.izis.yzext.*
 import com.izis.yzext.base.RxBus
 import com.izis.yzext.base.RxEvent
@@ -11,6 +12,7 @@ import com.izis.yzext.pl2303.LiveType
 import com.izis.yzext.pl2303.LogToFile
 import com.izis.yzext.pl2303.LogUtils
 import com.izis.yzext.pl2303.Pl2303InterfaceUtilNew
+import io.reactivex.Observable
 import io.reactivex.Single
 import io.reactivex.android.schedulers.AndroidSchedulers
 import io.reactivex.disposables.Disposable
@@ -18,6 +20,7 @@ import io.reactivex.schedulers.Schedulers
 import lxf.widget.tileview.Board
 import lxf.widget.tileview.PieceProcess
 import lxf.widget.tileview.SgfHelper
+import lxf.widget.util.ToastUtils
 import java.io.IOException
 import java.util.concurrent.TimeUnit
 import java.util.regex.Pattern
@@ -180,7 +183,7 @@ class TileHelper(private var pl2303interface: Pl2303InterfaceUtilNew?, private v
             }
             LiveType.NORMAL -> {
 //                putChess(value.allStep)
-                if (MyService.TILE_ERROR){
+                if (MyService.TILE_ERROR) {
                     MyService.TILE_ERROR = false
                     errorListener.onSuccess()
                     Thread.sleep(500)
@@ -217,34 +220,17 @@ class TileHelper(private var pl2303interface: Pl2303InterfaceUtilNew?, private v
                 println("点击屏幕落子:index" + index + ";x" + (x + 1) + "/" + xLocation + ";y" + (y + 1) + "/" + yLocation)
                 click(xLocation, yLocation)
                 if (ServiceActivity.PLATFORM == PLATFORM_XB) {//新博需要双击
-                    Single.timer(double_click_time, TimeUnit.MILLISECONDS)
-                            .subscribeOn(Schedulers.io())
-                            .observeOn(AndroidSchedulers.mainThread())
-                            .repeat(4)
-                            .subscribe { _ -> click(xLocation, yLocation) }
-
+                    clickN(xLocation, yLocation,3)
                 }
                 if (ServiceActivity.PLATFORM == PLATFORM_YK) {
-                    Single.timer(500, TimeUnit.MILLISECONDS)
-                            .subscribeOn(Schedulers.io())
-                            .observeOn(AndroidSchedulers.mainThread())
-                            .repeat(4)
-                            .subscribe { _ -> click(240f, 735f) }
+                    clickN(240f, 735f,3)
                 }
 
                 if (ServiceActivity.PLATFORM == PLATFORM_YC) {
-                    Single.timer(500, TimeUnit.MILLISECONDS)
-                            .subscribeOn(Schedulers.io())
-                            .observeOn(AndroidSchedulers.mainThread())
-                            .repeat(4)
-                            .subscribe { _ -> click(240f, 669f) }
+                    clickN(240f, 669f,3)
                 }
                 if (ServiceActivity.PLATFORM == PLATFORM_JJ) {
-                    Single.timer(500, TimeUnit.MILLISECONDS)
-                            .subscribeOn(Schedulers.io())
-                            .observeOn(AndroidSchedulers.mainThread())
-                            .repeat(4)
-                            .subscribe { _ -> click(480f, 367f) }
+                    clickN(480f, 367f,3)
                 }
             }
             LiveType.GO_BACK -> {
@@ -261,6 +247,16 @@ class TileHelper(private var pl2303interface: Pl2303InterfaceUtilNew?, private v
             LiveType.NEW_CHESS_2 -> {
 //                putChess(value.allStep)
             }
+        }
+    }
+
+    private fun clickN(x: Float, y: Float, n: Int) {
+        if (n > 0) {
+            Thread.sleep(500)
+
+            click(x, y)
+
+            clickN(x, y, n - 1)
         }
     }
 
@@ -296,6 +292,7 @@ class TileHelper(private var pl2303interface: Pl2303InterfaceUtilNew?, private v
 
     private val processBuilder = ProcessBuilder()
     private fun click(x: Float, y: Float) {
+        println("点击：x：$x , y：$y")
         if (Build.VERSION.SDK_INT < 24) {
             val order = arrayOf("input", "tap", "" + x, "" + y)
             try {

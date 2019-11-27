@@ -189,7 +189,10 @@ public class PaserUtil {
         int numW = 0;
         for (int i = x1; i < x2; i++) {
             for (int j = y1; j < y2; j++) {
-                double value = dst.get(i, j)[0];
+                double[] valueArray = dst.get(i, j);
+                if (valueArray == null)
+                    return 0;
+                double value = valueArray[0];
                 if (value < 60) {
                     numB++;
                 } else if (value > 200) {
