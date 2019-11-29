@@ -484,6 +484,7 @@ public class Pl2303InterfaceUtilNew {
                 {
                     if (isLastPiece(change, board)) // 是最后一步棋消失，当做悔棋处理
                     {
+                        liveType.setErrorList(changeList);
                         liveType.setType(LiveType.LAST_BACK);
                         return liveType; // 可提示继续提子吧
 
@@ -608,6 +609,7 @@ public class Pl2303InterfaceUtilNew {
                 }
             }
             liveType.setAllStep(allStep);
+            liveType.setErrorList(changeList);
             liveType.setType(LiveType.NEW_CHESS_2);
             return liveType;
 
@@ -649,6 +651,7 @@ public class Pl2303InterfaceUtilNew {
                     if (isValidDisappear(board, changeList)) {
                         LogToFile.d("pl2303", "进入第四层判断：批量消失，末尾棋步");
                         liveType.setType(LiveType.GO_BACK);
+                        liveType.setErrorList(changeList);
                         liveType.setBackNum(changeList.size());
                         return liveType;
 
@@ -668,6 +671,7 @@ public class Pl2303InterfaceUtilNew {
                 // 提子逻辑一旦执行，标准盘面变成了最后落子+多个被提子位置为空白位置。此时悔棋，比对出来的就是最后
                 // 一个子消失，多出N个子，这N个子是最后这一步的死子。
                 if (isBackWhenPick(changeList, board)) {
+                    liveType.setErrorList(changeList);
                     liveType.setType(LiveType.LAST_BACK);
                     return liveType;
                 }
@@ -853,6 +857,7 @@ public class Pl2303InterfaceUtilNew {
                     allStep = "-" + wChange.getStep() + "+" + bChange.getStep();
                 }
                 liveType.setAllStep(allStep);
+                liveType.setErrorList(changeList);
                 liveType.setType(LiveType.NEW_CHESS_2);
                 return liveType;    // 返回该棋步，两步棋。
 
@@ -875,6 +880,7 @@ public class Pl2303InterfaceUtilNew {
                 LogToFile.d("pl2303", "LiveType.BACK_NEW====回退1步+allstep："+allStep);
 
                 liveType.setType(LiveType.BACK_NEW);
+                liveType.setErrorList(changeList);
                 liveType.setBackNum(1);         // 回退1步
                 liveType.setBackNew(allStep);   // 新增2步
                 return liveType;

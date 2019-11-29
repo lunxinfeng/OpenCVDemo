@@ -59,10 +59,10 @@ class ServiceActivity : AppCompatActivity() {
         setSupportActionBar(toolbar)
         toolbar.inflateMenu(R.menu.menu_init)
 
-        if (Build.VERSION.SDK_INT >= 24) {
+//        if (Build.VERSION.SDK_INT >= 24) {
             Settings.Secure.putString(contentResolver, Settings.Secure.ENABLED_ACCESSIBILITY_SERVICES, "com.izis.yzext/com.izis.yzext.ClickAccessibilityService")
             Settings.Secure.putInt(contentResolver, Settings.Secure.ACCESSIBILITY_ENABLED, 1)
-        }
+//        }
 
 //        textDes.text = Html.fromHtml(resources.getString(R.string.scription))
 

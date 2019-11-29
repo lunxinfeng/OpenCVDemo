@@ -142,6 +142,9 @@ class TileHelper(private var pl2303interface: Pl2303InterfaceUtilNew?, private v
             LiveType.LAST_BACK -> {
 //                data.tileViewHasChanged(GameStep(1))
 //                view.tileViewLastBack()
+                view.warning()
+                MyService.TILE_ERROR = true
+                errorListener.onErrorList(value.errorList)
             }
             LiveType.LAST_ERROR -> {
                 view.warning()
@@ -237,15 +240,27 @@ class TileHelper(private var pl2303interface: Pl2303InterfaceUtilNew?, private v
 //                val backNum = value.backNum
 //                data.tileViewHasChanged(GameStep(backNum))
 //                view.tileViewGoBack(backNum)
+
+                view.warning()
+                MyService.TILE_ERROR = true
+                errorListener.onErrorList(value.errorList)
             }
             LiveType.BACK_NEW -> {
 //                val goBackNum = value.backNum
 //                val newStep = value.backNew
 //                data.tileViewHasChanged(GameStep(goBackNum))
 //                view.tileViewBackNew(goBackNum, newStep)
+
+                view.warning()
+                MyService.TILE_ERROR = true
+                errorListener.onErrorList(value.errorList)
             }
             LiveType.NEW_CHESS_2 -> {
 //                putChess(value.allStep)
+
+                view.warning()
+                MyService.TILE_ERROR = true
+                errorListener.onErrorList(value.errorList)
             }
         }
     }

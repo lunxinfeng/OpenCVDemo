@@ -31,6 +31,7 @@ import android.widget.CompoundButton;
 import android.widget.Toast;
 import android.widget.ToggleButton;
 
+import com.izis.yzext.bean.ChessPosition;
 import com.izis.yzext.helper.TileHelper;
 import com.izis.yzext.net.NetKt;
 import com.izis.yzext.net.NetWorkSoap;
@@ -47,6 +48,7 @@ import org.opencv.android.OpenCVLoader;
 import org.opencv.core.Rect;
 
 import java.nio.ByteBuffer;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.concurrent.TimeUnit;
@@ -66,6 +68,7 @@ import static com.izis.yzext.PaserUtil.BOARD_SIZE;
 public class MyService extends Service implements ActivityCallBridge.PL2303Interface {
     private static final boolean DEBUG = true;
     public static boolean TILE_ERROR = false;//棋盘可能出现错误
+    private List<ChessPosition> chessPostionList = new ArrayList<>();
 
     //定义浮动窗口布局
     private ConstraintLayout mFloatLayout;
@@ -99,7 +102,7 @@ public class MyService extends Service implements ActivityCallBridge.PL2303Inter
     private RectF mRectF;//截图区域
     private Disposable disposable;
     private List<Rect> rects;//自动识别出来的最大的5个外轮廓
-    private int rectIndex;//当前选择的是第5个外轮廓
+    private int rectIndex;//当前选择的是最大的外轮廓
 
     private String preChess;//上一帧数据
     private String currChess;//当前帧数据
@@ -108,6 +111,7 @@ public class MyService extends Service implements ActivityCallBridge.PL2303Inter
     private float startX, startY;
     private int[] location = new int[2];
     private boolean isFirst = true;//是否是截屏开始的第一帧数据
+    private boolean isRanged = false;//是否已有合理的选区
     private GameInfo game;
     private boolean clickFromUser = true;//是否人点击选区按钮
 
@@ -266,7 +270,7 @@ public class MyService extends Service implements ActivityCallBridge.PL2303Inter
         btnFindRect = mFloatLayout.findViewById(R.id.btnFindRect);
         btnFindRect.setVisibility(View.GONE);
         btnConnect.setVisibility(View.GONE);
-        otherVisibility(false,clickFromUser);
+        otherVisibility(false, clickFromUser);
 
         //设置x、y初始值，相对于gravity
         wmParams.x = w - mFloatView.getMeasuredWidth();
@@ -311,7 +315,7 @@ public class MyService extends Service implements ActivityCallBridge.PL2303Inter
             @Override
             public void onClick(View v) {
                 if (wmParams.width != WindowManager.LayoutParams.WRAP_CONTENT) {
-                    otherVisibility(false,clickFromUser);
+                    otherVisibility(false, clickFromUser);
                     wmParams.width = WindowManager.LayoutParams.WRAP_CONTENT;
                     wmParams.height = WindowManager.LayoutParams.WRAP_CONTENT;
 
@@ -319,7 +323,7 @@ public class MyService extends Service implements ActivityCallBridge.PL2303Inter
                     wmParams.y = h - 110;
                     mWindowManager.updateViewLayout(mFloatLayout, wmParams);
                 } else {
-                    otherVisibility(true,clickFromUser);
+                    otherVisibility(true, clickFromUser);
                     wmParams.width = WindowManager.LayoutParams.MATCH_PARENT;
                     wmParams.height = WindowManager.LayoutParams.MATCH_PARENT;
 
@@ -327,7 +331,7 @@ public class MyService extends Service implements ActivityCallBridge.PL2303Inter
                     wmParams.y = 0;
                     mWindowManager.updateViewLayout(mFloatLayout, wmParams);
 //                    if (mPathView.getRectF().width() == 0)
-                    if (clickFromUser)
+                    if (clickFromUser && !isRanged)
                         btnFindRect.performClick();
                 }
                 clickFromUser = true;
@@ -359,7 +363,7 @@ public class MyService extends Service implements ActivityCallBridge.PL2303Inter
                                     mPathView.clearErrorPoint();
                                     mPathView.invalidate();
 
-                                    if (mImageReader != null){
+                                    if (mImageReader != null) {
                                         mImageReader.setOnImageAvailableListener(null, null);
                                     }
 
@@ -378,6 +382,17 @@ public class MyService extends Service implements ActivityCallBridge.PL2303Inter
                     @Override
                     public void onPositive(@NotNull GameInfo gameInfo) {
                         game = gameInfo;
+
+                        ChessPosition chessPosition = new ChessPosition();
+                        chessPosition.setPackageName(ServiceActivity.getPLATFORM());
+                        chessPosition.setClassName(KotlinExtKt.getClassName());
+                        chessPosition.setBoardSize(game.getBoardSize());
+                        chessPosition.setLeft((int) mPathView.getRectF().left);
+                        chessPosition.setTop((int) mPathView.getRectF().top);
+                        chessPosition.setSize((int) mPathView.getRectF().width());
+                        chessPostionList.remove(chessPosition);
+                        chessPostionList.add(chessPosition);
+
                         PaserUtil.BOARD_SIZE = game.getBoardSize();
                         Board.n = game.getBoardSize();
                         final Pl2303InterfaceUtilNew pl2303 = Pl2303InterfaceUtilNew.initInterface(MyService.this,
@@ -486,20 +501,45 @@ public class MyService extends Service implements ActivityCallBridge.PL2303Inter
     }
 
     private void updatePath(int index) {
-        if (rects.size() <= index) return;
-        if (index >= 0) {
+        if (index >= 0 && rects.size() > index) {
             Rect rect = rects.get(index);
             log("当前选择区域：" + rect);
+            if (rect.width >= 460 || rect.width < 350) {//棋盘尺寸应该在350 ~ 460之间，实际经验
+                updatePath(index - 1);
+            } else {
+                if (Math.abs(rect.width - rect.height) < 5) {
+                    isRanged = true;
+                    mPathView.setRectF(new RectF(rect.x, rect.y - statusH, rect.x + rect.width, rect.y + rect.height - statusH));
+                } else {
+                    //使用缓存的位置
+                    useCachePath();
+                }
+            }
+        } else {
+            //使用缓存的位置
+            useCachePath();
+        }
+    }
+
+    private void useCachePath() {
+        ChessPosition chessPosition = null;
+        for (ChessPosition c : chessPostionList) {
+            if (c.getPackageName().equals(ServiceActivity.getPLATFORM()) && c.getClassName().equals(KotlinExtKt.getClassName()) && c.getBoardSize() == BOARD_SIZE) {
+                chessPosition = c;
+                break;
+            }
+        }
+        if (chessPosition != null) {
+            Rect rect = new Rect(chessPosition.getLeft(), chessPosition.getTop(), chessPosition.getSize(), chessPosition.getSize());
+            isRanged = true;
             mPathView.setRectF(new RectF(rect.x, rect.y - statusH, rect.x + rect.width, rect.y + rect.height - statusH));
         } else {
-            switch (ServiceActivity.Companion.getPLATFORM()) {
-                case ServiceActivityKt.PLATFORM_XB:
-                    mPathView.setRectF(new RectF(31, 11, 489, 469));
-                    break;
-                default:
-                    mPathView.setRectF(new RectF(100, 100, 300, 300));
-                    break;
-            }
+            mFloatView.post(new Runnable() {
+                @Override
+                public void run() {
+                    Toast.makeText(MyService.this.getApplicationContext(), "如果选区位置不对，可以重启后再试", Toast.LENGTH_LONG).show();
+                }
+            });
         }
     }
 
@@ -507,7 +547,7 @@ public class MyService extends Service implements ActivityCallBridge.PL2303Inter
         mPathView.setVisibility(visibility ? View.VISIBLE : View.GONE);
         mToggleButton.setVisibility(visibility && clickFromUser ? View.VISIBLE : View.GONE);
 //        btnConnect.setVisibility(visibility ? View.VISIBLE : View.GONE);
-        btnExit.setVisibility(visibility  && clickFromUser ? View.VISIBLE : View.GONE);
+        btnExit.setVisibility(visibility && clickFromUser ? View.VISIBLE : View.GONE);
 //        btnFindRect.setVisibility(visibility ? View.VISIBLE : View.GONE);
     }
 
@@ -599,7 +639,7 @@ public class MyService extends Service implements ActivityCallBridge.PL2303Inter
         isHanding = true;
         Bitmap bitmap = startCapture();
 
-        if (bitmap != null){
+        if (bitmap != null) {
             rects = PaserUtil.findRects(bitmap);
             System.out.println(Arrays.toString(rects.toArray()));
             rectIndex = rects.size() - 1;
@@ -708,8 +748,8 @@ public class MyService extends Service implements ActivityCallBridge.PL2303Inter
             mRectF.left = 0;
         if (mRectF.right < 0)
             mRectF.right = 0;
-        if (mRectF.right > 479)
-            mRectF.right = 479;
+        if (mRectF.right > 479.9)
+            mRectF.right = 479.9f;
         if (mRectF.top < 0)
             mRectF.top = 0;
         if (mRectF.bottom < 0)

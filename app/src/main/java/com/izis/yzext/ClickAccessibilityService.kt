@@ -55,8 +55,13 @@ class ClickAccessibilityService : AccessibilityService() {
 
     }
 
-    override fun onAccessibilityEvent(event: AccessibilityEvent) {
+    override fun onAccessibilityEvent(event: AccessibilityEvent?) {
         println(event)
+        if (event != null){
+            if (event.className.toString() in classNameList){
+                className = event.className.toString()
+            }
+        }
     }
 
 

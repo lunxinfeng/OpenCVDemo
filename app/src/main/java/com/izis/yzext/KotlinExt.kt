@@ -28,6 +28,15 @@ import java.util.*
  */
 var double_click_time = 200L
 
+val classNameList = listOf(
+        "com.onevcat.uniwebview.AndroidPlugin",
+        "com.indeed.golinks.ui.ai.activity.AiChessActivity", "com.indeed.golinks.ui.ai.activity.MachineSparringDetailActivity","com.indeed.golinks.ui.onlineplay.activity.InstantChessDetailActivity",
+        "com.eweiqi.android.ux.SceneAiGame","com.eweiqi.android.ux.SceneGameRoom",
+        "com.embarcadero.firemonkey.FMXNativeActivity"
+)
+
+var className:String = ""
+
 fun getGson() = GsonBuilder().setDateFormat("yyyy-MM-dd HH:mm:ss").create()
 
 fun Gson.gsonToString(any: Any) = this.toJson(any)
