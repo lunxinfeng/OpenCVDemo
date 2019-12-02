@@ -748,13 +748,13 @@ public class MyService extends Service implements ActivityCallBridge.PL2303Inter
             mRectF.left = 0;
         if (mRectF.right < 0)
             mRectF.right = 0;
-        if (mRectF.right > 479.9)
+        if (mRectF.right > 479.9 && ScreenUtil.isPortrait(this))
             mRectF.right = 479.9f;
         if (mRectF.top < 0)
             mRectF.top = 0;
         if (mRectF.bottom < 0)
             mRectF.bottom = 0;
-        if (mRectF.bottom > 750)
+        if (mRectF.bottom > 750 && ScreenUtil.isPortrait(this))
             mRectF.bottom = 750;
         int cut_width = (int) Math.abs(mRectF.right - mRectF.left);
         int cut_height = (int) Math.abs(mRectF.bottom - mRectF.top);
