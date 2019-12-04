@@ -420,7 +420,7 @@ class ServiceActivity : AppCompatActivity() {
             }
             PLATFORM_YC -> {
                 PLATFORM = PLATFORM_YC
-                MyService.statusH = 0
+                MyService.statusH = ScreenUtil.getStatusBarHeight(this)
                 PaserUtil.thresh = 80
             }
             PLATFORM_YK -> {

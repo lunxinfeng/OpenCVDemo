@@ -230,7 +230,7 @@ class TileHelper(private var pl2303interface: Pl2303InterfaceUtilNew?, private v
                 }
 
                 if (ServiceActivity.PLATFORM == PLATFORM_YC) {
-                    clickN(240f, 669f,3)
+                    clickN(240f, 569f,3)
                 }
                 if (ServiceActivity.PLATFORM == PLATFORM_JJ) {
                     clickN(480f, 367f,3)

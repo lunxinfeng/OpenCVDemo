@@ -363,9 +363,9 @@ public class MyService extends Service implements ActivityCallBridge.PL2303Inter
                                     mPathView.clearErrorPoint();
                                     mPathView.invalidate();
 
-                                    if (mImageReader != null) {
-                                        mImageReader.setOnImageAvailableListener(null, null);
-                                    }
+//                                    if (mImageReader != null) {
+//                                        mImageReader.setOnImageAvailableListener(null, null);
+//                                    }
 
                                     uploadChess();
                                 }
@@ -403,6 +403,8 @@ public class MyService extends Service implements ActivityCallBridge.PL2303Inter
                                 pl2303.WriteToUARTDevice("~CTS0#");
 
                                 mFloatView.performClick();
+
+                                isFirst = true;
                                 interval(2000);
 //                                startVirtual();
                             }
