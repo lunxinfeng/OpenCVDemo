@@ -447,9 +447,9 @@ public class MyService extends Service implements ActivityCallBridge.PL2303Inter
     private void uploadChess() {
         if (tileHelper != null && tileHelper.isNormalChess() && ServiceActivity.getBoardId() != null) {
             AlertDialog dialog = new AlertDialog.Builder(MyService.this, R.style.dialog)
-                    .setTitle("保存棋谱")
-                    .setMessage("棋谱保存后可以在标准版应用中查询，是否保存当前对局棋谱?")
-                    .setPositiveButton("保存", new DialogInterface.OnClickListener() {
+                    .setTitle(getResources().getString(R.string.save_chess_title))
+                    .setMessage(getResources().getString(R.string.save_chess_message))
+                    .setPositiveButton(getResources().getString(R.string.save), new DialogInterface.OnClickListener() {
                         @Override
                         public void onClick(DialogInterface dialogInterface, int i) {
                             NetWorkSoap.Companion.getInstance()
@@ -460,9 +460,9 @@ public class MyService extends Service implements ActivityCallBridge.PL2303Inter
                                                     tileHelper.sgf(),
                                                     tileHelper.sgf().length() / 5,
                                                     game.getBoardSize(),
-                                                    "第三方对弈",
-                                                    game.getBw() == 1 ? "自己" : "三方棋友",
-                                                    game.getBw() == 1 ? "三方棋友" : "自己",
+                                                    getResources().getString(R.string.third_party_game),
+                                                    game.getBw() == 1 ? getResources().getString(R.string.self) : getResources().getString(R.string.third_party_player),
+                                                    game.getBw() == 1 ? getResources().getString(R.string.third_party_player) : getResources().getString(R.string.self),
                                                     "",
                                                     "",
                                                     "",
@@ -473,7 +473,7 @@ public class MyService extends Service implements ActivityCallBridge.PL2303Inter
                                     )
                                     .subscribeOn(Schedulers.io())
                                     .observeOn(AndroidSchedulers.mainThread())
-                                    .subscribe(new ProgressSubscriber<String>(getApplicationContext(), true, false, "正在提交", WindowManager.LayoutParams.TYPE_SYSTEM_ALERT) {
+                                    .subscribe(new ProgressSubscriber<String>(getApplicationContext(), true, false, getResources().getString(R.string.submitting), WindowManager.LayoutParams.TYPE_SYSTEM_ALERT) {
                                         @Override
                                         public void _onError(@Nullable String error) {
                                         }
@@ -482,7 +482,7 @@ public class MyService extends Service implements ActivityCallBridge.PL2303Inter
                                         public void _onNext(String s) {
                                             try {
                                                 if (Integer.parseInt(s) > 0)
-                                                    Toast.makeText(getApplicationContext(), "保存成功", Toast.LENGTH_SHORT).show();
+                                                    Toast.makeText(getApplicationContext(), getResources().getString(R.string.save_success), Toast.LENGTH_SHORT).show();
                                             } catch (Exception e) {
                                                 e.printStackTrace();
                                             }
@@ -490,7 +490,7 @@ public class MyService extends Service implements ActivityCallBridge.PL2303Inter
                                     });
                         }
                     })
-                    .setNegativeButton("不保存", new DialogInterface.OnClickListener() {
+                    .setNegativeButton(getResources().getString(R.string.not_save), new DialogInterface.OnClickListener() {
                         @Override
                         public void onClick(DialogInterface dialogInterface, int i) {
                             dialogInterface.dismiss();
@@ -539,7 +539,7 @@ public class MyService extends Service implements ActivityCallBridge.PL2303Inter
             mFloatView.post(new Runnable() {
                 @Override
                 public void run() {
-                    Toast.makeText(MyService.this.getApplicationContext(), "如果选区位置不对，可以重启后再试", Toast.LENGTH_LONG).show();
+                    Toast.makeText(MyService.this.getApplicationContext(), getResources().getString(R.string.select_hint), Toast.LENGTH_LONG).show();
                 }
             });
         }

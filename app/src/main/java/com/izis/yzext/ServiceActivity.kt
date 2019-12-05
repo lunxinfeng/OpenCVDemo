@@ -14,6 +14,7 @@ import android.os.Environment
 import android.provider.Settings
 import android.support.v7.app.AppCompatActivity
 import android.support.v7.widget.GridLayoutManager
+import android.text.method.ScrollingMovementMethod
 import android.util.Log
 import android.view.Menu
 import android.view.MenuItem
@@ -64,6 +65,7 @@ class ServiceActivity : AppCompatActivity() {
             Settings.Secure.putInt(contentResolver, Settings.Secure.ACCESSIBILITY_ENABLED, 1)
 //        }
 
+        textDes.movementMethod = ScrollingMovementMethod.getInstance()
 //        textDes.text = Html.fromHtml(resources.getString(R.string.scription))
 
         if (SharedPrefsUtil.getValue(this, "first", true)) {
@@ -71,17 +73,17 @@ class ServiceActivity : AppCompatActivity() {
                     .apply {
                         setActionButtonEnabled(WhichButton.POSITIVE, false)
                         setCancelable(false)
-                        checkBoxPrompt(text = "我同意") {
+                        checkBoxPrompt(res = R.string.agree) {
                             setActionButtonEnabled(WhichButton.POSITIVE, it)
                         }
                     }
-                    .title(text = "关于第三方对弈平台软件声明")
+                    .title(res = R.string.app_statement)
                     .message(res = R.string.des)
-                    .positiveButton(text = "确定") {
+                    .positiveButton(res = R.string.yes) {
                         SharedPrefsUtil.putValue(this, "first", false)
                         checkUpdate()
                     }
-                    .negativeButton(text = "取消") {
+                    .negativeButton(res = R.string.no) {
                         finish()
                     }
                     .show()
@@ -136,14 +138,11 @@ class ServiceActivity : AppCompatActivity() {
                 val apkPath = Environment.getExternalStorageDirectory().path + File.separator +
                         "${platform_name + calendar.get(Calendar.YEAR) + calendar.get(Calendar.MONTH) + calendar.get(Calendar.DAY_OF_MONTH)}.apk"
                 MaterialDialog(this)
-                        .message(text = "未检测到$platform_name，是否下载安装？")
-                        .positiveButton(text = "立即下载") {
+                        .message(text = resources.getString(R.string.hint_install,platform_name))
+                        .positiveButton(res = R.string.yes) {
                             downloadApk(platform_url, apkPath)
-
-
-//                            MyIntentService.startUpdateService(this,url,apkPath,progressDialog)
                         }
-                        .negativeButton(text = "暂不下载") {
+                        .negativeButton(res = R.string.no) {
                             finish()
                         }
                         .show()
@@ -197,13 +196,13 @@ class ServiceActivity : AppCompatActivity() {
                                 setCanceledOnTouchOutside(false)
                             }
                             .title(
-                                    text = "下载失败"
+                                    res = R.string.failed
                             )
                             .message(
-                                    text = "下载失败，是否重试？"
+                                    res = R.string.download_fail_hint
                             )
                             .positiveButton(
-                                    text = "重试"
+                                    res = R.string.reTry
                             ) {
                                 it.dismiss()
                                 downloadApk(
@@ -212,30 +211,12 @@ class ServiceActivity : AppCompatActivity() {
                                 )
                             }
                             .negativeButton(
-                                    text = "取消"
+                                    res = R.string.no
                             ) {
                                 it.dismiss()
                                 downloadManager.stop()
                             }
                             .show()
-//                    val dialog = AlertDialog.Builder(this@ServiceActivity)
-//                            .setTitle("下载失败")
-//                            .setMessage("下载失败，是否重试？")
-//                            .setPositiveButton("重试") { dialog, _ ->
-//                                dialog.dismiss()
-//                                downloadApk(
-//                                        platform_url,
-//                                        apkPath
-//                                )
-//                            }
-//                            .setNegativeButton("取消") { dialog, _ ->
-//                                dialog.dismiss()
-//                                downloadManager.stop()
-//                            }
-//                            .create()
-//                    dialog.setCanceledOnTouchOutside(false)
-//                    dialog.setCancelable(false)
-//                    dialog.show()
                 }
             }
 
@@ -254,24 +235,24 @@ class ServiceActivity : AppCompatActivity() {
 
     override fun onOptionsItemSelected(item: MenuItem?): Boolean {
         when (item?.itemId) {
-            R.id.action_time -> {
-                MaterialDialog(this)
-                        .title(text = "设置双击时间的有效间隔(ms)")
-                        .listItemsSingleChoice(
-                                initialSelection = SharedPrefsUtil.getValue(this, "click_time", 2),
-                                items = times
-                        ) { dialog, index, text ->
-                            double_click_time = text.toLong()
-                            SharedPrefsUtil.putValue(this, "click_time", index)
-                            dialog.dismiss()
-                        }
-                        .show()
-            }
+//            R.id.action_time -> {
+//                MaterialDialog(this)
+//                        .title(text = "设置双击时间的有效间隔(ms)")
+//                        .listItemsSingleChoice(
+//                                initialSelection = SharedPrefsUtil.getValue(this, "click_time", 2),
+//                                items = times
+//                        ) { dialog, index, text ->
+//                            double_click_time = text.toLong()
+//                            SharedPrefsUtil.putValue(this, "click_time", index)
+//                            dialog.dismiss()
+//                        }
+//                        .show()
+//            }
             R.id.action_des -> {
                 MaterialDialog(this)
-                        .title(text = "关于第三方对弈平台软件声明")
+                        .title(res = R.string.app_statement)
                         .message(res = R.string.des)
-                        .positiveButton(text = "确定")
+                        .positiveButton(res = R.string.yes)
                         .show()
             }
         }
@@ -347,7 +328,7 @@ class ServiceActivity : AppCompatActivity() {
                     }
 
                     override fun _onError(error: String?) {
-                        toast("获取最新版本号失败")
+                        toast(resources.getString(R.string.get_version_fail))
                     }
                 })
     }

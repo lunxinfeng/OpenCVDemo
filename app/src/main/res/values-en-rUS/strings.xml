@@ -1,0 +1,52 @@
+<resources>
+    <string name="app_name">third-party chess</string>
+    <string name="scription">Notes: \n1. To start, a third party platform need to be used; \n2. Click the button "Select an area" when you have entered the Go Chess Game Page; \n3. For the time to select an area,  the chessboard area will be automatically identified. If the identification is not accurate, you can manually adjust it. That will be OK when the green box basically overlaps the chessboard sideline; \n4. When it\'s your turn to play chess, click the button "Start Service", and start playing when the configuration of the game is done; \n5. You need to beat the timer to confirm when you have laid a piece.</string>
+    <string name="des">1. The Go APPs connected in by third-parties platform belong to those third-party companies. Please follow the usage agreement and rules of the respective APP. \n\n
+2. The account security, data storage and business logic of the APPs of the third-party platforms belong to the application scope of the their own APPs, which has no direct relationship with Yinzhi Electronic Chessboard. Yinzhi Electronic Chessboard only provides functions like a mouse or display. \n\n
+3. As the third-party softwares may be updated at any time by themselves, there may be a certain time delay in our docking. Please understand and give feedback in time. \n\n
+4. As the design of the third-party platform\'s APPs is not under our control, there is a risk of uncontrollable use experience and performance of its products on this device, such as stopping service, no longer supporting the operating system of the device, etc. Once this happens, we will stop connecting the APP.</string>
+    <string name="update_y">Upgrade right now</string>
+    <string name="update_n">Cruelly reject</string>
+    <string name="hint">Note: Make sure that you can only start service when it\'s your turn to play chess.</string>
+    <string name="service_des">This is a third party game service. Please turn on.</string>
+    <string name="app_statement">App Statement</string>
+    <string name="yes">yes</string>
+    <string name="no">no</string>
+    <string name="agree">I agree</string>
+    <string name="hint_install">%1$s not detected, download and install?</string>
+    <string name="failed">fail</string>
+    <string name="download_fail_hint">Download failed. Try again?</string>
+    <string name="reTry">retry</string>
+    <string name="get_version_fail">Failed to get latest version number</string>
+    <string name="soft_statement">statement</string>
+    <string name="save_chess_title">save game</string>
+    <string name="save_chess_message">After the game record is saved, you can query it in the standard version application. Do you want to save the current game record?</string>
+    <string name="save">save</string>
+    <string name="not_save">not</string>
+    <string name="save_success">save success</string>
+    <string name="submitting">submitting</string>
+    <string name="third_party_game">third-party game</string>
+    <string name="self">self</string>
+    <string name="third_party_player">third-party player</string>
+    <string name="select_hint">If the selection is not in the correct position, you can restart and try again</string>
+    <string name="download_progress">Download progress</string>
+    <string name="game_setting">Game Setting</string>
+    <string name="chess_size">board size：</string>
+    <string name="size_19">19-way</string>
+    <string name="size_13">13-way</string>
+    <string name="size_9">9-way</string>
+    <string name="game_color">chess color：</string>
+    <string name="game_black">black</string>
+    <string name="game_white">white</string>
+    <string name="start_game">start game</string>
+    <string name="start_service">start service</string>
+    <string name="close_service">close service</string>
+    <string name="connect_board">connect chessboard</string>
+    <string name="exit">exit</string>
+    <string name="select_auto">select area auto</string>
+    <string name="xuanqu">select area</string>
+    <string name="no_found_devices">no devices found</string>
+    <string name="open_fail">open fail</string>
+    <string name="num_devices_connected">%1$d devices are connected</string>
+    <string name="open_device_success">open %1$s success</string>
+</resources>

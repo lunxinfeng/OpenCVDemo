@@ -13,6 +13,7 @@ import android.view.View;
 import android.widget.Toast;
 
 import com.izis.yzext.MyService;
+import com.izis.yzext.R;
 import com.izis.yzext.ServiceActivity;
 
 import java.io.ByteArrayOutputStream;
@@ -112,7 +113,7 @@ public class Pl2303InterfaceUtilNew {
         iDeviceCount = mSerialMulti.PL2303Enumerate();
         if (iDeviceCount == 0) {
 //            SnackUtil.ShortSnackbar(view, "没有找到相关设备", SnackUtil.Warning).show();
-            toast("没有找到相关设备");
+            toast(mcontext.getString(R.string.no_found_devices));
             return;
         }
 
@@ -120,7 +121,7 @@ public class Pl2303InterfaceUtilNew {
         filter.addAction(mSerialMulti.PLUART_MESSAGE);
         mcontext.registerReceiver(PLMultiLibReceiver, filter);
 //        SnackUtil.ShortSnackbar(view, "共有" + iDeviceCount + "台设备连接", SnackUtil.Confirm).show();
-        toast("共有" + iDeviceCount + "台设备连接");
+        toast(mcontext.getString(R.string.num_devices_connected,iDeviceCount));
     }
 
     public boolean OpenUARTDevice(final View view, final int boardSize) {
@@ -132,7 +133,7 @@ public class Pl2303InterfaceUtilNew {
 //                    OpenUARTDevice(view, boardSize);
 //                }
 //            }).show();
-            toast("没有找到相关设备");
+            toast(mcontext.getString(R.string.no_found_devices));
             return false;
         }
         boolean res = mSerialMulti.PL2303OpenDevByUARTSetting(DeviceIndex, mBaudrate,
@@ -145,12 +146,12 @@ public class Pl2303InterfaceUtilNew {
 //                    OpenUARTDevice(view, boardSize);
 //                }
 //            }).show();
-            toast("Open失败");
+            toast(mcontext.getString(R.string.open_fail));
             return false;
 
         } else {
 //            SnackUtil.ShortSnackbar(view, "打开" + mSerialMulti.PL2303getDevicePathByIndex(DeviceIndex) + "成功!", SnackUtil.Confirm).show();
-            toast("打开" + mSerialMulti.PL2303getDevicePathByIndex(DeviceIndex) + "成功!");
+            toast(mcontext.getString(R.string.open_device_success,mSerialMulti.PL2303getDevicePathByIndex(DeviceIndex)));
             switch (boardSize) {
                 case 9:
                     WriteToUARTDevice("~BOD09#");

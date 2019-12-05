@@ -21,6 +21,9 @@
         android:layout_height="88dp"
         android:layout_marginBottom="8dp"
         android:background="@mipmap/xuanqu"
+        android:text="@string/xuanqu"
+        android:textColor="@color/white"
+        android:textSize="18sp"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintDimensionRatio="1"
         app:layout_constraintEnd_toEndOf="parent" />
@@ -33,8 +36,8 @@
         android:layout_marginStart="16dp"
         android:background="@mipmap/toggle_bg"
         android:textColor="@color/white"
-        android:textOff="开启服务"
-        android:textOn="关闭服务"
+        android:textOff="@string/start_service"
+        android:textOn="@string/close_service"
         app:layout_constraintBottom_toTopOf="@+id/btnConnect"
         app:layout_constraintStart_toStartOf="parent" />
 
@@ -43,7 +46,7 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginBottom="8dp"
-        android:text="连接电子棋盘"
+        android:text="@string/connect_board"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintStart_toStartOf="@+id/toggleButton" />
 
@@ -53,7 +56,7 @@
         android:layout_height="wrap_content"
         android:layout_marginStart="24dp"
         android:background="@mipmap/exit_bg"
-        android:text="退出对弈"
+        android:text="@string/exit"
         android:textColor="@color/white"
         app:layout_constraintStart_toEndOf="@+id/toggleButton"
         app:layout_constraintTop_toTopOf="@+id/toggleButton" />
@@ -63,7 +66,7 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginStart="16dp"
-        android:text="自动识别"
+        android:text="@string/select_auto"
         app:layout_constraintStart_toEndOf="@+id/btnConnect"
         app:layout_constraintTop_toTopOf="@+id/btnConnect" />
 

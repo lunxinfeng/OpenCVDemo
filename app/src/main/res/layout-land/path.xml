@@ -20,7 +20,7 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginBottom="50dp"
-        android:text="选区"
+        android:text="@string/xuanqu"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent" />
 
@@ -30,8 +30,8 @@
         android:layout_height="wrap_content"
         android:layout_marginEnd="16dp"
         android:layout_marginTop="32dp"
-        android:textOff="开启服务"
-        android:textOn="关闭服务"
+        android:textOff="@string/start_service"
+        android:textOn="@string/close_service"
         app:layout_constraintEnd_toStartOf="@+id/btnConnect"
         app:layout_constraintTop_toTopOf="parent" />
 
@@ -41,7 +41,7 @@
         android:layout_height="wrap_content"
         android:layout_marginEnd="8dp"
         android:layout_marginTop="32dp"
-        android:text="连接电子棋盘"
+        android:text="@string/connect_board"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintTop_toTopOf="parent" />
 
@@ -51,7 +51,7 @@
         android:layout_height="wrap_content"
         android:layout_marginEnd="16dp"
         android:layout_marginTop="16dp"
-        android:text="退出对弈"
+        android:text="@string/exit"
         app:layout_constraintEnd_toStartOf="@+id/btnFindRect"
         app:layout_constraintTop_toBottomOf="@+id/toggleButton" />
 
@@ -60,7 +60,7 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginTop="16dp"
-        android:text="自动识别"
+        android:text="@string/select_auto"
         app:layout_constraintEnd_toEndOf="@+id/btnConnect"
         app:layout_constraintTop_toBottomOf="@+id/btnConnect" />
 

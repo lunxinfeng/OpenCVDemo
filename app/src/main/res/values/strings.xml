@@ -1,6 +1,5 @@
 <resources>
     <string name="app_name">三方平台对弈</string>
-    <!--<string name="scription">说明：\n1.点击启动要使用的第三方平台；\n2.进入对战页面后再点击选区按钮；\n3.第一次选区会自动识别棋盘区域，如果识别不准确可以手动调整，绿框与棋盘边线基本重合即可；\n4.最后点击开启服务按钮，配置对局信息后（对局类型表示当前棋谱是有子还是无子，执棋颜色表示自己执黑还是执白，落子颜色表示当前轮到黑方还是白方下棋），开始对战；\n5.己方落子后需拍钟确认。</string>-->
     <string name="scription">说明：\n1.点击启动要使用的第三方平台；\n2.进入对战页面后再点击选区按钮；\n3.第一次选区会自动识别棋盘区域，如果识别不准确可以手动调整，绿框与棋盘边线基本重合即可；\n4.轮到自己下棋时，点击开启服务按钮，配置对局信息后，开始对战；\n5.己方落子后需拍钟确认。</string>
     <string name="des">1.第三方平台所接入的围棋APP属于第三方公司，请遵循各自APP的使用协议和规则。\n\n
 2.第三方平台APP的账户安全、数据存储、业务逻辑等均属于第三方APP自身应用范畴，跟隐智电子棋盘无任何直接关系。隐智电子棋盘在此充当的是鼠标或显示器类似的功能。\n\n
@@ -10,4 +9,44 @@
     <string name="update_n">残忍拒绝</string>
     <string name="hint">注意：一定要保证轮到自己下棋时才能点击开始对局。</string>
     <string name="service_des">第三方对弈服务，请开启。</string>
+    <string name="app_statement">关于第三方对弈平台软件声明</string>
+    <string name="yes">确定</string>
+    <string name="no">取消</string>
+    <string name="agree">我同意</string>
+    <string name="hint_install">未检测到%1$s，是否下载安装？</string>
+    <string name="failed">失败</string>
+    <string name="download_fail_hint">下载失败，是否重试？</string>
+    <string name="reTry">重试</string>
+    <string name="get_version_fail">获取最新版本号失败</string>
+    <string name="soft_statement">软件声明</string>
+    <string name="save_chess_title">保存棋谱</string>
+    <string name="save_chess_message">棋谱保存后可以在标准版应用中查询，是否保存当前对局棋谱?</string>
+    <string name="save">保存</string>
+    <string name="not_save">不保存</string>
+    <string name="save_success">保存成功</string>
+    <string name="submitting">正在提交</string>
+    <string name="third_party_game">第三方对弈</string>
+    <string name="self">自己</string>
+    <string name="third_party_player">三方棋友</string>
+    <string name="select_hint">如果选区位置不对，可以重启后再试</string>
+    <string name="download_progress">下载进度</string>
+    <string name="game_setting">对局设置</string>
+    <string name="chess_size">棋盘路数：</string>
+    <string name="size_19">19路</string>
+    <string name="size_13">13路</string>
+    <string name="size_9">9路</string>
+    <string name="game_color">执棋颜色：</string>
+    <string name="game_black">执黑</string>
+    <string name="game_white">执白</string>
+    <string name="start_game">开始对局</string>
+    <string name="start_service">开启服务</string>
+    <string name="close_service">关闭服务</string>
+    <string name="connect_board">连接电子棋盘</string>
+    <string name="exit">退出对弈</string>
+    <string name="select_auto">自动识别</string>
+    <string name="xuanqu">选区</string>
+    <string name="no_found_devices">没有找到相关设备</string>
+    <string name="open_fail">Open失败</string>
+    <string name="num_devices_connected">共有%1$d台设备连接</string>
+    <string name="open_device_success">打开%1$s成功</string>
 </resources>

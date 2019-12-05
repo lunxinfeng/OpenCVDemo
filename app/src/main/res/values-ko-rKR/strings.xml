@@ -1,0 +1,52 @@
+<resources>
+    <string name="app_name">삼자 플랫폼 대결</string>
+    <string name="scription">설명: \n1.사용할 제3자 플랫폼을 클릭하여 부팅한다; \n2.대결 페이지로 이동한후 구역선택 버튼을 틀릭한다;  \n3.처음 대결구역을 선택 할 때 자동으로 바둑판 영역을 식별한다, 만약 식별한 구역이 정확하지 않으면 수동으로 조절할 수 있으며 녹색 테두리와 판의 테두리가 겹치게 두면 된다; \n4.자신이 바둑을 둘 차례가 되면 서비스 켜기 버튼을 클릭하여 대결 정보를 배치한 다음 대결을 시작한다; \n5. 바둑을 둔후 종을 쳐서 확인해야 한다.</string>
+    <string name="des">1. 제3자 플랫폼에 접속된 바둑 앱은 제3자 회사에 속하므로, 각각의 앱 사용 프로토콜과 규칙을 따르십시오.\n\n
+2. 제3자 플랫폼 앱의 계좌보안, 데이터 저장, 업부 논리 등은 모두 제3자 앱의 자체 애플리케이션 범주에 속하며, 은지전자 보드와는 어떠한 직접적인 관계도 없습니다. 은지전자 바둑판은 마우스나 모니터와 비슷한 기능을 충당한다.\n\n
+3. 제3자 소프트웨어 자체는 언제든지 업데이트될 수 있기 때문에, 우리의 도킹에 일정 시간 지연이 있을 수 있음을 이해해 주시고, 적시에 정보를 피드백해 주시기 바랍니다.\n\n
+4. 제3자 플랫폼인 앱은 당사의 제어를 받지 않도록 설계되었기 때문에 본 장비에서의 제품의 사용 체험과 성능에 통제 불능의 위험이 있습니다. 서비스를 중지하거나 본 장비의 운영 체제를 더 이상 지원하지 않는 경우 등입니다.일단 이런 상황이 발생하면 우리는 이 앱에 접속하는 것을 중지할 것입니다.</string>
+    <string name="update_y">즉시 업그레이드</string>
+    <string name="update_n">잔인하게 거절한다</string>
+    <string name="hint">주의: 자신의 차례가 돼야 대결을 클릭하여 시작할 수 있음.</string>
+    <string name="service_des">제3자 대결 서비스. 켜십시오</string>
+    <string name="app_statement">소프트웨어 성명</string>
+    <string name="yes">OK</string>
+    <string name="no">취소</string>
+    <string name="agree">동의합니다</string>
+    <string name="hint_install">%1$s가 감지되지 않고 다운로드 및 설치 되었습니까?</string>
+    <string name="failed">실패</string>
+    <string name="download_fail_hint">다운로드에 실패했습니다. 다시 시도 하시겠습니까?</string>
+    <string name="reTry">재시도</string>
+    <string name="get_version_fail">최신 버전 번호를 가져 오지 못했습니다</string>
+    <string name="soft_statement">소프트웨어 진술</string>
+    <string name="save_chess_title">기보를 보존한다</string>
+    <string name="save_chess_message">기보는 저장 후 표준판 어플리케이션에서 조회할 수 있습니다.  현재 대결기보를 저장하시겠습니까?</string>
+    <string name="save">보존</string>
+    <string name="not_save">저장 안함</string>
+    <string name="save_success">저장 성공</string>
+    <string name="submitting">제출 중</string>
+    <string name="third_party_game">제3자 대결</string>
+    <string name="self">저장</string>
+    <string name="third_party_player">3방 기우</string>
+    <string name="select_hint">만약 구역 선택이 잘못 되면 리부팅후 다시 시도 할 수 있다.</string>
+    <string name="download_progress">다운로드 진도</string>
+    <string name="game_setting">대결 설정</string>
+    <string name="chess_size">바둑판의 노수：</string>
+    <string name="size_19">19로</string>
+    <string name="size_13">13로</string>
+    <string name="size_9">9로</string>
+    <string name="game_color">바둑 색깔：</string>
+    <string name="game_black">흑을 잡다</string>
+    <string name="game_white">백을 잡다</string>
+    <string name="start_game">대결 시작</string>
+    <string name="start_service">서비스 개시</string>
+    <string name="close_service">세션 닫기</string>
+    <string name="connect_board">전자 바둑판 연결</string>
+    <string name="exit">대결 탈퇴</string>
+    <string name="select_auto">자동 식별</string>
+    <string name="xuanqu">선거구</string>
+    <string name="no_found_devices">관련 장비를 찾을 수 없습니다</string>
+    <string name="open_fail">열지 못했습니다</string>
+    <string name="num_devices_connected">총 %1$d 기기가 연결되었습니다</string>
+    <string name="open_device_success">%1$s 성공적으로 열었습니다</string>
+</resources>
