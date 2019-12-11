@@ -1,0 +1,52 @@
+<resources>
+    <string name="app_name">三方フォームの対局</string>
+    <string name="scription">説明:\n1.起動する第三のフォームをクリックして、起動します。\n2.対戦の頁に入ってから選びゾンのボタンをクリックします。\n3.初めてゾンを選ぶ時、碁盤の区域を自動に識別します。もし識別が正確ではないなら、調整します。緑の枠が碁盤の辺と基本に重ねばいいです。\n4.自分が囲碁を対局する時、サービスのボタンをクリックして、対局情報を配置してから、対戦します。\n5.自分の方が落としてから、鐘を拍きながら、確認します。</string>
+    <string name="des">1．第三方のフォームは受ける囲碁APPは第三方の会社に所属して、各自のAPPの使用協議と規則を守ってください。\n\n
+2. 第三方のフォームAPPのアカウント安全、データの保存、業務のロジックなどは第三方のAPP自身の応用カテゴリーに所属して、隠智電子碁盤といかなる関係を保たない。隠智電子碁盤はマウスまたはディスプレイの功能の役をします。\n\n
+3. 第三方のソフト自身はいつまでも更新して、我々のリンクは時間延期があるかもしれない、どうぞご理解して、すぐフィードバックしてください。\n\n
+4. 第三方のフォームAPPのデザインは我方のコントロールを受けなくて、産品の本設備の使用体験と性能はコントロールを失うリスクも存在します。例えば、サービスを停止して、本設備の操作システムなどを支持しない。一旦このような状況があれば、我々は該当受けるAPPを停止します。</string>
+    <string name="update_y">すぐアップロードします</string>
+    <string name="update_n">残忍に断ります</string>
+    <string name="hint">ご注意:自分が囲碁をする時、対局が始まります</string>
+    <string name="service_des">第三方の対局サービス、起動してください</string>
+    <string name="app_statement">关于第三方对弈平台软件声明</string>
+    <string name="yes">確定</string>
+    <string name="no">キャンセル</string>
+    <string name="agree">同意します</string>
+    <string name="hint_install">%1$sが検出されず,インストールをダウンロードしますか?</string>
+    <string name="failed">失敗</string>
+    <string name="download_fail_hint">ダウンロードに失敗して、再試行しますか?</string>
+    <string name="reTry">ゼルダ</string>
+    <string name="get_version_fail">最新バージョン番号取得に失敗</string>
+    <string name="soft_statement">ソフト声明</string>
+    <string name="save_chess_title">棋譜を保存する</string>
+    <string name="save_chess_message">棋譜を保存してから標準版の応用の中に問い合わせ、当然の対局棋譜を保存するかどうか?</string>
+    <string name="save">保存</string>
+    <string name="not_save">保存しない</string>
+    <string name="save_success">保存成功</string>
+    <string name="submitting">提出しています</string>
+    <string name="third_party_game">第三方の対局</string>
+    <string name="self">自分</string>
+    <string name="third_party_player">三方の碁石の友</string>
+    <string name="select_hint">もし選択するゾンが間違えれば、再起動してからまた試してください</string>
+    <string name="download_progress">ダウンロードの進度</string>
+    <string name="game_setting">対局設置</string>
+    <string name="chess_size">碁盤の路数：</string>
+    <string name="size_19">19路</string>
+    <string name="size_13">13路</string>
+    <string name="size_9">9路</string>
+    <string name="game_color">取る碁石の色：</string>
+    <string name="game_black">黒い碁石を取る</string>
+    <string name="game_white">白い碁石を取る</string>
+    <string name="start_game">対局を始める</string>
+    <string name="start_service">サービスを開ける</string>
+    <string name="close_service">サービスを閉める</string>
+    <string name="connect_board">電子碁盤を接続する</string>
+    <string name="exit">対局から抜ける</string>
+    <string name="select_auto">自動認識</string>
+    <string name="xuanqu">選挙区</string>
+    <string name="no_found_devices">関連設備が見つからなかった</string>
+    <string name="open_fail">Open失敗</string>
+    <string name="num_devices_connected">機器接続は%1$d台</string>
+    <string name="open_device_success">%1$sを開くことに成功した</string>
+</resources>

@@ -10,8 +10,8 @@
     <string name="hint">Note: Make sure that you can only start service when it\'s your turn to play chess.</string>
     <string name="service_des">This is a third party game service. Please turn on.</string>
     <string name="app_statement">App Statement</string>
-    <string name="yes">yes</string>
-    <string name="no">no</string>
+    <string name="yes">ok</string>
+    <string name="no">cancel</string>
     <string name="agree">I agree</string>
     <string name="hint_install">%1$s not detected, download and install?</string>
     <string name="failed">fail</string>
