@@ -8,7 +8,6 @@ import android.graphics.BitmapFactory;
 import android.media.projection.MediaProjectionManager;
 import android.os.Bundle;
 import android.provider.MediaStore;
-import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
 import android.view.MotionEvent;
 import android.view.View;
@@ -23,10 +22,13 @@ import org.opencv.android.Utils;
 import org.opencv.core.CvType;
 import org.opencv.core.Mat;
 import org.opencv.core.MatOfPoint;
+import org.opencv.core.MatOfPoint2f;
 import org.opencv.core.Point;
 import org.opencv.core.Rect;
 import org.opencv.core.Scalar;
+import org.opencv.core.Size;
 import org.opencv.imgproc.Imgproc;
+import org.opencv.imgproc.Moments;
 
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
@@ -35,9 +37,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
-import java.util.Random;
-
-import lxf.widget.tileview.Board;
+import java.util.function.Consumer;
 
 public class MainActivity extends AppCompatActivity {
     private int result = 0;
@@ -63,7 +63,7 @@ public class MainActivity extends AppCompatActivity {
         iv_result = findViewById(R.id.iv_result);
         spinner = findViewById(R.id.spinner);
 
-        String[] items = new String[]{"隐智", "弈客", "弈城", "99", "腾讯", "新博", "新博7"};
+        String[] items = new String[]{"隐智", "弈客", "弈城", "99", "腾讯", "新博", "新博7.1", "棋子识别"};
         spinner.setAdapter(new ArrayAdapter<>(this, android.R.layout.simple_list_item_1, items));
         spinner.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
             @Override
@@ -80,7 +80,7 @@ public class MainActivity extends AppCompatActivity {
                         res = R.mipmap.yc;
                         break;
                     case 3:
-                        res = R.mipmap.jj;
+                        res = R.mipmap.jj_new;
                         break;
                     case 4:
                         res = R.mipmap.tx;
@@ -90,6 +90,9 @@ public class MainActivity extends AppCompatActivity {
                         break;
                     case 6:
                         res = R.mipmap.xb_7;
+                        break;
+                    case 7:
+                        res = R.mipmap.chess_tx;
                         break;
                 }
                 srcBitmap = BitmapFactory.decodeResource(getResources(), res);
@@ -102,6 +105,7 @@ public class MainActivity extends AppCompatActivity {
 
             }
         });
+        spinner.setSelection(items.length - 1);
 
         srcBitmap = BitmapFactory.decodeResource(getResources(), R.mipmap.temp);
         iv_source.setImageBitmap(srcBitmap);
@@ -148,31 +152,32 @@ public class MainActivity extends AppCompatActivity {
     }
 
     private void startIntent() {
-        if (intent != null && result != 0) {
-            ((ShotApplication) getApplication()).setResult(result);
-            ((ShotApplication) getApplication()).setIntent(intent);
-            Intent intent = new Intent(getApplicationContext(), MyService.class);
-            startService(intent);
-        } else {
-            startActivityForResult(mMediaProjectionManager.createScreenCaptureIntent(), REQUEST_MEDIA_PROJECTION);
-            ((ShotApplication) getApplication()).setMediaProjectionManager(mMediaProjectionManager);
-        }
+//        if (intent != null && result != 0) {
+//            ((ShotApplication) getApplication()).setResult(result);
+//            ((ShotApplication) getApplication()).setIntent(intent);
+//            Intent intent = new Intent(getApplicationContext(), MyService.class);
+//            startService(intent);
+//        } else {
+//            startActivityForResult(mMediaProjectionManager.createScreenCaptureIntent(), REQUEST_MEDIA_PROJECTION);
+//            ((ShotApplication) getApplication()).setMediaProjectionManager(mMediaProjectionManager);
+//        }
     }
 
     @Override
     public void onActivityResult(int requestCode, int resultCode, Intent data) {
+        super.onActivityResult(requestCode, resultCode, data);
         if (resultCode == Activity.RESULT_OK) {
             if (data != null) {
                 switch (requestCode) {
                     case REQUEST_MEDIA_PROJECTION:
-                        result = resultCode;
-                        intent = data;
-                        ((ShotApplication) getApplication()).setResult(resultCode);
-                        ((ShotApplication) getApplication()).setIntent(data);
-                        Intent intent = new Intent(getApplicationContext(), MyService.class);
-                        startService(intent);
-
-                        finish();
+//                        result = resultCode;
+//                        intent = data;
+//                        ((ShotApplication) getApplication()).setResult(resultCode);
+//                        ((ShotApplication) getApplication()).setIntent(data);
+//                        Intent intent = new Intent(getApplicationContext(), MyService.class);
+//                        startService(intent);
+//
+//                        finish();
                         break;
                     case REQUEST_CHOSE_FILE:
                         try {
@@ -398,7 +403,7 @@ public class MainActivity extends AppCompatActivity {
         Mat threshold = PaserUtil.threshold(gray, 100, 255, Imgproc.THRESH_BINARY);
         List<MatOfPoint> contourList = new ArrayList<>();
         Mat dst = new Mat();
-        Imgproc.findContours(threshold, contourList, dst, Imgproc.RETR_CCOMP, Imgproc.CHAIN_APPROX_SIMPLE);
+        Imgproc.findContours(threshold, contourList, dst, Imgproc.RETR_LIST, Imgproc.CHAIN_APPROX_SIMPLE);
 
 
         //在新的图像上绘制轮廓
@@ -513,6 +518,96 @@ public class MainActivity extends AppCompatActivity {
         //将Mat转换为位图
         Bitmap resultBitmap = Bitmap.createBitmap(srcBitmap.getWidth(), srcBitmap.getHeight(), Bitmap.Config.ARGB_8888);
         Utils.matToBitmap(hfCircle, resultBitmap);
+        iv_result.setImageBitmap(resultBitmap);
+    }
+
+    public void parseBW(View view) {
+        Mat src = new Mat();
+        Utils.bitmapToMat(srcBitmap, src);
+        //将图像转换为灰度
+        Mat grayMat = new Mat();
+        Imgproc.cvtColor(src, grayMat, Imgproc.COLOR_BGRA2GRAY);
+        //二值化
+        Mat thres = PaserUtil.threshold(grayMat, 80, 255, Imgproc.THRESH_BINARY_INV);
+
+        int amount = 2;
+        Mat structuringElement = Imgproc.getStructuringElement(
+                Imgproc.CV_SHAPE_ELLIPSE,
+                new Size(amount * 2 + 1, amount * 2 + 1),
+                new Point(new double[]{amount, amount})
+        );
+
+        //腐蚀
+        Mat erode = new Mat();
+        Imgproc.erode(thres, erode, structuringElement);
+
+        //膨胀
+        Mat dilate = new Mat();
+        Imgproc.dilate(erode, dilate, structuringElement);
+
+        System.out.println("dilate：" + dilate);
+        int width = dilate.rows();
+        double size = width / 19.0;
+        System.out.println("size：" + size);
+        int numB = 0;
+        int numW = 0;
+        for (int i = 1; i <= 19; i++) {
+            for (int j = 1; j <= 19; j++) {
+                double x = (i - 1) * size + size / 2;
+                double y = (j - 1) * size + size / 2;
+                double[] valueArray = dilate.get((int) x, (int) y);
+                if (valueArray != null) {
+                    System.out.println("第" + i + "行（" + x + "），第" + j + "列（" + y + "）：" + valueArray[0]);
+                    if (valueArray[0] == 255)
+                        numW++;
+                    if (valueArray[0] == 0)
+                        numB++;
+                } else
+                    System.out.println("第" + i + "行（" + x + "），第" + j + "列（" + y + "）：" + null);
+            }
+        }
+        System.out.println("总计：黑：" + numB + "，白：" + numW);
+
+//        Imgproc.moments()
+
+        Mat findContours = new Mat();
+        findContours.create(srcBitmap.getHeight(), srcBitmap.getWidth(), CvType.CV_8UC3);
+        List<MatOfPoint> contourList = new ArrayList<>();
+        Imgproc.findContours(dilate, contourList, findContours, Imgproc.RETR_EXTERNAL, Imgproc.CHAIN_APPROX_SIMPLE);
+        for (MatOfPoint matOfPoint : contourList) {
+//            System.out.println(matOfPoint);
+//            System.out.println(matOfPoint.rows());
+//            System.out.println(matOfPoint.cols());
+//            System.out.println(Arrays.toString(matOfPoint.toArray()));
+//            Rect rect = Imgproc.boundingRect(matOfPoint);
+//            System.out.println(rect);
+//
+//            Moments moments = Imgproc.moments(matOfPoint);
+//            System.out.println(moments);
+            System.out.println(Imgproc.contourArea(matOfPoint));
+        }
+        System.out.println("轮廓数量：" + contourList.size());
+
+        //在新的图像上绘制轮廓
+        Mat contours = new Mat();
+        contours.create(srcBitmap.getHeight(), srcBitmap.getWidth(), CvType.CV_8UC3);
+
+//        Random random = new Random();
+        for (int i = 0; i < contourList.size(); i++) {
+//            MatOfPoint mp = contourList.get(i);
+//            Rect rect = Imgproc.boundingRect(mp);
+//            double ratio = rect.width / (double) rect.height;
+            Imgproc.drawContours(contours, contourList, i, new Scalar(255, 255, 255), 1);
+//            if (ratio > 0.95 && ratio < 1.05 && rect.width > 200) {
+//                Imgproc.drawContours(contours, contourList, i, new Scalar(255, 255, 255), 1);
+////                System.out.println(mp);
+////                System.out.println(Arrays.toString(mp.toArray()));
+//                System.out.println(rect);
+//            }
+        }
+
+        Bitmap resultBitmap = Bitmap.createBitmap(srcBitmap.getWidth(), srcBitmap.getHeight(), Bitmap.Config.ARGB_8888);
+        Utils.matToBitmap(dilate, resultBitmap);
         iv_result.setImageBitmap(resultBitmap);
     }
 }

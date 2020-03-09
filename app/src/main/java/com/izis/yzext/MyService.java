@@ -823,6 +823,7 @@ public class MyService extends Service implements ActivityCallBridge.PL2303Inter
                             rotate = 270;
                             break;
                         case ServiceActivityKt.PLATFORM_XB:
+                        case ServiceActivityKt.PLATFORM_JJ:
                             rotate = Build.VERSION.SDK_INT >= 24 ? 180 : 0;
                             break;
                     }
